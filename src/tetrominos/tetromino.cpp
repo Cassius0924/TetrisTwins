@@ -5,6 +5,15 @@ using namespace game::tetro;
 
 // IJLOSTZ
 // 1234567
+//std::unordered_map<int, Color> game::tetro::tetro_color{
+//        {1, Color::Cyan},
+//        {2, Color::Blue},
+//        {3, Color::Orange},
+//        {4, Color::Yellow},
+//        {5, Color::Green},
+//        {6, Color::Purple},
+//        {7, Color::Red},
+//};
 
 Tetromino::Tetromino() {
     _state = TetrominoState::Zero;
@@ -27,16 +36,6 @@ int Tetromino::rows() const {
 int Tetromino::cols() const {
     return static_cast<int>(_data[0].size());
 }
-
-std::unordered_map<int, Color> game::tetro::tetro_color{
-        {1, Color::Cyan},
-        {2, Color::Blue},
-        {3, Color::Orange},
-        {4, Color::Yellow},
-        {5, Color::Green},
-        {6, Color::Purple},
-        {7, Color::Red},
-};
 
 TetrominoState Tetromino::NextState(game::tetro::TetrominoState state) {
     switch (state) {

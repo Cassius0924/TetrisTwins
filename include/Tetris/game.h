@@ -1,6 +1,7 @@
 #ifndef TETRIS_GAME_H
 #define TETRIS_GAME_H
 #include "tetrominos/tetromino.h"
+#include "ui.h"
 
 /**
  * 游戏控制、状态、逻辑
@@ -24,6 +25,31 @@ namespace game {
      * 方块所在列
      */
     extern int block_col;
+
+    /**
+     * 主窗口
+     */
+    extern ui::Window *main_win;
+
+    /**
+     * 暂存窗口
+     */
+    extern ui::Window *hold_win;
+
+    /**
+     * 状态窗口
+     */
+    extern ui::Window *status_win;
+
+    /**
+     * 下一个方块窗口
+     */
+    extern ui::Window *next_win;
+
+    /**
+     * 信息窗口
+     */
+    extern ui::Window *info_win;
 
     /**
      * 退出游戏

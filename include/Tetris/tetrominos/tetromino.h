@@ -31,6 +31,11 @@ namespace game::tetro {
         TetrominoState _state;
 
     public:
+        /**
+         * 方块颜色
+         */
+        Color color;
+
         Tetromino();
 
         explicit Tetromino(TetrominoState init_state);

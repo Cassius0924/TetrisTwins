@@ -1,41 +1,41 @@
 #include "style.h"
 
-const std::vector<std::string> draw::Style::style1 = {" ┌", "┐ ", " └", "┘ ", "──", " │", "│ "};
-const std::vector<std::string> draw::Style::style2 = {" ╔", "╗ ", " ╚", "╝ ", "══", " ║", "║ "};
-const std::vector<std::string> draw::Style::style3 = {" ╭", "╮ ", " ╰", "╯ ", "──", " │", "│ "};
-const std::vector<std::string> draw::Style::style4 = {" ┏", "┓ ", " ┗", "┛ ", "━━", " ┃", "┃ "};
+const std::vector<std::string> ui::Style::style1 = {" ┌", "┐ ", " └", "┘ ", "──", " │", "│ "};
+const std::vector<std::string> ui::Style::style2 = {" ╔", "╗ ", " ╚", "╝ ", "══", " ║", "║ "};
+const std::vector<std::string> ui::Style::style3 = {" ╭", "╮ ", " ╰", "╯ ", "──", " │", "│ "};
+const std::vector<std::string> ui::Style::style4 = {" ┏", "┓ ", " ┗", "┛ ", "━━", " ┃", "┃ "};
 
-std::vector<std::string> draw::Style::cur_style;
+std::vector<std::string> ui::Style::cur_style;
 
-std::string draw::Style::tl() {
+std::string ui::Style::tl() {
     return cur_style[0];
 }
 
-std::string draw::Style::tr() {
+std::string ui::Style::tr() {
     return cur_style[1];
 }
 
-std::string draw::Style::bl() {
+std::string ui::Style::bl() {
     return cur_style[2];
 }
 
-std::string draw::Style::br() {
+std::string ui::Style::br() {
     return cur_style[3];
 }
 
-std::string draw::Style::h_edge() {
+std::string ui::Style::h_edge() {
     return cur_style[4];
 }
 
-std::string draw::Style::vr_edge() {
+std::string ui::Style::vr_edge() {
     return cur_style[5];
 }
 
-std::string draw::Style::vl_edge() {
+std::string ui::Style::vl_edge() {
     return cur_style[6];
 }
 
-void draw::Style::set_style(int style_index) {
+void ui::Style::set_style(int style_index) {
     switch (style_index) {
         case 1:
             cur_style = style1;

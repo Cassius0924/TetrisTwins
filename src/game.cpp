@@ -1,4 +1,4 @@
-#include "draw.h"
+#include "ui.h"
 #include "game.h"
 #include "control.h"
 #include "tetrominos/define.h"
@@ -7,6 +7,11 @@ namespace game {
     bool is_running;
     int block_row;
     int block_col;
+    ui::Window *main_win;
+    ui::Window *hold_win;
+    ui::Window *status_win;
+    ui::Window *next_win;
+    ui::Window *info_win;
     tetro::Tetromino *cur_tetromino;
 }
 
@@ -15,8 +20,8 @@ void game::init() {
     ctrl::start_key_listener();
 
     is_running = true;
-    block_row = 2;
-    block_col = 11;
+    block_row = 1;
+    block_col = 1;
     cur_tetromino = new game::tetro::TetroZ();
 }
 
@@ -29,11 +34,17 @@ void game::rotate() {
 }
 
 void game::move_left() {
-    block_col -= 1;
+    // 判断是否超出左边界
+    if (block_col > 1) {
+        block_col -= 1;
+    }
 }
 
 void game::move_right() {
-    block_col += 1;
+    // 判断是否超出右边界
+    if (block_col < main_win->get_width() - cur_tetromino->cols() - 1) {
+        block_col += 1;
+    }
 }
 
 void game::move_down() {

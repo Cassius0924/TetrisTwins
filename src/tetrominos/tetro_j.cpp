@@ -1,7 +1,7 @@
 #include "tetrominos/tetro_j.h"
 
-using namespace game::tetro;
 
+using namespace game::tetro;
 
 TetroJ::TetroJ() : Tetromino() {
     _data = {
@@ -9,6 +9,7 @@ TetroJ::TetroJ() : Tetromino() {
             {2, 2, 2},
             {0, 0, 0},
     };
+    color = Color::Blue;
 }
 
 TetroJ::TetroJ(TetrominoState init_state) : Tetromino(init_state) {
@@ -17,6 +18,7 @@ TetroJ::TetroJ(TetrominoState init_state) : Tetromino(init_state) {
             {2, 2, 2},
             {0, 0, 0},
     };
+    color = Color::Blue;
 }
 
 void TetroJ::_calibrate() {

@@ -9,6 +9,7 @@ TetroT::TetroT() : Tetromino() {
             {2, 2, 2},
             {0, 0, 0},
     };
+    color = Color::Purple;
 }
 
 TetroT::TetroT(TetrominoState init_state) : Tetromino(init_state) {
@@ -17,6 +18,7 @@ TetroT::TetroT(TetrominoState init_state) : Tetromino(init_state) {
             {2, 2, 2},
             {0, 0, 0},
     };
+    color = Color::Purple;
 }
 
 void TetroT::_calibrate() {

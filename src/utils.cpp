@@ -8,7 +8,7 @@ using namespace std::chrono_literals;
 int utils::fps() {
     static int frame_count = 0; // 帧数
     static auto start_time = std::chrono::steady_clock::now();
-    auto end_time= std::chrono::steady_clock::now();
+    auto end_time = std::chrono::steady_clock::now();
     static int fps = 0;
     // 计算帧率
     frame_count++;

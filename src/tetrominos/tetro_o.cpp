@@ -9,6 +9,7 @@ TetroO::TetroO() : Tetromino() {
             {0, 2, 2},
             {0, 0, 0},
     };
+    color = Color::Yellow;
 }
 
 TetroO::TetroO(TetrominoState init_state) : Tetromino(init_state) {
@@ -17,6 +18,7 @@ TetroO::TetroO(TetrominoState init_state) : Tetromino(init_state) {
             {0, 2, 2},
             {0, 0, 0},
     };
+    color = Color::Yellow;
 }
 
 void TetroO::_calibrate() { }

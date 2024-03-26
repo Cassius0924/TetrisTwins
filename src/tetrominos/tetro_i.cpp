@@ -16,6 +16,7 @@ TetroI::TetroI() : Tetromino() {
             {0, 0, 0, 0, 0},
             {0, 0, 0, 0, 0},
     };
+    color = Color::Cyan;
 }
 
 TetroI::TetroI(TetrominoState init_state) : Tetromino(init_state) {
@@ -26,6 +27,7 @@ TetroI::TetroI(TetrominoState init_state) : Tetromino(init_state) {
             {0, 0, 0, 0, 0},
             {0, 0, 0, 0, 0},
     };
+    color = Color::Cyan;
 }
 
 void TetroI::_calibrate() {
@@ -49,6 +51,7 @@ void TetroI::_calibrate() {
             }
         }
     }
+
     _data = new_tetro;
 }
 
