@@ -5,6 +5,7 @@
 #include "terminal.h"
 #include "utils.h"
 #include "draw.h"
+#include "style.h"
 #include "game.h"
 
 using namespace std::chrono_literals;
@@ -17,17 +18,17 @@ void init() {
     // 初始化游戏
     game::init();
 
-    draw::window(1,1,9,6, "Hold");
-    draw::window(1,7,9,16, "Status");
-    draw::window(22,1,8,18, "Next");
-    draw::window(22,19,8,4, "Info");
+    draw::window(1, 1, 9, 6, "Hold");
+    draw::window(1, 7, 9, 16, "Status");
+    draw::window(22, 1, 8, 18, "Next");
+    draw::window(22, 19, 8, 4, "Info");
 }
 
 void start() {
     while (game::is_running) {
 
         // 绘制窗口
-        draw::window(10,1,12,22, "Tetris");
+        draw::window(10, 1, 12, 22, "TetrisTwins");
 
         // 显示FPS
         term::move_to(10, 4);
@@ -39,7 +40,7 @@ void start() {
 //        term::set_back_color(15);
 //        std::cout << "  ";
 
-        draw::tetromino(game::cur_tetromino, game::block_row, game::block_col);
+        draw::tetromino(game::cur_tetromino, game::block_row, draw::block_to_col(game::block_col));
         term::reset_color();
 
         std::cout << std::flush;

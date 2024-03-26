@@ -1,6 +1,6 @@
 #ifndef TETRIS_GAME_H
 #define TETRIS_GAME_H
-#include "tetromino.h"
+#include "tetrominos/tetromino.h"
 
 /**
  * 游戏控制、状态、逻辑
@@ -14,7 +14,7 @@ namespace game {
     /**
      * 当前方块
      */
-    extern Tetromino cur_tetromino;
+    extern tetro::Tetromino *cur_tetromino;
     /**
      * 方块所在行
      */
@@ -34,7 +34,6 @@ namespace game {
      * 初始化游戏
      */
     void init();
-
 
     /**
      * 左移方块

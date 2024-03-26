@@ -1,12 +1,13 @@
 #include "draw.h"
 #include "game.h"
 #include "control.h"
+#include "tetrominos/define.h"
 
 namespace game {
     bool is_running;
     int block_row;
     int block_col;
-    Tetromino cur_tetromino;
+    tetro::Tetromino *cur_tetromino;
 }
 
 void game::init() {
@@ -15,9 +16,8 @@ void game::init() {
 
     is_running = true;
     block_row = 2;
-    block_col = draw::block_to_col(15);
-    block_col = 15;
-    cur_tetromino = O;
+    block_col = 11;
+    cur_tetromino = new game::tetro::TetroZ();
 }
 
 void game::quit() {
@@ -25,15 +25,15 @@ void game::quit() {
 }
 
 void game::rotate() {
-    cur_tetromino = rotate(cur_tetromino);
+    cur_tetromino->rotate();
 }
 
 void game::move_left() {
-    block_col -= 2;
+    block_col -= 1;
 }
 
 void game::move_right() {
-    block_col += 2;
+    block_col += 1;
 }
 
 void game::move_down() {
