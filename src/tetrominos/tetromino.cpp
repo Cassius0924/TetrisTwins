@@ -3,18 +3,6 @@
 
 using namespace game::tetro;
 
-// IJLOSTZ
-// 1234567
-//std::unordered_map<int, Color> game::tetro::tetro_color{
-//        {1, Color::Cyan},
-//        {2, Color::Blue},
-//        {3, Color::Orange},
-//        {4, Color::Yellow},
-//        {5, Color::Green},
-//        {6, Color::Purple},
-//        {7, Color::Red},
-//};
-
 Tetromino::Tetromino() {
     _state = TetrominoState::Zero;
 }
@@ -108,6 +96,7 @@ void Tetromino::_calibrate() {
                 _voffset.top = std::min(_voffset.top, nx);
                 _voffset.bottom = std::max(_voffset.bottom, nx);
 
+                // 判断是否越界
                 if (nx >= 0 && ny >= 0 && nx < rows && ny < cols) {
                     _data[nx][ny] = _raw_data[i][j];
                 }

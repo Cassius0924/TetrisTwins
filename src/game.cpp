@@ -24,7 +24,7 @@ void game::init() {
     is_running = true;
     block_row = 1;
     block_col = 1;
-    cur_tetromino = new game::tetro::TetroO();
+    cur_tetromino = new game::tetro::TetroI();
 }
 
 void game::quit() {
@@ -44,8 +44,7 @@ void game::move_left() {
 
 void game::move_right() {
     // 判断是否超出右边界
-    if (block_col < main_win->get_width() - cur_tetromino->cols() + (cur_tetromino->cols() -
-            cur_tetromino->get_valid_offset().right - 1) - 1 ){
+    if (block_col < main_win->get_width() - cur_tetromino->get_valid_offset().right - 1 - 1 ){
         block_col += 1;
     }
 }

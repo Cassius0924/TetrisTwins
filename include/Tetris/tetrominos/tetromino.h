@@ -69,7 +69,7 @@ namespace game::tetro {
         /**
          * 有效坐标偏移量
          */
-         ValidOffset _voffset;
+         ValidOffset _voffset{};
 
     public:
         /**
