@@ -109,11 +109,11 @@ namespace game::tetro {
         /**
          * 获取有效坐标偏移量
          */
-        ValidOffset getValidOffset() const;
+        ValidOffset get_valid_offset() const;
 
         void rotate();
 
-        static TetrominoState NextState(TetrominoState state);
+        static TetrominoState nextState(TetrominoState state);
 
     private:
         void _rotate();

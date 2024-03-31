@@ -37,11 +37,11 @@ int Tetromino::cols() const {
     return static_cast<int>(_data[0].size());
 }
 
-ValidOffset Tetromino::getValidOffset() const {
+ValidOffset Tetromino::get_valid_offset() const {
     return _voffset;
 }
 
-TetrominoState Tetromino::NextState(game::tetro::TetrominoState state) {
+TetrominoState Tetromino::nextState(TetrominoState state) {
     switch (state) {
         case TetrominoState::Zero:
             return TetrominoState::Right;
@@ -73,7 +73,7 @@ void Tetromino::_rotate() {
 }
 
 void Tetromino::rotate() {
-    _state = NextState(_state);
+    _state = nextState(_state);
 
     // TODO: 优化
     // 如果对象类型是TetroO

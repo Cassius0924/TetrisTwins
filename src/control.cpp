@@ -12,13 +12,13 @@ namespace ctrl {
     char command;
 
     std::unordered_map<char, std::function<void()>> cmd_func{
-            {KEY_Q,     cmd_quit},
-            {KEY_P,     cmd_pause},
-            {KEY_C,     cmd_continue},
-            {KEY_SPACE, cmd_rotate},
-            {KEY_A,     cmd_left},
-            {KEY_D,     cmd_right},
-            {KEY_S,     cmd_down},
+            {k_KEY_Q,     cmd_quit},
+            {k_KEY_P,     cmd_pause},
+            {k_KEY_C,     cmd_continue},
+            {k_KEY_SPACE, cmd_rotate},
+            {k_KEY_A,     cmd_left},
+            {k_KEY_D,     cmd_right},
+            {k_KEY_S,     cmd_down},
     };
 }
 

@@ -37,14 +37,15 @@ void game::rotate() {
 
 void game::move_left() {
     // 判断是否超出左边界
-    if (block_col > 1 - cur_tetromino->getValidOffset().left){
+    if (block_col > 1 - cur_tetromino->get_valid_offset().left){
         block_col -= 1;
     }
 }
 
 void game::move_right() {
     // 判断是否超出右边界
-    if (block_col < main_win->get_width() - cur_tetromino->cols() + (cur_tetromino->cols() - cur_tetromino->getValidOffset().right - 1) - 1 ){
+    if (block_col < main_win->get_width() - cur_tetromino->cols() + (cur_tetromino->cols() -
+            cur_tetromino->get_valid_offset().right - 1) - 1 ){
         block_col += 1;
     }
 }

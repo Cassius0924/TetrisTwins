@@ -10,13 +10,13 @@ namespace ctrl {
 //     */
 //    extern char command;
 
-    constexpr char KEY_Q = 'q';
-    constexpr char KEY_P = 'p';
-    constexpr char KEY_C = 'c';
-    constexpr char KEY_A = 'a';
-    constexpr char KEY_S = 's';
-    constexpr char KEY_D = 'd';
-    constexpr char KEY_SPACE = ' ';
+    constexpr char k_KEY_Q = 'q';
+    constexpr char k_KEY_P = 'p';
+    constexpr char k_KEY_C = 'c';
+    constexpr char k_KEY_A = 'a';
+    constexpr char k_KEY_S = 's';
+    constexpr char k_KEY_D = 'd';
+    constexpr char k_KEY_SPACE = ' ';
 
     /**
      * 监听键盘事件

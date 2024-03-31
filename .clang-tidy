@@ -83,7 +83,8 @@ Checks: >
   -readability-function-cognitive-complexity,
   -readability-operators-representation,
   -readability-implicit-bool-conversion,
-  -readability-container-contains
+  -readability-container-contains,
+  -modernize-use-nodiscard
 
 CheckOptions:
 
@@ -113,11 +114,15 @@ CheckOptions:
   - key: readability-identifier-naming.GlobalFunctionCase # 全局函数名
     value: lower_case
   - key: readability-identifier-naming.MethodCase # 成员函数名
-    value: CamelBack
+    value: lower_case
+  - key: readability-identifier-naming.PrivateMethodCase # 私有成员函数名
+    value: lower_case
+  - key: readability-identifier-naming.PrivateMethodPrefix # 私有成员函数名
+    value: _
   - key: readability-identifier-naming.ClassMethodCase # 类方法名
-    value: CamelBack
+    value: lower_case
   - key: readability-identifier-naming.VirtualMethodCase # 虚函数名
-    value: camelBack
+    value: lower_case
 
   - key: readability-identifier-naming.ClassConstantCase  # 类常量 const
     value: lower_case
@@ -143,13 +148,13 @@ CheckOptions:
   - key: readability-identifier-naming.ParameterCase  # 函数参数
     value: lower_case
   - key: readability-identifier-naming.GlobalConstantCase  # 全局常量
-    value: CamelCase
+    value: UPPER_CASE
   - key: readability-identifier-naming.GlobalConstantPrefix   # 全局常量前缀
-    value: k
+    value: k_
   - key: readability-identifier-naming.ConstexprVariableCase # constexpr 变量
-    value: CamelCase
+    value: UPPER_CASE
   - key: readability-identifier-naming.ConstexprVariablePrefix # constexpr 变量前缀
-    value: k
+    value: k_
   - key: readability-identifier-naming.VariableCase # 变量
     value: lower_case
   - key: readability-identifier-naming.LocalVariableCase # 局部变量
