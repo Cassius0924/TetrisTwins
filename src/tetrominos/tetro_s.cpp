@@ -22,6 +22,8 @@ TetroS::TetroS() : Tetromino() {
             {{0, 0}, {-1, 0}, {-1, -1}, {0, 2}, {-1, 2}},
     };
 
+    _voffset = {0, 2, 0, 1};
+
     color = Color::Green;
 }
 

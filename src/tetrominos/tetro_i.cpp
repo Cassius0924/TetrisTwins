@@ -1,9 +1,14 @@
-#include <iostream>
 #include "tetrominos/tetro_i.h"
 
 using namespace game::tetro;
 
-//const std::unordered_map<TetrominoState, std::vector<std::pair<int, int>>> kick_table = {};
+//constexpr int k_TETRO_I_RAW_DATA[5][5] = {
+//        {0, 0, 0, 0, 0},
+//        {0, 0, 0, 0, 0},
+//        {0, 1, 1, 1, 1},
+//        {0, 0, 0, 0, 0},
+//        {0, 0, 0, 0, 0},
+//};
 
 TetroI::TetroI() : Tetromino() {
     _raw_data = {
@@ -26,6 +31,8 @@ TetroI::TetroI() : Tetromino() {
             {{-1, 1}, {1,  1}, {-2, 1}, {1,  0},  {-2, 0}},
             {{0,  1}, {0,  1}, {0,  1}, {0,  -1}, {0,  2}},
     };
+
+    _voffset = {1, 4, 2, 2};
 
     color = Color::Cyan;
 }

@@ -22,6 +22,8 @@ TetroO::TetroO() : Tetromino() {
             {{0, 0}}
     };
 
+    _voffset = {1, 2, 0, 1};
+
     color = Color::Yellow;
 }
 

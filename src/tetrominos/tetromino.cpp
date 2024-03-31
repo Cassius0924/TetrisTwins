@@ -37,6 +37,10 @@ int Tetromino::cols() const {
     return static_cast<int>(_data[0].size());
 }
 
+ValidOffset Tetromino::getValidOffset() const {
+    return _voffset;
+}
+
 TetrominoState Tetromino::NextState(game::tetro::TetrominoState state) {
     switch (state) {
         case TetrominoState::Zero:
@@ -88,14 +92,22 @@ void Tetromino::_calibrate() {
     // 清空数据
     _data.clear();
     _data.resize(rows, std::vector<int>(cols, 0));
-    auto offset = _kick_table[static_cast<int>(_state)][0];
+    auto koffset = _kick_table[static_cast<int>(_state)][0];
 
+    _voffset = {INT_MAX, INT_MIN, INT_MAX, INT_MIN};
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < cols; j++) {
             if (_raw_data[i][j] > 0) {
                 // i是y轴，j是x轴，由于坐标轴原点在左上角，所以 i + y，j - x
-                int nx = i + offset.y;
-                int ny = j - offset.x;
+                int nx = i + koffset.y;
+                int ny = j - koffset.x;
+
+                // 计算有效偏移量
+                _voffset.left = std::min(_voffset.left, ny);
+                _voffset.right = std::max(_voffset.right, ny);
+                _voffset.top = std::min(_voffset.top, nx);
+                _voffset.bottom = std::max(_voffset.bottom, nx);
+
                 if (nx >= 0 && ny >= 0 && nx < rows && ny < cols) {
                     _data[nx][ny] = _raw_data[i][j];
                 }

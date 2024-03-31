@@ -24,12 +24,22 @@ namespace game::tetro {
         TetrominoState state;
     };
 
-    /*
+    /**
      * 踢墙位移
      */
     struct KickOffset {
         int x;
         int y;
+    };
+
+    struct ValidOffset {
+        /**
+         * 左右上下边界
+         */
+        int left;
+        int right;
+        int top;
+        int bottom;
     };
 
     using KickTable = std::vector<std::vector<KickOffset>>;
@@ -55,6 +65,11 @@ namespace game::tetro {
          * 踢墙表
          */
         KickTable _kick_table;
+
+        /**
+         * 有效坐标偏移量
+         */
+         ValidOffset _voffset;
 
     public:
         /**
@@ -91,6 +106,11 @@ namespace game::tetro {
          */
         int cols() const;
 
+        /**
+         * 获取有效坐标偏移量
+         */
+        ValidOffset getValidOffset() const;
+
         void rotate();
 
         static TetrominoState NextState(TetrominoState state);
@@ -103,11 +123,6 @@ namespace game::tetro {
          */
         void _calibrate();
 
-        /**
-         * 旋转方块
-         */
-//        static void RotateBy
-
     };
 
     // J 做R旋转：顺时针旋转90度
@@ -118,10 +133,6 @@ namespace game::tetro {
     // J_0[0][0] -> J_R[0][2]; J_0[0][1] -> J_R[1][2]; J_0[0][2] -> J_R[2][2]
     // J_0[1][0] -> J_R[0][1]; J_0[1][1] -> J_R[1][1]; J_0[1][2] -> J_R[2][1]
     // J_0[2][0] -> J_R[0][0]; J_0[2][1] -> J_R[1][0]; J_0[2][2] -> J_R[2][0]
-
-//    Tetromino rotate(Tetromino &t);
-
-    extern std::unordered_map<int, Color> tetro_color;
 }
 
 #endif //TETRIS_TETROMINO_H

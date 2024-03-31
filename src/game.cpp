@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "ui.h"
 #include "game.h"
 #include "control.h"
@@ -22,7 +24,7 @@ void game::init() {
     is_running = true;
     block_row = 1;
     block_col = 1;
-    cur_tetromino = new game::tetro::TetroZ();
+    cur_tetromino = new game::tetro::TetroO();
 }
 
 void game::quit() {
@@ -35,14 +37,14 @@ void game::rotate() {
 
 void game::move_left() {
     // 判断是否超出左边界
-    if (block_col > 1) {
+    if (block_col > 1 - cur_tetromino->getValidOffset().left){
         block_col -= 1;
     }
 }
 
 void game::move_right() {
     // 判断是否超出右边界
-    if (block_col < main_win->get_width() - cur_tetromino->cols() - 1) {
+    if (block_col < main_win->get_width() - cur_tetromino->cols() + (cur_tetromino->cols() - cur_tetromino->getValidOffset().right - 1) - 1 ){
         block_col += 1;
     }
 }
