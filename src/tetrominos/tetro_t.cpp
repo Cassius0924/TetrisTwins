@@ -4,23 +4,27 @@ using namespace game::tetro;
 
 
 TetroT::TetroT() : Tetromino() {
-    _data = {
+    _raw_data = {
             {0, 2, 0},
             {2, 2, 2},
             {0, 0, 0},
     };
-    color = Color::Purple;
-}
+    _data = _raw_data;
 
-TetroT::TetroT(TetrominoState init_state) : Tetromino(init_state) {
-    _data = {
-            {0, 2, 0},
-            {2, 2, 2},
-            {0, 0, 0},
+    // 0	( 0, 0)	( 0, 0)	( 0, 0)	( 0, 0)	( 0, 0)
+    // R	( 0, 0)	(+1, 0)	(+1,-1)	( 0,+2)	(+1,+2)
+    // 2	( 0, 0)	( 0, 0)	( 0, 0)	( 0, 0)	( 0, 0)
+    // L	( 0, 0)	(-1, 0)	(-1,-1)	( 0,+2)	(-1,+2)
+    _kick_table = {
+            {{0, 0}, {0,  0}, {0,  0},  {0, 0}, {0,  0}},
+            {{0, 0}, {1,  0}, {1,  -1}, {0, 2}, {1,  2}},
+            {{0, 0}, {0,  0}, {0,  0},  {0, 0}, {0,  0}},
+            {{0, 0}, {-1, 0}, {-1, -1}, {0, 2}, {-1, 2}},
     };
+
     color = Color::Purple;
 }
 
-void TetroT::_calibrate() {
+TetroT::TetroT(TetrominoState init_state) : TetroT() {
 }
 

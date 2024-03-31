@@ -11,7 +11,7 @@ namespace game::tetro {
 
         explicit TetroO(TetrominoState init_state);
 
-        void _calibrate() override;
+//        void _calibrate() override;
     };
 }
 #endif //TETRIS_TETRO_O_H

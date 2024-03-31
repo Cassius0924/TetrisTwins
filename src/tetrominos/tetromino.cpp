@@ -55,14 +55,17 @@ void Tetromino::_rotate() {
     int rows = this->rows();
 
     std::vector<std::vector<int>> new_tetro(cols, std::vector<int>(rows, 0));
+
+    // 右转，顺时针
     for (int i = 0; i < cols; i++) {
         for (int j = 0; j < rows; j++) {
-            if (_data[i][j] > 0) {
-                new_tetro[j][cols - i - 1] = _data[i][j];
+            if (_raw_data[i][j] > 0) {
+                new_tetro[j][cols - i - 1] = _raw_data[i][j];
             }
         }
     }
-    _data = new_tetro;
+
+    _raw_data = new_tetro;
 }
 
 void Tetromino::rotate() {
@@ -79,5 +82,24 @@ void Tetromino::rotate() {
 }
 
 void Tetromino::_calibrate() {
+    int cols = this->cols();
+    int rows = this->rows();
 
+    // 清空数据
+    _data.clear();
+    _data.resize(rows, std::vector<int>(cols, 0));
+    auto offset = _kick_table[static_cast<int>(_state)][0];
+
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            if (_raw_data[i][j] > 0) {
+                // i是y轴，j是x轴，由于坐标轴原点在左上角，所以 i + y，j - x
+                int nx = i + offset.y;
+                int ny = j - offset.x;
+                if (nx >= 0 && ny >= 0 && nx < rows && ny < cols) {
+                    _data[nx][ny] = _raw_data[i][j];
+                }
+            }
+        }
+    }
 }

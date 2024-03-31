@@ -12,7 +12,7 @@ namespace game::tetro {
 
         explicit TetroZ(TetrominoState init_state);
 
-        void _calibrate() override;
+//        void _calibrate() override;
     };
 }
 

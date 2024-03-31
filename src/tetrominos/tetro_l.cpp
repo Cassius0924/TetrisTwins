@@ -3,24 +3,27 @@
 using namespace game::tetro;
 
 TetroL::TetroL() : Tetromino() {
-    _data = {
+    _raw_data = {
             {0, 0, 2},
             {2, 2, 2},
             {0, 0, 0},
     };
-    color = Color::Orange;
-}
+    _data = _raw_data;
 
-TetroL::TetroL(TetrominoState init_state) : Tetromino(init_state) {
-    _data = {
-            {0, 0, 2},
-            {2, 2, 2},
-            {0, 0, 0},
+    // 0	( 0, 0)	( 0, 0)	( 0, 0)	( 0, 0)	( 0, 0)
+    // R	( 0, 0)	(+1, 0)	(+1,-1)	( 0,+2)	(+1,+2)
+    // 2	( 0, 0)	( 0, 0)	( 0, 0)	( 0, 0)	( 0, 0)
+    // L	( 0, 0)	(-1, 0)	(-1,-1)	( 0,+2)	(-1,+2)
+    _kick_table = {
+            {{0, 0}, {0,  0}, {0,  0},  {0, 0}, {0,  0}},
+            {{0, 0}, {1,  0}, {1,  -1}, {0, 2}, {1,  2}},
+            {{0, 0}, {0,  0}, {0,  0},  {0, 0}, {0,  0}},
+            {{0, 0}, {-1, 0}, {-1, -1}, {0, 2}, {-1, 2}},
     };
+
     color = Color::Orange;
 }
 
-// TODO: 新增_raw_data，用于存储原始数据，用于旋转，_data用于存储旋转后的数据，_data数组大小可变
-void TetroL::_calibrate() {
+TetroL::TetroL(TetrominoState init_state) : TetroL() {
 }
 

@@ -9,19 +9,40 @@
 namespace game::tetro {
 
     enum class TetrominoState {
-        Zero = '0',
-        Left = 'L',
-        Right = 'R',
-        Two = '2',
+        Zero = 0,
+        Right = 1,
+        Two = 2,
+        Left = 3,
     };
 
-    // I[5][5]; J L O S T Z[3][3];
-//    using Tetromino = std::vector<std::vector<int>>;
+    /**
+     * 方块数据
+     */
+    struct TetrominoData {
+        std::vector<std::vector<int>> raw_data;
+        std::vector<std::vector<int>> data;
+        TetrominoState state;
+    };
+
+    /*
+     * 踢墙位移
+     */
+    struct KickOffset {
+        int x;
+        int y;
+    };
+
+    using KickTable = std::vector<std::vector<KickOffset>>;
 
     class Tetromino {
     protected:
         /**
-         * 方块姿态数据
+         * 原始方块姿态数据
+         */
+        std::vector<std::vector<int>> _raw_data;
+
+        /**
+         * 当前方块姿态数据
          */
         std::vector<std::vector<int>> _data;
 
@@ -29,6 +50,11 @@ namespace game::tetro {
          * 方块姿态当前姿态
          */
         TetrominoState _state;
+
+        /**
+         * 踢墙表
+         */
+        KickTable _kick_table;
 
     public:
         /**
@@ -72,8 +98,16 @@ namespace game::tetro {
     private:
         void _rotate();
 
-        // = 0
-        virtual void _calibrate();
+        /**
+         * 校准方块数据，根据踢墙表调整位置
+         */
+        void _calibrate();
+
+        /**
+         * 旋转方块
+         */
+//        static void RotateBy
+
     };
 
     // J 做R旋转：顺时针旋转90度
