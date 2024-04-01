@@ -1,8 +1,10 @@
 #ifndef TETRIS_UI_H
 #define TETRIS_UI_H
 
-#include "string"
+#include <string>
+
 #include "tetrominos/tetromino.h"
+#include "game.h"
 
 
 // 0	1	2	3	4	5	6	7	8	9	A	B	C	D	E	F
@@ -16,6 +18,10 @@
 // U+257x	╰	╱	╲	╳	╴	╵	╶	╷	╸	╹	╺	╻	╼	╽	╾	╿
 // Notes
 // 1.^ As of Unicode version 15.1
+
+namespace game {
+    struct TetroHeap;
+}
 
 /**
  * 绘图
@@ -49,6 +55,7 @@ namespace ui {
          * @param title: 窗口标题
          */
         Window(int left, int top, int width, int height, std::string title = "");
+
         ~Window();
 
         /**
@@ -96,14 +103,12 @@ namespace ui {
      * @param left: 左侧位置
      * @param top: 顶部位置
      */
-    void tetromino(game::tetro::Tetromino* t, int left, int top);
+    void tetromino(game::tetro::Tetromino *t, int left, int top);
 
     /**
      * 绘制俄罗斯方块堆
      */
-    void game_board(const std::vector<std::vector<char>> &tetro_stack, Window *win);
-
-
+    void game_board(game::TetroHeap &tetro_heap, Window *win);
 }
 
 #endif //TETRIS_UI_H

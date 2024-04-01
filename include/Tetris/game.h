@@ -1,7 +1,14 @@
 #ifndef TETRIS_GAME_H
 #define TETRIS_GAME_H
+
+#include <unordered_map>
+
 #include "tetrominos/tetromino.h"
 #include "ui.h"
+
+namespace ui {
+    class Window;
+}
 
 /**
  * 游戏控制、状态、逻辑
@@ -16,6 +23,12 @@ namespace game {
      * 当前方块
      */
     extern tetro::Tetromino *cur_tetromino;
+
+//    /**
+//     * 俄罗斯方块颜色表
+//     */
+//    extern std::unordered_map<char, ui::Color> tetro_color;
+
     /**
      * 方块所在行
      */
@@ -50,6 +63,26 @@ namespace game {
      * 信息窗口
      */
     extern ui::Window *info_win;
+
+    /**
+     * 俄罗斯方块堆
+     */
+    struct TetroHeap {
+        /**
+         * 方块堆
+         */
+        std::vector<std::vector<int>> heap;
+
+        /**
+         * 是否更新
+         */
+        bool is_updated = false;
+    };
+
+    /**
+     * 俄罗斯方块堆，用于储存沉底的方块，用方块颜色表示
+     */
+    extern TetroHeap tetro_heap;
 
     /**
      * 退出游戏

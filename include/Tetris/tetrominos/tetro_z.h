@@ -12,6 +12,11 @@ namespace game::tetro {
 
         explicit TetroZ(TetrominoState init_state);
 
+        /**
+         * 方块颜色
+         */
+        static ui::Color s_color;
+
 //        void _calibrate() override;
     };
 }

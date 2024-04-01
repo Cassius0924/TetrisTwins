@@ -24,8 +24,10 @@ TetroZ::TetroZ() : Tetromino() {
 
     _voffset = {0, 2, 0, 1};
 
-    color = Color::Red;
+    color = TetroZ::s_color;
 }
+
+ui::Color TetroZ::s_color = ui::Color::Red;
 
 TetroZ::TetroZ(TetrominoState init_state) : TetroZ() {
 }

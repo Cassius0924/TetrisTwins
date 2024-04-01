@@ -72,10 +72,11 @@ namespace game::tetro {
          ValidOffset _voffset{};
 
     public:
+
         /**
          * 方块颜色
          */
-        Color color;
+        ui::Color color;
 
         Tetromino();
 

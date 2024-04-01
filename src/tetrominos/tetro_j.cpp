@@ -24,8 +24,10 @@ TetroJ::TetroJ() : Tetromino() {
 
     _voffset = {0, 2, 0, 1};
 
-    color = Color::Blue;
+    color = TetroJ::s_color;
 }
+
+ui::Color TetroJ::s_color = ui::Color::Blue;
 
 TetroJ::TetroJ(TetrominoState init_state) : TetroJ() {
 }

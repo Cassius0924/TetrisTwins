@@ -24,8 +24,10 @@ TetroS::TetroS() : Tetromino() {
 
     _voffset = {0, 2, 0, 1};
 
-    color = Color::Green;
+    color = TetroS::s_color;
 }
+
+ui::Color TetroS::s_color = ui::Color::Green;
 
 TetroS::TetroS(TetrominoState init_state) : TetroS() {
 }

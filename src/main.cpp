@@ -6,7 +6,6 @@
 #include "utils.h"
 #include "ui.h"
 #include "style.h"
-#include "game.h"
 
 using namespace std::chrono_literals;
 
@@ -14,9 +13,6 @@ void init() {
     term::clean_screen();
     term::hide_cursor();
     ui::Style::set_style(3);
-
-    // 初始化游戏
-    game::init();
 
     game::main_win = new ui::Window(10, 1, 12, 22, "TetrisTwins");
     game::hold_win = new ui::Window(1, 1, 9, 6, "Hold");
@@ -28,6 +24,9 @@ void init() {
     game::status_win->draw();
     game::next_win->draw();
     game::info_win->draw();
+
+    // 初始化游戏
+    game::init();
 }
 
 void start() {
@@ -38,17 +37,16 @@ void start() {
         // 显示FPS
         game::status_win->display("FPS: " + std::to_string(utils::fps()), 3, ui::block_to_col(2));
 
-        // 显示下落方块
-//        term::move_to(i++ % 20, 10);
-//        term::move_to(game::block_row, draw::block_to_col(game::block_col));
-//        term::set_back_color(15);
-//        std::cout << "  ";
-
+        // 显示正在下落的俄罗斯方块
         ui::tetromino(game::cur_tetromino,
                       ui::block_to_col(game::main_win->absolute_col(game::block_col)),
                       game::main_win->absolute_row(game::block_row));
 
-        ui::game_board(game::tetro_stack, game::main_win);
+        // 显示方块堆
+//        if (game::tetro_heap.is_updated) {
+//            game::tetro_heap.is_updated = false;
+        ui::game_board(game::tetro_heap, game::main_win);
+//        }
 
         term::reset_color();
 

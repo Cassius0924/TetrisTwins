@@ -24,8 +24,10 @@ TetroT::TetroT() : Tetromino() {
 
     _voffset = {0, 2, 0, 1};
 
-    color = Color::Purple;
+    color = TetroT::s_color;
 }
+
+ui::Color TetroT::s_color = ui::Color::Purple;
 
 TetroT::TetroT(TetrominoState init_state) : TetroT() {
 }

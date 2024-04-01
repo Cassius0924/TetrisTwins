@@ -23,8 +23,10 @@ TetroL::TetroL() : Tetromino() {
 
     _voffset = {0, 2, 0, 1};
 
-    color = Color::Orange;
+    color = TetroL::s_color;
 }
+
+ui::Color TetroL::s_color = ui::Color::Orange;
 
 TetroL::TetroL(TetrominoState init_state) : TetroL() {
 }

@@ -1,9 +1,8 @@
 #include <iostream>
-#include <vector>
+#include <utility>
 
 #include "ui.h"
 #include "terminal.h"
-#include "color.h"
 #include "style.h"
 
 
@@ -14,7 +13,8 @@ int ui::block_to_col(int block) {
 
 ui::Window::Window(int left, int top, int width, int height, std::string title) : _left(left), _top(top),
                                                                                   _width(width),
-                                                                                  _height(height), _title(title) {
+                                                                                  _height(height),
+                                                                                  _title(std::move(title)) {
 }
 
 void ui::Window::draw() {
@@ -96,7 +96,6 @@ int ui::Window::get_width() const {
 }
 
 void ui::tetromino(game::tetro::Tetromino *t, int left, int top) {
-
     term::set_back_color(static_cast<int>(t->color));
     for (int i = 0; i < t->rows(); i++) {
         term::move_to(top + i, left);
@@ -110,4 +109,22 @@ void ui::tetromino(game::tetro::Tetromino *t, int left, int top) {
         }
     }
     term::reset_color();
+}
+
+void ui::game_board(game::TetroHeap &tetro_heap, ui::Window *win) {
+    int pre_block = -1;
+    for (int i = 0; i < tetro_heap.heap.size(); i++) {
+        term::move_to(win->absolute_row(i + 1), block_to_col(win->absolute_col(1)));
+        for (int j = 0; j < tetro_heap.heap[i].size(); j++) {
+            if (tetro_heap.heap[i][j] != 0) {
+                if (pre_block != tetro_heap.heap[i][j]) {
+                    pre_block = tetro_heap.heap[i][j];
+                    term::set_back_color(tetro_heap.heap[i][j]);
+                }
+                std::cout << "[]";
+            }
+            term::move_to(win->absolute_row(i + 1), block_to_col(win->absolute_col(j + 2)));
+            std::cout << std::flush;
+        }
+    }
 }
