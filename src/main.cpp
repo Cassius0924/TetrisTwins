@@ -18,21 +18,25 @@ void init() {
     // 初始化游戏
     game::init();
 
-    ui::Window(1, 1, 9, 6, "Hold").draw();
-    ui::Window(1, 7, 9, 16, "Status").draw();
-    ui::Window(22, 1, 8, 18, "Next").draw();
-    ui::Window(22, 19, 8, 4, "Info").draw();
+    game::main_win = new ui::Window(10, 1, 12, 22, "TetrisTwins");
+    game::hold_win = new ui::Window(1, 1, 9, 6, "Hold");
+    game::status_win = new ui::Window(1, 7, 9, 16, "Status");
+    game::next_win = new ui::Window(22, 1, 8, 18, "Next");
+    game::info_win = new ui::Window(22, 19, 8, 4, "Info");
+
+    game::hold_win->draw();
+    game::status_win->draw();
+    game::next_win->draw();
+    game::info_win->draw();
 }
 
 void start() {
-    game::main_win = new ui::Window(10, 1, 12, 22, "TetrisTwins");
     while (game::is_running) {
         // 绘制窗口
         game::main_win->draw();
 
         // 显示FPS
-        term::move_to(10, 4);
-        std::cout << "FPS:" << utils::fps();
+        game::status_win->display("FPS: " + std::to_string(utils::fps()), 3, ui::block_to_col(2));
 
         // 显示下落方块
 //        term::move_to(i++ % 20, 10);
@@ -40,8 +44,12 @@ void start() {
 //        term::set_back_color(15);
 //        std::cout << "  ";
 
-//        draw::tetromino(game::cur_tetromino, draw::block_to_col(game::block_col), game::block_row);
-        ui::tetromino(game::cur_tetromino, ui::block_to_col(game::main_win->relative_col(game::block_col)), game::main_win->relative_row(game::block_row));
+        ui::tetromino(game::cur_tetromino,
+                      ui::block_to_col(game::main_win->absolute_col(game::block_col)),
+                      game::main_win->absolute_row(game::block_row));
+
+        ui::game_board(game::tetro_stack, game::main_win);
+
         term::reset_color();
 
         std::cout << std::flush;
@@ -54,6 +62,13 @@ void exit() {
     term::clean_screen();
     term::show_cursor();
     term::move_to(1, 1);
+
+    delete game::main_win;
+    delete game::hold_win;
+    delete game::status_win;
+    delete game::next_win;
+    delete game::info_win;
+
     std::cout << "Bye!" << std::endl;
 }
 

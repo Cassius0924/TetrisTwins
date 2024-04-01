@@ -57,18 +57,25 @@ namespace ui {
         void draw();
 
         /**
-         * 获取相对此窗口的行坐标
-         * @param row: 行坐标
-         * @return 相对行坐标
+         * 在此窗口的相对位置显示内容
+         * @param row: 相对行坐标
+         * @param col: 相对列坐标
          */
-        int relative_row(int row) const;
+        void display(const std::string &value, int row, int col) const;
 
         /**
-         * 获取相对此窗口的列坐标
-         * @param col: 列坐标
-         * @return 相对列坐标
+         * 根据传入的相对行坐标，获取绝对行坐标
+         * @param row: 行坐标
+         * @return 绝对行坐标
          */
-        int relative_col(int col) const;
+        inline int absolute_row(int row) const;
+
+        /**
+         * 根据传入的相对列坐标，获取绝对列坐标
+         * @param col: 列坐标
+         * @return 绝对列坐标
+         */
+        inline int absolute_col(int col) const;
 
         /**
          * 获取窗口宽度
@@ -90,6 +97,12 @@ namespace ui {
      * @param top: 顶部位置
      */
     void tetromino(game::tetro::Tetromino* t, int left, int top);
+
+    /**
+     * 绘制俄罗斯方块堆
+     */
+    void game_board(const std::vector<std::vector<char>> &tetro_stack, Window *win);
+
 
 }
 

@@ -5,11 +5,6 @@
  * 游戏控制
  */
 namespace ctrl {
-//    /**
-//     * 游戏控制命令
-//     */
-//    extern char command;
-
     constexpr char k_KEY_Q = 'q';
     constexpr char k_KEY_P = 'p';
     constexpr char k_KEY_C = 'c';

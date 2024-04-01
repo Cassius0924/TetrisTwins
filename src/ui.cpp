@@ -3,6 +3,7 @@
 
 #include "ui.h"
 #include "terminal.h"
+#include "color.h"
 #include "style.h"
 
 
@@ -73,11 +74,16 @@ void ui::Window::draw() {
 ui::Window::~Window() {
 }
 
-int ui::Window::relative_col(int col) const {
+void ui::Window::display(const std::string &value, int row, int col) const {
+    term::move_to(absolute_row(row), absolute_col(col));
+    std::cout << value;
+}
+
+int ui::Window::absolute_col(int col) const {
     return _left + col;
 }
 
-int ui::Window::relative_row(int row) const {
+int ui::Window::absolute_row(int row) const {
     return _top + row;
 }
 
