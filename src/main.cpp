@@ -3,6 +3,7 @@
 #include <chrono>
 
 #include "terminal.h"
+#include "tetrominos/define.h"
 #include "utils.h"
 #include "ui.h"
 #include "style.h"
@@ -31,6 +32,7 @@ void init() {
 
 void start() {
     while (game::is_running) {
+
         // 绘制窗口
         game::main_win->draw();
 

@@ -133,6 +133,18 @@ namespace game {
      * @return 是否碰到堆
      */
     bool is_touch_heap(std::unique_ptr<tetro::Tetromino> &tetro, int next_row, int next_col);
+
+    /**
+     * 生成一个随机的俄罗斯方块
+     * @return 俄罗斯方块
+     */
+    std::unique_ptr<tetro::Tetromino> generate_tetromino();
+
+    /**
+     * 下一个俄罗斯方块
+     */
+    void next_tetromino();
+
 }
 
 #endif //TETRIS_GAME_H

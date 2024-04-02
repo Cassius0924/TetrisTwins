@@ -1,5 +1,6 @@
 #include <chrono>
 #include <termios.h>
+#include <random>
 
 #include "utils.h"
 
@@ -30,4 +31,11 @@ char utils::getch() {
     c = getchar();
     tcsetattr(0, 0, &old);
     return c;
+}
+
+int utils::random_int(int start, int end) {
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<int> dis(start, end);
+    return dis(gen);
 }
