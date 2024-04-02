@@ -133,5 +133,6 @@ std::unique_ptr<game::tetro::Tetromino> game::generate_tetromino() {
 void game::next_tetromino() {
     cur_tetromino = generate_tetromino();
     block_row = 1;
-    block_col = 1;
+    block_col = 5 - (cur_tetromino->get_valid_offset().left + cur_tetromino->cols() / 2 - 1);
+    std::cout << block_col;
 }
