@@ -99,11 +99,11 @@ namespace ui {
 
     /**
      * 绘制俄罗斯方块
-     * @param t: 俄罗斯方块
+     * @param tetro: 俄罗斯方块
      * @param left: 左侧位置
      * @param top: 顶部位置
      */
-    void tetromino(game::tetro::Tetromino *t, int left, int top);
+    void tetromino(std::unique_ptr<game::tetro::Tetromino> &tetro, int left, int top);
 
     /**
      * 绘制俄罗斯方块堆

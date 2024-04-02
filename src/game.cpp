@@ -14,17 +14,8 @@ namespace game {
     ui::Window *status_win;
     ui::Window *next_win;
     ui::Window *info_win;
-    tetro::Tetromino *cur_tetromino;
+    std::unique_ptr<tetro::Tetromino> cur_tetromino;
     TetroHeap tetro_heap;
-//    std::unordered_map<char, ui::Color> tetro_color = {
-//            {'I', ui::Color::Cyan},
-//            {'J', ui::Color::Blue},
-//            {'L', ui::Color::Orange},
-//            {'O', ui::Color::Yellow},
-//            {'S', ui::Color::Green},
-//            {'T', ui::Color::Purple},
-//            {'Z', ui::Color::Red},
-//    };
 }
 
 
@@ -35,38 +26,103 @@ void game::init() {
     is_running = true;
     block_row = 1;
     block_col = 1;
-    cur_tetromino = new game::tetro::TetroI();
+    cur_tetromino = std::make_unique<game::tetro::TetroT>();
     tetro_heap.heap = std::vector<std::vector<int>>(main_win->get_height() - 2,
                                                     std::vector<int>(main_win->get_width() - 2, 0));
+    // 20 * 10
+    tetro_heap.heap = {
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 1, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 1, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 1, 0, 0, 0, 0, 0, 0, 0},
+            {1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    };
 }
 
 void game::quit() {
     is_running = false;
 }
 
-void game::rotate() {
-    cur_tetromino->rotate();
-}
-
 void game::move_left() {
-    // 判断是否超出左边界
-    if (block_col > 1 - cur_tetromino->get_valid_offset().left) {
+    // 如果没有超出左边界
+    if (block_col > 1 - cur_tetromino->get_valid_offset().left &&
+        !game::is_touch_heap(cur_tetromino, block_row, block_col - 1)) {
         block_col -= 1;
     }
 }
 
 void game::move_right() {
-    // 判断是否超出右边界
-    if (block_col < main_win->get_width() - cur_tetromino->get_valid_offset().right - 1 - 1) {
+    // 如果没有超出右边界
+    if (block_col < main_win->get_width() - cur_tetromino->get_valid_offset().right - 1 - 1 &&
+        !game::is_touch_heap(cur_tetromino, block_row, block_col + 1)) {
         block_col += 1;
     }
 }
 
 void game::move_down() {
+    // 判断是否碰到堆
+    if (touch_heap(cur_tetromino, block_row, block_col, block_row + 1, block_col)) {
+        return;
+    }
+
     // 判断是否超出下边界
     if (block_row < main_win->get_height() - cur_tetromino->get_valid_offset().bottom - 1 - 1) {
         block_row += 1;
     }
+}
 
-    // 判断是否碰到堆
+void game::rotate() {
+    cur_tetromino->rotate();
+}
+
+bool game::touch_heap(std::unique_ptr<tetro::Tetromino> &tetro, int row, int col, int next_row, int next_col) {
+    // 将方块加入堆中
+    if (is_touch_heap(tetro, next_row, next_col)) {
+        auto voffset = tetro->get_valid_offset();
+
+        for (int i = voffset.top; i <= voffset.bottom; i++) {
+            for (int j = voffset.left; j <= voffset.right; j++) {
+                if ((*tetro)[i][j] == 0) {
+                    continue;
+                }
+
+                tetro_heap.heap[row - 1 + i][col - 1 + j] = (*tetro)[i][j];
+            }
+        }
+        return true;
+    }
+    return false;
+}
+
+bool game::is_touch_heap(std::unique_ptr<tetro::Tetromino> &tetro, int next_row, int next_col) {
+    auto voffset = tetro->get_valid_offset();
+    // 判断是否碰到堆或越界
+    for (int i = next_row + voffset.top - 1; i <= next_row + voffset.bottom - 1; ++i) {
+        for (int j = next_col + voffset.left - 1; j <= next_col + voffset.right - 1; ++j) {
+            // 是否越下界
+            if (i < 0 || i >= tetro_heap.heap.size()) {
+                return true;
+            }
+            // 是否碰到堆
+            if (tetro_heap.heap[i][j] != 0 && (*tetro)[i - next_row + 1][j - next_col + 1] != 0) {
+                return true;
+            }
+        }
+    }
+    return false;
 }

@@ -22,7 +22,7 @@ namespace game {
     /**
      * 当前方块
      */
-    extern tetro::Tetromino *cur_tetromino;
+    extern std::unique_ptr<tetro::Tetromino> cur_tetromino;
 
 //    /**
 //     * 俄罗斯方块颜色表
@@ -113,6 +113,26 @@ namespace game {
      * 旋转方块
      */
     void rotate();
+
+    /**
+     * 判断是否碰到堆，如果碰到堆则返回true，并将方块加入堆中，如果没有碰到堆则返回false
+     * @param tetro: 方块
+     * @param row: 方块左上角行坐标
+     * @param col: 方块左上角列坐标
+     * @param next_row: 方块下一步左上角行坐标
+     * @param next_col: 方块下一步左上角列坐标
+     * @return 是否碰到堆
+     */
+    bool touch_heap(std::unique_ptr<tetro::Tetromino> &tetro, int row, int col, int next_row, int next_col);
+
+    /**
+     * 判断是否碰到堆
+     * @param tetro: 方块
+     * @param next_row: 方块下一步左上角行坐标
+     * @param next_col: 方块下一步左上角列坐标
+     * @return 是否碰到堆
+     */
+    bool is_touch_heap(std::unique_ptr<tetro::Tetromino> &tetro, int next_row, int next_col);
 }
 
 #endif //TETRIS_GAME_H

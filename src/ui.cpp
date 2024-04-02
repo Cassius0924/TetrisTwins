@@ -95,14 +95,12 @@ int ui::Window::get_width() const {
     return _width;
 }
 
-void ui::tetromino(game::tetro::Tetromino *t, int left, int top) {
-    term::set_back_color(static_cast<int>(t->color));
-    for (int i = 0; i < t->rows(); i++) {
+void ui::tetromino(std::unique_ptr<game::tetro::Tetromino> &tetro, int left, int top) {
+    term::set_back_color(static_cast<int>(tetro->color));
+    for (int i = 0; i < tetro->rows(); i++) {
         term::move_to(top + i, left);
-        for (int j = 0; j < t->cols(); j++) {
-            if ((*t)[i][j] > 0) {
-//                term::set_back_color(game::tetro_color[t[i][j]]);
-//                term::set_back_color(static_cast<int>(game::::tetro_color[t[i][j]]));
+        for (int j = 0; j < tetro->cols(); j++) {
+            if ((*tetro)[i][j] > 0) {
                 std::cout << "  ";
             }
             term::move_to(top + i, left + 2 * (j + 1));
