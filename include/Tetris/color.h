@@ -12,7 +12,7 @@ namespace ui{
         Orange = 214,
         Yellow = 11,
         Green = 10,
-        Blue = 1,
+        Blue = 12,
         Purple = 13,
     };
 

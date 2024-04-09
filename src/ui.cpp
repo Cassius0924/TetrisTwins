@@ -6,11 +6,6 @@
 #include "style.h"
 
 
-int ui::block_to_col(int block) {
-    return block * 2 - 1;
-}
-
-
 ui::Window::Window(int left, int top, int width, int height, std::string title) : _left(left), _top(top),
                                                                                   _width(width),
                                                                                   _height(height),
@@ -55,7 +50,7 @@ void ui::Window::draw() {
         std::cout << DS::vr_edge();
         // 中间列
         for (int col = 0; col < _width - 2; ++col) {
-            std::cout << ". ";
+            std::cout << "  ";
         }
         // 中间行最后一列
         std::cout << DS::vl_edge();
@@ -77,14 +72,6 @@ ui::Window::~Window() {
 void ui::Window::display(const std::string &value, int row, int col) const {
     term::move_to(absolute_row(row), absolute_col(col));
     std::cout << value;
-}
-
-int ui::Window::absolute_col(int col) const {
-    return _left + col;
-}
-
-int ui::Window::absolute_row(int row) const {
-    return _top + row;
 }
 
 int ui::Window::get_height() const {
@@ -119,7 +106,7 @@ void ui::game_board(game::TetroHeap &tetro_heap, ui::Window *win) {
                     pre_block = tetro_heap.heap[i][j];
                     term::set_back_color(tetro_heap.heap[i][j]);
                 }
-                std::cout << "[]";
+                std::cout << "  ";
             }
             term::move_to(win->absolute_row(i + 1), block_to_col(win->absolute_col(j + 2)));
             std::cout << std::flush;

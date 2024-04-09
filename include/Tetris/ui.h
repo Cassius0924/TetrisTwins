@@ -33,7 +33,9 @@ namespace ui {
      * @param block: 方块坐标
      * @return 行坐标
      */
-    inline int block_to_col(int block);
+    inline int block_to_col(int block) {
+        return block * 2 - 1;
+    }
 
     /**
      * UI 窗口类
@@ -75,14 +77,18 @@ namespace ui {
          * @param row: 行坐标
          * @return 绝对行坐标
          */
-        inline int absolute_row(int row) const;
+        inline int absolute_row(int row) const {
+            return _top + row;
+        }
 
         /**
          * 根据传入的相对列坐标，获取绝对列坐标
          * @param col: 列坐标
          * @return 绝对列坐标
          */
-        inline int absolute_col(int col) const;
+        inline int absolute_col(int col) const {
+            return _left + col;
+        }
 
         /**
          * 获取窗口宽度
