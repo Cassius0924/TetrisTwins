@@ -86,7 +86,7 @@ void Tetromino::_calibrate() {
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < cols; j++) {
             if (_raw_data[i][j] > 0) {
-                // i是y轴，j是x轴，由于坐标轴原点在左上角，所以 i + y，j - x
+                // i是y轴，j是x轴，由于vector的坐标轴原点在左上角，所以 i + y，j - x
                 int nx = i + koffset.y;
                 int ny = j - koffset.x;
 

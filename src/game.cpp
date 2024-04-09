@@ -5,6 +5,7 @@
 #include "control.h"
 #include "tetrominos/define.h"
 #include "utils.h"
+#include "remove.h"
 
 namespace game {
     bool is_running;
@@ -19,7 +20,6 @@ namespace game {
     TetroHeap tetro_heap;
 }
 
-
 void game::init() {
     // 开始键盘监听
     ctrl::start_key_listener();
@@ -31,6 +31,32 @@ void game::init() {
 
     tetro_heap.heap = std::vector<std::vector<int>>(main_win->get_height() - 2,
                                                     std::vector<int>(main_win->get_width() - 2, 0));
+    // 20 * 10
+    tetro_heap.heap = {
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    };
+
+    full_air_count = main_win->get_width() - 2;
+    row_air = std::vector<int>(main_win->get_height() - 2, full_air_count);
 }
 
 void game::quit() {
@@ -99,8 +125,13 @@ bool game::touch_heap(std::unique_ptr<tetro::Tetromino> &tetro, int row, int col
                 }
 
                 tetro_heap.heap[row - 1 + i][col - 1 + j] = static_cast<int>(tetro->color);
+                game::dec_row_air(row - 1 + i);
             }
         }
+
+        // 尝试消行
+        game::remove_full_rows(row - 1 + voffset.top, row - 1 + voffset.bottom);
+
         // 生成新的的俄罗斯方块
         next_tetromino();
         return true;
@@ -134,5 +165,4 @@ void game::next_tetromino() {
     cur_tetromino = generate_tetromino();
     block_row = 1;
     block_col = 5 - (cur_tetromino->get_valid_offset().left + cur_tetromino->cols() / 2 - 1);
-    std::cout << block_col;
 }
