@@ -141,28 +141,32 @@ bool game::touch_heap(std::unique_ptr<tetro::Tetromino> &tetro, int row, int col
 
 std::unique_ptr<game::tetro::Tetromino> game::generate_tetromino() {
     // 生成随机数
-    switch (utils::random_int(0, 6)) {
-        case 0:
-            return std::make_unique<game::tetro::TetroI>();
-        case 1:
-            return std::make_unique<game::tetro::TetroJ>();
-        case 2:
-            return std::make_unique<game::tetro::TetroL>();
-        case 3:
-            return std::make_unique<game::tetro::TetroO>();
-        case 4:
-            return std::make_unique<game::tetro::TetroS>();
-        case 5:
-            return std::make_unique<game::tetro::TetroT>();
-        case 6:
-            return std::make_unique<game::tetro::TetroZ>();
-        default:
-            return std::make_unique<game::tetro::TetroI>();
+    for(;;) {
+        switch (utils::random_int(0, 6)) {
+            case 0:
+                return std::make_unique<game::tetro::TetroI>();
+            case 1:
+                return std::make_unique<game::tetro::TetroJ>();
+            case 2:
+                return std::make_unique<game::tetro::TetroL>();
+            case 3:
+                return std::make_unique<game::tetro::TetroO>();
+            case 4:
+                return std::make_unique<game::tetro::TetroS>();
+            case 5:
+                return std::make_unique<game::tetro::TetroT>();
+            case 6:
+                return std::make_unique<game::tetro::TetroZ>();
+            default:
+                continue;
+        }
     }
 }
 
 void game::next_tetromino() {
     cur_tetromino = generate_tetromino();
-    block_row = 1;
-    block_col = 5 - (cur_tetromino->get_valid_offset().left + cur_tetromino->cols() / 2 - 1);
+    cur_tetromino = std::make_unique<tetro::TetroL>();
+    auto voffset = cur_tetromino->get_valid_offset();
+    block_row = 1 - voffset.top;
+    block_col = 5 - (voffset.left + (voffset.right - voffset.left + 1) / 2 - 1);
 }
