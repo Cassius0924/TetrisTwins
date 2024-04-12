@@ -1,6 +1,5 @@
 #include <iostream>
 #include <thread>
-#include <chrono>
 
 #include "terminal.h"
 #include "tetrominos/define.h"
@@ -25,6 +24,7 @@ void init() {
     game::status_win->draw();
     game::next_win->draw();
     game::info_win->draw();
+
 
     // 初始化游戏
     game::init();

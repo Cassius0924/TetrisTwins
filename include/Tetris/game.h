@@ -24,11 +24,6 @@ namespace game {
      */
     extern std::unique_ptr<tetro::Tetromino> cur_tetromino;
 
-//    /**
-//     * 俄罗斯方块颜色表
-//     */
-//    extern std::unordered_map<char, ui::Color> tetro_color;
-
     /**
      * 方块所在行
      */
@@ -87,7 +82,7 @@ namespace game {
     /**
      * 退出游戏
      */
-    void quit();
+    void quit(int signal = 0);
 
     /**
      * 初始化游戏
@@ -132,7 +127,17 @@ namespace game {
      * @param next_col: 方块下一步左上角列坐标
      * @return 是否碰到堆
      */
-    bool is_touch_heap(std::unique_ptr<tetro::Tetromino> &tetro, int next_row, int next_col);
+    bool is_touch_heap(const std::unique_ptr<tetro::Tetromino> &tetro, int next_row, int next_col);
+
+    /**
+     * 判断是否碰到堆
+     * @param tetro_data: 方块数据
+     * @param valid_offset: 有效坐标偏移量
+     * @param next_row: 方块下一步左上角行坐标
+     * @param next_col: 方块下一步左上角列坐标
+     * @return 是否碰到堆
+     */
+    bool is_touch_heap(const std::vector<std::vector<int>>& tetro_data, tetro::ValidOffset valid_offset, int next_row, int next_col);
 
     /**
      * 生成一个随机的俄罗斯方块

@@ -29,8 +29,8 @@ void game::init() {
     // 生成一个随机的俄罗斯方块
     next_tetromino();
 
-    tetro_heap.heap = std::vector<std::vector<int>>(main_win->get_height() - 2,
-                                                    std::vector<int>(main_win->get_width() - 2, 0));
+    tetro_heap.heap = std::vector<std::vector<int>>(main_win->get_inner_height(),
+                                                    std::vector<int>(main_win->get_inner_width(), 0));
     // 20 * 10
     tetro_heap.heap = {
             {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -55,11 +55,11 @@ void game::init() {
             {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
     };
 
-    full_air_count = main_win->get_width() - 2;
+    full_air_count = main_win->get_inner_width();
     row_air = std::vector<int>(main_win->get_height() - 2, full_air_count);
 }
 
-void game::quit() {
+void game::quit(int signal) {
     is_running = false;
 }
 
@@ -73,7 +73,7 @@ void game::move_left() {
 
 void game::move_right() {
     // 如果没有超出右边界
-    if (block_col < main_win->get_width() - cur_tetromino->get_valid_offset().right - 1 - 1 &&
+    if (block_col < main_win->get_inner_width() - cur_tetromino->get_valid_offset().right &&
         !game::is_touch_heap(cur_tetromino, block_row, block_col + 1)) {
         block_col += 1;
     }
@@ -95,23 +95,28 @@ void game::rotate() {
     cur_tetromino->rotate();
 }
 
-bool game::is_touch_heap(std::unique_ptr<tetro::Tetromino> &tetro, int next_row, int next_col) {
-    auto voffset = tetro->get_valid_offset();
+bool game::is_touch_heap(const std::unique_ptr<tetro::Tetromino> &tetro, int next_row, int next_col) {
+    return game::is_touch_heap(tetro->get_data(), tetro->get_valid_offset(), next_row, next_col);
+}
+
+bool game::is_touch_heap(const std::vector<std::vector<int>> &tetro_data, tetro::ValidOffset valid_offset, int next_row,
+                         int next_col) {
     // 判断是否碰到堆或越界
-    for (int i = next_row + voffset.top - 1; i <= next_row + voffset.bottom - 1; ++i) {
-        for (int j = next_col + voffset.left - 1; j <= next_col + voffset.right - 1; ++j) {
+    for (int i = next_row + valid_offset.top - 1; i <= next_row + valid_offset.bottom - 1; ++i) {
+        for (int j = next_col + valid_offset.left - 1; j <= next_col + valid_offset.right - 1; ++j) {
             // 是否越下界
             if (i < 0 || i >= tetro_heap.heap.size()) {
                 return true;
             }
             // 是否碰到堆
-            if (tetro_heap.heap[i][j] != 0 && (*tetro)[i - next_row + 1][j - next_col + 1] != 0) {
+            if (tetro_heap.heap[i][j] != 0 && tetro_data[i - next_row + 1][j - next_col + 1] != 0) {
                 return true;
             }
         }
     }
     return false;
 }
+
 
 bool game::touch_heap(std::unique_ptr<tetro::Tetromino> &tetro, int row, int col, int next_row, int next_col) {
     // 将方块加入堆中
@@ -141,7 +146,7 @@ bool game::touch_heap(std::unique_ptr<tetro::Tetromino> &tetro, int row, int col
 
 std::unique_ptr<game::tetro::Tetromino> game::generate_tetromino() {
     // 生成随机数
-    for(;;) {
+    for (;;) {
         switch (utils::random_int(0, 6)) {
             case 0:
                 return std::make_unique<game::tetro::TetroI>();
@@ -165,7 +170,7 @@ std::unique_ptr<game::tetro::Tetromino> game::generate_tetromino() {
 
 void game::next_tetromino() {
     cur_tetromino = generate_tetromino();
-    cur_tetromino = std::make_unique<tetro::TetroL>();
+//    cur_tetromino = std::make_unique<tetro::TetroI>();
     auto voffset = cur_tetromino->get_valid_offset();
     block_row = 1 - voffset.top;
     block_col = 5 - (voffset.left + (voffset.right - voffset.left + 1) / 2 - 1);

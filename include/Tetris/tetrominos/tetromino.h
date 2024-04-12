@@ -69,7 +69,7 @@ namespace game::tetro {
         /**
          * 有效坐标偏移量
          */
-         ValidOffset _voffset{};
+        ValidOffset _voffset{};
 
     public:
 
@@ -110,11 +110,23 @@ namespace game::tetro {
         /**
          * 获取有效坐标偏移量
          */
-        ValidOffset get_valid_offset() const;
+        inline ValidOffset get_valid_offset() const {
+            return _voffset;
+        }
+
+        /**
+         * 获取方块数据的拷贝
+         */
+        inline std::vector<std::vector<int>> get_data() const {
+            return _data;
+        }
 
         void rotate();
 
+        static TetrominoState prevState(TetrominoState state);
+
         static TetrominoState nextState(TetrominoState state);
+
 
     private:
         void _rotate();
@@ -125,15 +137,6 @@ namespace game::tetro {
         void _calibrate();
 
     };
-
-    // J 做R旋转：顺时针旋转90度
-    // 1 0 0    0 1 1
-    // 1 1 1 -> 0 1 0
-    // 0 0 0    0 1 0
-    //
-    // J_0[0][0] -> J_R[0][2]; J_0[0][1] -> J_R[1][2]; J_0[0][2] -> J_R[2][2]
-    // J_0[1][0] -> J_R[0][1]; J_0[1][1] -> J_R[1][1]; J_0[1][2] -> J_R[2][1]
-    // J_0[2][0] -> J_R[0][0]; J_0[2][1] -> J_R[1][0]; J_0[2][2] -> J_R[2][0]
 }
 
 #endif //TETRIS_TETROMINO_H

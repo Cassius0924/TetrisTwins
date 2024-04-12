@@ -82,6 +82,14 @@ int ui::Window::get_width() const {
     return _width;
 }
 
+int ui::Window::get_inner_width() const {
+    return _width - 2 < 0 ? 0 : _width - 2;
+}
+
+int ui::Window::get_inner_height() const {
+    return _height - 2 < 0 ? 0 : _height - 2;
+}
+
 void ui::tetromino(std::unique_ptr<game::tetro::Tetromino> &tetro, int left, int top) {
     term::set_back_color(static_cast<int>(tetro->color));
     for (int i = 0; i < tetro->rows(); i++) {

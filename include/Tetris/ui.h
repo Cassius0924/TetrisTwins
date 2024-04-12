@@ -101,6 +101,18 @@ namespace ui {
          * @return 窗口高度
          */
         int get_height() const;
+
+        /**
+         * 获取窗口内部宽度
+         * @return 窗口内部宽度
+         */
+        int get_inner_width() const;
+
+        /**
+         * 获取窗口内部高度
+         * @return 窗口内部高度
+         */
+        int get_inner_height() const;
     };
 
     /**
