@@ -125,8 +125,18 @@ namespace ui {
 
     /**
      * 绘制俄罗斯方块堆
+     * @param tetro_heap: 俄罗斯方块堆
+     * @param win: 窗口
      */
     void game_board(game::TetroHeap &tetro_heap, Window *win);
+
+    /**
+     * 绘制方块的阴影块
+     * @param tetro: 俄罗斯方块
+     * @param left: 左侧位置
+     * @param top: 顶部位置
+     */
+    void ghost_tetromino(std::unique_ptr<game::tetro::Tetromino> &tetro, int left, int top);
 }
 
 #endif //TETRIS_UI_H

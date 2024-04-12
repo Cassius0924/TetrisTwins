@@ -39,16 +39,16 @@ void start() {
         // 显示FPS
         game::status_win->display("FPS: " + std::to_string(utils::fps()), 3, ui::block_to_col(2));
 
+        // 显示阴影块
+        ui::ghost_tetromino(game::cur_tetromino, ui::block_to_col(game::main_win->absolute_col(game::block_col)),
+                            game::main_win->absolute_row(game::ghost_row));
         // 显示正在下落的俄罗斯方块
         ui::tetromino(game::cur_tetromino,
                       ui::block_to_col(game::main_win->absolute_col(game::block_col)),
                       game::main_win->absolute_row(game::block_row));
 
         // 显示方块堆
-//        if (game::tetro_heap.is_updated) {
-//            game::tetro_heap.is_updated = false;
         ui::game_board(game::tetro_heap, game::main_win);
-//        }
 
         term::reset_color();
 

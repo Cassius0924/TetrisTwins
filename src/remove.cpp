@@ -31,6 +31,7 @@ void game::remove_full_rows(int top_row, int bottom_row) {
         }
 
         full_row_count = 0;
+        tetro_heap.is_updated = true;
     };
 
     for (; i <= bottom_row; ++i) {

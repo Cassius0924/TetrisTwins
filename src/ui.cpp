@@ -121,3 +121,17 @@ void ui::game_board(game::TetroHeap &tetro_heap, ui::Window *win) {
         }
     }
 }
+
+void ui::ghost_tetromino(std::unique_ptr<game::tetro::Tetromino> &tetro, int left, int top) {
+    term::set_fore_color(static_cast<int>(tetro->color));
+    for (int i = 0; i < tetro->rows(); i++) {
+        term::move_to(top + i, left);
+        for (int j = 0; j < tetro->cols(); j++) {
+            if ((*tetro)[i][j] > 0) {
+                std::cout << "[]";
+            }
+            term::move_to(top + i, left + 2 * (j + 1));
+        }
+    }
+    term::reset_color();
+}

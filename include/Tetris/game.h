@@ -35,6 +35,11 @@ namespace game {
     extern int block_col;
 
     /**
+     * 阴影块所在行
+     */
+    extern int ghost_row;
+
+    /**
      * 主窗口
      */
     extern ui::Window *main_win;
@@ -112,10 +117,10 @@ namespace game {
     /**
      * 判断是否碰到堆，如果碰到堆则返回true，并将方块加入堆中，如果没有碰到堆则返回false
      * @param tetro: 方块
-     * @param row: 方块左上角行坐标
-     * @param col: 方块左上角列坐标
-     * @param next_row: 方块下一步左上角行坐标
-     * @param next_col: 方块下一步左上角列坐标
+     * @param row: 方块泛区左上角行坐标
+     * @param col: 方块泛区左上角列坐标
+     * @param next_row: 方块下一步泛区左上角行坐标
+     * @param next_col: 方块下一步泛区左上角列坐标
      * @return 是否碰到堆
      */
     bool touch_heap(std::unique_ptr<tetro::Tetromino> &tetro, int row, int col, int next_row, int next_col);
@@ -123,8 +128,8 @@ namespace game {
     /**
      * 判断是否碰到堆
      * @param tetro: 方块
-     * @param next_row: 方块下一步左上角行坐标
-     * @param next_col: 方块下一步左上角列坐标
+     * @param next_row: 方块泛区下一步左上角行坐标
+     * @param next_col: 方块泛区下一步左上角列坐标
      * @return 是否碰到堆
      */
     bool is_touch_heap(const std::unique_ptr<tetro::Tetromino> &tetro, int next_row, int next_col);
@@ -133,8 +138,8 @@ namespace game {
      * 判断是否碰到堆
      * @param tetro_data: 方块数据
      * @param valid_offset: 有效坐标偏移量
-     * @param next_row: 方块下一步左上角行坐标
-     * @param next_col: 方块下一步左上角列坐标
+     * @param next_row: 方块泛区下一步左上角行坐标
+     * @param next_col: 方块泛区下一步左上角列坐标
      * @return 是否碰到堆
      */
     bool is_touch_heap(const std::vector<std::vector<int>>& tetro_data, tetro::ValidOffset valid_offset, int next_row, int next_col);
@@ -148,8 +153,16 @@ namespace game {
     /**
      * 下一个俄罗斯方块
      */
-    void next_tetromino();
+    void next_tetromino(std::unique_ptr<tetro::Tetromino> &tetro);
 
+    /**
+     * 计算方块的阴影块位置
+     * @param tetro: 方块
+     * @param col: 方块泛区左上角行坐标
+     * @param col: 方块泛区左上角列坐标
+     * @return 阴影块泛区左上角行坐标
+     */
+    int cal_ghost_tetromino_row(const std::unique_ptr<tetro::Tetromino> &tetro, int row, int col);
 }
 
 #endif //TETRIS_GAME_H
