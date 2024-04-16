@@ -5,7 +5,7 @@
 
 namespace game {
     /**
-     *
+     * 满行的空气数，即默认空气数，正常为0
      */
     extern int full_air_count;
 
@@ -13,6 +13,11 @@ namespace game {
      * 每一行的空气数的数组
      */
     extern std::vector<int> row_air;
+
+    /**
+     * 消行得分表
+     */
+    extern int score_table[5];
 
     /**
      * 减少某一行的空气数

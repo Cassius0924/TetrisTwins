@@ -42,6 +42,8 @@ void start() {
 
         // 显示FPS
         game::status_win->display("FPS: " + std::to_string(utils::fps()), 3, ui::block_to_col(2));
+        // 显示分数
+        game::status_win->display("Score: " + std::to_string(game::score), 4, ui::block_to_col(2));
 
         // 显示阴影块
         ui::ghost_tetromino(game::cur_tetromino, ui::block_to_col(game::main_win->absolute_col(game::block_col)),

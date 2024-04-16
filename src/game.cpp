@@ -19,6 +19,7 @@ namespace game {
     ui::Window *info_win;
     std::shared_ptr<tetro::Tetromino> cur_tetromino;
     std::deque<std::shared_ptr<tetro::Tetromino>> tetro_queue(5);
+    int score;
     TetroHeap tetro_heap;
     bool is_next_win_updated;
 }
@@ -54,6 +55,7 @@ void game::init() {
             {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
             {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
     };
+    score = 0;
 
     // 生成一个随机的俄罗斯方块
     for (auto &tetro : tetro_queue) {

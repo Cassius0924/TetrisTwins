@@ -31,6 +31,11 @@ namespace game {
     extern std::deque<std::shared_ptr<tetro::Tetromino>> tetro_queue;
 
     /**
+     * 游戏分数
+     */
+    extern int score;
+
+    /**
      * 方块所在行
      */
     extern int block_row;
