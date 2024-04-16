@@ -2,6 +2,7 @@
 #define TETRIS_GAME_H
 
 #include <unordered_map>
+#include <deque>
 
 #include "tetrominos/tetromino.h"
 #include "ui.h"
@@ -22,7 +23,12 @@ namespace game {
     /**
      * 当前方块
      */
-    extern std::unique_ptr<tetro::Tetromino> cur_tetromino;
+    extern std::shared_ptr<tetro::Tetromino> cur_tetromino;
+
+    /**
+     * 方块队列
+     */
+    extern std::deque<std::shared_ptr<tetro::Tetromino>> tetro_queue;
 
     /**
      * 方块所在行
@@ -63,6 +69,11 @@ namespace game {
      * 信息窗口
      */
     extern ui::Window *info_win;
+
+    /**
+     * Next窗口是否需要更新
+     */
+    extern bool is_next_win_updated;
 
     /**
      * 俄罗斯方块堆
@@ -123,7 +134,7 @@ namespace game {
      * @param next_col: 方块下一步泛区左上角列坐标
      * @return 是否碰到堆
      */
-    bool touch_heap(std::unique_ptr<tetro::Tetromino> &tetro, int row, int col, int next_row, int next_col);
+    bool touch_heap(std::shared_ptr<tetro::Tetromino> &tetro, int row, int col, int next_row, int next_col);
 
     /**
      * 判断是否碰到堆
@@ -132,7 +143,7 @@ namespace game {
      * @param next_col: 方块泛区下一步左上角列坐标
      * @return 是否碰到堆
      */
-    bool is_touch_heap(const std::unique_ptr<tetro::Tetromino> &tetro, int next_row, int next_col);
+    bool is_touch_heap(const std::shared_ptr<tetro::Tetromino> &tetro, int next_row, int next_col);
 
     /**
      * 判断是否碰到堆
@@ -148,12 +159,13 @@ namespace game {
      * 生成一个随机的俄罗斯方块
      * @return 俄罗斯方块
      */
-    std::unique_ptr<tetro::Tetromino> generate_tetromino();
+    std::shared_ptr<tetro::Tetromino> generate_tetromino();
 
     /**
-     * 下一个俄罗斯方块
+     * 移动方块到顶部中间
+     * @param tetro: 俄罗斯方块
      */
-    void next_tetromino(std::unique_ptr<tetro::Tetromino> &tetro);
+    void move_to_top_center(std::shared_ptr<tetro::Tetromino> &tetro);
 
     /**
      * 计算方块的阴影块位置
@@ -162,7 +174,7 @@ namespace game {
      * @param col: 方块泛区左上角列坐标
      * @return 阴影块泛区左上角行坐标
      */
-    int cal_ghost_tetromino_row(const std::unique_ptr<tetro::Tetromino> &tetro, int row, int col);
+    int cal_ghost_tetromino_row(const std::shared_ptr<tetro::Tetromino> &tetro, int row, int col);
 }
 
 #endif //TETRIS_GAME_H

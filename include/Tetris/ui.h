@@ -121,7 +121,7 @@ namespace ui {
      * @param left: 左侧位置
      * @param top: 顶部位置
      */
-    void tetromino(std::unique_ptr<game::tetro::Tetromino> &tetro, int left, int top);
+    void tetromino(std::shared_ptr<game::tetro::Tetromino> &tetro, int left, int top);
 
     /**
      * 绘制俄罗斯方块堆
@@ -136,7 +136,14 @@ namespace ui {
      * @param left: 左侧位置
      * @param top: 顶部位置
      */
-    void ghost_tetromino(std::unique_ptr<game::tetro::Tetromino> &tetro, int left, int top);
+    void ghost_tetromino(std::shared_ptr<game::tetro::Tetromino> &tetro, int left, int top);
+
+    /**
+     * 绘制俄罗斯方块队列
+     * @param tetro_queue: 俄罗斯方块队列
+     * @param win: 窗口
+     */
+    void tetro_queue(std::deque<std::shared_ptr<game::tetro::Tetromino>> &tetro_queue, Window *win);
 }
 
 #endif //TETRIS_UI_H

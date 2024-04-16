@@ -22,9 +22,7 @@ void init() {
 
     game::hold_win->draw();
     game::status_win->draw();
-    game::next_win->draw();
     game::info_win->draw();
-
 
     // 初始化游戏
     game::init();
@@ -32,6 +30,12 @@ void init() {
 
 void start() {
     while (game::is_running) {
+
+        if (game::is_next_win_updated) {
+            game::next_win->draw();
+            ui::tetro_queue(game::tetro_queue, game::next_win);
+            game::is_next_win_updated = false;
+        }
 
         // 绘制窗口
         game::main_win->draw();
@@ -53,7 +57,7 @@ void start() {
         term::reset_color();
 
         std::cout << std::flush;
-        std::this_thread::sleep_for(100ms);
+        std::this_thread::sleep_for(50ms);
     }
 }
 

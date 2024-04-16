@@ -17,8 +17,10 @@ namespace game {
     ui::Window *status_win;
     ui::Window *next_win;
     ui::Window *info_win;
-    std::unique_ptr<tetro::Tetromino> cur_tetromino;
+    std::shared_ptr<tetro::Tetromino> cur_tetromino;
+    std::deque<std::shared_ptr<tetro::Tetromino>> tetro_queue(5);
     TetroHeap tetro_heap;
+    bool is_next_win_updated;
 }
 
 void game::init() {
@@ -54,10 +56,16 @@ void game::init() {
     };
 
     // 生成一个随机的俄罗斯方块
-    next_tetromino(cur_tetromino);
+    for (auto &tetro : tetro_queue) {
+        tetro = generate_tetromino();
+    }
+    cur_tetromino = generate_tetromino();
+    move_to_top_center(cur_tetromino);
 
     full_air_count = main_win->get_inner_width();
     row_air = std::vector<int>(main_win->get_height() - 2, full_air_count);
+
+    is_next_win_updated = true;
 }
 
 void game::quit(int signal) {
@@ -99,7 +107,7 @@ void game::rotate() {
     ghost_row = cal_ghost_tetromino_row(cur_tetromino, block_row, block_col);
 }
 
-bool game::is_touch_heap(const std::unique_ptr<tetro::Tetromino> &tetro, int next_row, int next_col) {
+bool game::is_touch_heap(const std::shared_ptr<tetro::Tetromino> &tetro, int next_row, int next_col) {
     return game::is_touch_heap(tetro->get_data(), tetro->get_valid_offset(), next_row, next_col);
 }
 
@@ -122,7 +130,7 @@ bool game::is_touch_heap(const std::vector<std::vector<int>> &tetro_data, tetro:
 }
 
 
-bool game::touch_heap(std::unique_ptr<tetro::Tetromino> &tetro, int row, int col, int next_row, int next_col) {
+bool game::touch_heap(std::shared_ptr<tetro::Tetromino> &tetro, int row, int col, int next_row, int next_col) {
     // 将方块加入堆中
     if (is_touch_heap(tetro, next_row, next_col)) {
         auto voffset = tetro->get_valid_offset();
@@ -143,13 +151,21 @@ bool game::touch_heap(std::unique_ptr<tetro::Tetromino> &tetro, int row, int col
         game::remove_full_rows(row - 1 + voffset.top, row - 1 + voffset.bottom);
 
         // 生成新的的俄罗斯方块
-        next_tetromino(cur_tetromino);
+        cur_tetromino = std::move(tetro_queue.front());
+        tetro_queue.pop_front();
+        tetro_queue.emplace_back(generate_tetromino());
+        move_to_top_center(cur_tetromino);
+
+        is_next_win_updated = true;
+
+        ui::tetro_queue(tetro_queue, next_win);
+
         return true;
     }
     return false;
 }
 
-std::unique_ptr<game::tetro::Tetromino> game::generate_tetromino() {
+std::shared_ptr<game::tetro::Tetromino> game::generate_tetromino() {
     // 生成随机数
     for (;;) {
         switch (utils::random_int(0, 6)) {
@@ -173,16 +189,14 @@ std::unique_ptr<game::tetro::Tetromino> game::generate_tetromino() {
     }
 }
 
-void game::next_tetromino(std::unique_ptr<tetro::Tetromino> &tetro) {
-    tetro = generate_tetromino();
-//    tetro = std::make_unique<tetro::TetroI>();
+void game::move_to_top_center(std::shared_ptr<tetro::Tetromino> &tetro) {
     auto voffset = tetro->get_valid_offset();
     block_row = 1 - voffset.top;
     block_col = 5 - (voffset.left + (voffset.right - voffset.left + 1) / 2 - 1);
     ghost_row = cal_ghost_tetromino_row(cur_tetromino, block_row, block_col);
 }
 
-int game::cal_ghost_tetromino_row(const std::unique_ptr<tetro::Tetromino> &tetro, int row, int col) {
+int game::cal_ghost_tetromino_row(const std::shared_ptr<tetro::Tetromino> &tetro, int row, int col) {
     while (!is_touch_heap(tetro, row + 1, col)) {
         row += 1;
     }
