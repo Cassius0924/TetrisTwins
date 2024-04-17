@@ -180,6 +180,13 @@ namespace game {
      * @return 阴影块泛区左上角行坐标
      */
     int cal_ghost_tetromino_row(const std::shared_ptr<tetro::Tetromino> &tetro, int row, int col);
+
+    /**
+     * 检查方块堆是否触顶
+     * @param row_air: 空行
+     * @return 是否触顶
+     */
+    bool check_touch_top(std::vector<int> row_air);
 }
 
 #endif //TETRIS_GAME_H

@@ -75,7 +75,7 @@ void exit() {
     delete game::next_win;
     delete game::info_win;
 
-    std::cout << "Bye!" << std::endl;
+    std::cout << "GAME, OVER!\nBye!\n";
 }
 
 int main() {

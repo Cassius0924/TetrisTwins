@@ -58,7 +58,7 @@ void game::init() {
     score = 0;
 
     // 生成一个随机的俄罗斯方块
-    for (auto &tetro : tetro_queue) {
+    for (auto &tetro: tetro_queue) {
         tetro = generate_tetromino();
     }
     cur_tetromino = generate_tetromino();
@@ -77,7 +77,7 @@ void game::quit(int signal) {
 void game::move_left() {
     // 如果没有超出左边界
     if (block_col > 1 - cur_tetromino->get_valid_offset().left &&
-        !game::is_touch_heap(cur_tetromino, block_row, block_col - 1)) {
+        !is_touch_heap(cur_tetromino, block_row, block_col - 1)) {
         block_col -= 1;
         ghost_row = cal_ghost_tetromino_row(cur_tetromino, block_row, block_col);
     }
@@ -86,7 +86,7 @@ void game::move_left() {
 void game::move_right() {
     // 如果没有超出右边界
     if (block_col < main_win->get_inner_width() - cur_tetromino->get_valid_offset().right &&
-        !game::is_touch_heap(cur_tetromino, block_row, block_col + 1)) {
+        !is_touch_heap(cur_tetromino, block_row, block_col + 1)) {
         block_col += 1;
         ghost_row = cal_ghost_tetromino_row(cur_tetromino, block_row, block_col);
     }
@@ -110,7 +110,7 @@ void game::rotate() {
 }
 
 bool game::is_touch_heap(const std::shared_ptr<tetro::Tetromino> &tetro, int next_row, int next_col) {
-    return game::is_touch_heap(tetro->get_data(), tetro->get_valid_offset(), next_row, next_col);
+    return is_touch_heap(tetro->get_data(), tetro->get_valid_offset(), next_row, next_col);
 }
 
 bool game::is_touch_heap(const std::vector<std::vector<int>> &tetro_data, tetro::ValidOffset valid_offset, int next_row,
@@ -144,13 +144,18 @@ bool game::touch_heap(std::shared_ptr<tetro::Tetromino> &tetro, int row, int col
                 }
 
                 tetro_heap.heap[row - 1 + i][col - 1 + j] = static_cast<int>(tetro->color);
-                game::dec_row_air(row - 1 + i);
+                dec_row_air(row - 1 + i);
             }
         }
         tetro_heap.is_updated = true;
 
         // 尝试消行
-        game::remove_full_rows(row - 1 + voffset.top, row - 1 + voffset.bottom);
+        remove_full_rows(row - 1 + voffset.top, row - 1 + voffset.bottom);
+
+        // 判断是否触顶
+        if (check_touch_top(row_air)) {
+            quit(0);
+        }
 
         // 生成新的的俄罗斯方块
         cur_tetromino = std::move(tetro_queue.front());
@@ -203,4 +208,8 @@ int game::cal_ghost_tetromino_row(const std::shared_ptr<tetro::Tetromino> &tetro
         row += 1;
     }
     return row;
+}
+
+bool game::check_touch_top(std::vector<int> row_air) {
+    return row_air[0] < full_air_count;
 }
