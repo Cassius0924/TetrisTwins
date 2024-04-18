@@ -68,6 +68,8 @@ void game::init() {
     row_air = std::vector<int>(main_win->get_height() - 2, full_air_count);
 
     is_next_win_updated = true;
+
+    ctrl::start_gravity_thread();
 }
 
 void game::quit(int signal) {

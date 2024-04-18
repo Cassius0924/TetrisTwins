@@ -1,9 +1,12 @@
 #include <thread>
 #include <unordered_map>
+#include <future>
 
 #include "control.h"
 #include "utils.h"
 #include "game.h"
+
+typedef std::chrono::milliseconds MS;
 
 namespace ctrl {
     /**
@@ -20,6 +23,8 @@ namespace ctrl {
             {k_KEY_D,     cmd_right},
             {k_KEY_S,     cmd_down},
     };
+
+    bool is_hard_drop = false;
 }
 
 void ctrl::listen_key_event() {
@@ -35,6 +40,21 @@ void ctrl::start_key_listener() {
     // 新建键盘监听线程
     std::thread t(listen_key_event);
     // 后台运行，与主线程分离
+    t.detach();
+}
+
+void ctrl::gravity() {
+    while (game::is_running) {
+        if (is_hard_drop) {
+            continue;
+        }
+        game::move_down();
+        std::this_thread::sleep_for(MS(ctrl::k_GRAVITY_INTERVAL_MS));
+    }
+}
+
+void ctrl::start_gravity_thread() {
+    std::thread t(gravity);
     t.detach();
 }
 
@@ -61,5 +81,15 @@ void ctrl::cmd_right() {
 }
 
 void ctrl::cmd_down() {
-    game::move_down();
+    if (is_hard_drop) {
+        return;
+    }
+    is_hard_drop = true;
+    game::block_row = game::ghost_row;
+    std::thread t([]{
+        std::this_thread::sleep_for(MS(k_LOCK_DELAY_MS));
+        game::move_down();
+        is_hard_drop = false;
+    });
+    t.detach();
 }

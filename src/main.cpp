@@ -59,7 +59,7 @@ void start() {
         term::reset_color();
 
         std::cout << std::flush;
-        std::this_thread::sleep_for(50ms);
+        std::this_thread::sleep_for(100ms);
     }
 }
 
