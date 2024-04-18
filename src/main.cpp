@@ -46,11 +46,11 @@ void start() {
         game::status_win->display("Score: " + std::to_string(game::score), 4, ui::block_to_col(2));
 
         // 显示阴影块
-        ui::ghost_tetromino(game::cur_tetromino, ui::block_to_col(game::main_win->absolute_col(game::block_col)),
+        ui::ghost_tetromino(game::cur_tetromino, game::main_win->absolute_col(ui::block_to_col(game::block_col)),
                             game::main_win->absolute_row(game::ghost_row));
         // 显示正在下落的俄罗斯方块
         ui::tetromino(game::cur_tetromino,
-                      ui::block_to_col(game::main_win->absolute_col(game::block_col)),
+                      game::main_win->absolute_col(ui::block_to_col(game::block_col)),
                       game::main_win->absolute_row(game::block_row));
 
         // 显示方块堆

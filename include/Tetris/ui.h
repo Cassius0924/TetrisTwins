@@ -87,7 +87,7 @@ namespace ui {
          * @return 绝对列坐标
          */
         inline int absolute_col(int col) const {
-            return _left + col;
+            return _left * 2 + col;
         }
 
         /**
