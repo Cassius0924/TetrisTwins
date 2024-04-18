@@ -92,10 +92,10 @@ int ui::Window::get_inner_height() const {
 
 void ui::tetromino(std::shared_ptr<game::tetro::Tetromino> &tetro, int left, int top) {
     term::set_back_color(static_cast<int>(tetro->color));
-    // TODO: 优化
-    for (int i = 0; i < tetro->rows(); i++) {
-        term::move_to(top + i, left);
-        for (int j = 0; j < tetro->cols(); j++) {
+    auto voffset = tetro->get_valid_offset();
+    for (int i = voffset.top; i <= voffset.bottom; i++) {
+        term::move_to(top + i, left + 2 * voffset.left);
+        for (int j = voffset.left; j <= voffset.right; j++) {
             if ((*tetro)[i][j] > 0) {
                 std::cout << "  ";
             }
@@ -125,9 +125,10 @@ void ui::game_board(game::TetroHeap &tetro_heap, ui::Window *win) {
 
 void ui::ghost_tetromino(std::shared_ptr<game::tetro::Tetromino> &tetro, int left, int top) {
     term::set_fore_color(static_cast<int>(tetro->color));
-    for (int i = 0; i < tetro->rows(); i++) {
-        term::move_to(top + i, left);
-        for (int j = 0; j < tetro->cols(); j++) {
+    auto voffset = tetro->get_valid_offset();
+    for (int i = voffset.top; i <= voffset.bottom; i++) {
+        term::move_to(top + i, left + 2 * voffset.left);
+        for (int j = voffset.left; j <= voffset.right; j++) {
             if ((*tetro)[i][j] > 0) {
                 std::cout << "[]";
             }
