@@ -81,13 +81,20 @@ void ctrl::cmd_right() {
 }
 
 void ctrl::cmd_down() {
+    bool lock_flag = false;
     if (is_hard_drop) {
+        lock_flag = true;
+        game::move_down();
+        is_hard_drop = false;
         return;
     }
     is_hard_drop = true;
     game::block_row = game::ghost_row;
-    std::thread t([]{
+    std::thread t([&lock_flag]{
         std::this_thread::sleep_for(MS(k_LOCK_DELAY_MS));
+        if (lock_flag) {
+            return;
+        }
         game::move_down();
         is_hard_drop = false;
     });
