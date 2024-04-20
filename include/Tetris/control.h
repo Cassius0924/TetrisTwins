@@ -22,6 +22,9 @@ namespace ctrl {
      */
     constexpr int k_LOCK_DELAY_MS = 1000;
 
+    /**
+     * 是否硬降
+     */
     extern bool is_hard_drop;
 
     /**
