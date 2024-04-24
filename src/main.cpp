@@ -1,6 +1,7 @@
 #include <iostream>
 #include <thread>
 
+#include "menu.h"
 #include "terminal.h"
 #include "tetrominos/define.h"
 #include "utils.h"
@@ -14,18 +15,8 @@ void init() {
     term::hide_cursor();
     ui::Style::set_style(3);
 
-    game::main_win = new ui::Window(10, 1, 12, 22, "TetrisTwins");
-    game::hold_win = new ui::Window(1, 1, 9, 6, "Hold");
-    game::status_win = new ui::Window(1, 7, 9, 16, "Status");
-    game::next_win = new ui::Window(22, 1, 8, 18, "Next");
-    game::info_win = new ui::Window(22, 19, 8, 4, "Info");
-
-    game::hold_win->draw();
-    game::status_win->draw();
-    game::info_win->draw();
-
-    // 初始化游戏
-    game::init();
+    // 显示菜单
+    menu::show_menu();
 }
 
 void start() {
@@ -80,8 +71,8 @@ void exit() {
 
 int main() {
     init();
-    start();
-    exit();
+//    start();
+//    exit();
 
     return 0;
 }

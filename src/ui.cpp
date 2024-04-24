@@ -4,12 +4,16 @@
 #include "ui.h"
 #include "terminal.h"
 #include "style.h"
+#include "control.h"
+#include "utils.h"
+#include "menu.h"
 
 
 ui::Window::Window(int left, int top, int width, int height, std::string title) : _left(left), _top(top),
                                                                                   _width(width),
                                                                                   _height(height),
-                                                                                  _title(std::move(title)) {
+                                                                                  _title(std::move(title)),
+                                                                                  menu_items() {
 }
 
 void ui::Window::draw() {
@@ -69,9 +73,9 @@ void ui::Window::draw() {
 ui::Window::~Window() {
 }
 
-void ui::Window::display(const std::string &value, int row, int col) const {
+void ui::Window::display(const std::string &text, int row, int col) const {
     term::move_to(absolute_row(row), absolute_col(col));
-    std::cout << value;
+    std::cout << text;
 }
 
 int ui::Window::get_height() const {
@@ -88,6 +92,48 @@ int ui::Window::get_inner_width() const {
 
 int ui::Window::get_inner_height() const {
     return _height - 2 < 0 ? 0 : _height - 2;
+}
+
+void ui::Window::register_menu_item(const std::string &text, int row, int col, std::function<void()> action) {
+    menu_items.emplace_back(MenuItem{text, absolute_row(row), absolute_col(col), std::move(action)});
+}
+
+void ui::Window::showInteractiveMenu(const std::list<MenuItem> &menu_items) {
+    for (auto &item: menu_items) {
+        term::move_to(item.arow, item.acol);
+        std::cout << item.text;
+    }
+    auto item = menu_items.begin();
+    while (menu::is_showing_menu) {
+        term::set_back_color(static_cast<int>(Color::Gray));
+        term::move_to(item->arow, item->acol);
+        std::cout << item->text;
+        std::cout << std::flush;
+        term::reset_color();
+        while (true) {
+            char command = utils::getch();
+            if (command == ctrl::k_KEY_W || command == ctrl::k_KEY_UP) {
+                if (item != menu_items.begin()) {
+                    term::move_to(item->arow, item->acol);
+                    std::cout << item->text;
+                    item--;
+                }
+                break;
+            } else if (command == ctrl::k_KEY_S || command == ctrl::k_KEY_DOWN) {
+                if (item != --menu_items.end()) {
+                    term::move_to(item->arow, item->acol);
+                    std::cout << item->text;
+                    item++;
+                }
+                break;
+            } else if (command == ctrl::k_KEY_SPACE || command == ctrl::k_KEY_ENTER) {
+                if (item->action) {
+                    item->action();
+                }
+                break;
+            }
+        }
+    }
 }
 
 void ui::tetromino(std::shared_ptr<game::tetro::Tetromino> &tetro, int left, int top) {

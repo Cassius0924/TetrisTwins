@@ -8,10 +8,16 @@ namespace ctrl {
     constexpr char k_KEY_Q = 'q';
     constexpr char k_KEY_P = 'p';
     constexpr char k_KEY_C = 'c';
+    constexpr char k_KEY_W = 'w';
     constexpr char k_KEY_A = 'a';
     constexpr char k_KEY_S = 's';
     constexpr char k_KEY_D = 'd';
+    constexpr char k_KEY_UP = 65;
+    constexpr char k_KEY_DOWN = 66;
+    constexpr char k_KEY_LEFT = 68;
+    constexpr char k_KEY_RIGHT = 67;
     constexpr char k_KEY_SPACE = ' ';
+    constexpr char k_KEY_ENTER = '\n';
 
     /**
      * 方块重力下落间隔

@@ -20,6 +20,12 @@ namespace utils {
      * @return 随机数
      */
     int random_int(int min, int max);
+
+    /**
+     * 获取本地 IP 地址
+     * @return 本机 IP 地址
+     */
+    std::string get_lan_ip_linux();
 }
 
 

@@ -24,7 +24,17 @@ namespace game {
     bool is_next_win_updated;
 }
 
-void game::init() {
+void game::spg_init() {
+    game::main_win = new ui::Window(10, 1, 12, 22, "TetrisTwins");
+    game::hold_win = new ui::Window(1, 1, 9, 6, "Hold");
+    game::status_win = new ui::Window(1, 7, 9, 16, "Status");
+    game::next_win = new ui::Window(22, 1, 8, 18, "Next");
+    game::info_win = new ui::Window(22, 19, 8, 4, "Info");
+
+    game::hold_win->draw();
+    game::status_win->draw();
+    game::info_win->draw();
+
     // 开始键盘监听
     ctrl::start_key_listener();
 

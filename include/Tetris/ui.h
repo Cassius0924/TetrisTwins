@@ -2,6 +2,7 @@
 #define TETRIS_UI_H
 
 #include <string>
+#include <list>
 
 #include "tetrominos/tetromino.h"
 #include "game.h"
@@ -37,6 +38,13 @@ namespace ui {
         return block * 2 - 1;
     }
 
+    struct MenuItem{
+        std::string text;
+        int arow;
+        int acol;
+        std::function<void()> action;
+    };
+
     /**
      * UI 窗口类
      */
@@ -47,6 +55,9 @@ namespace ui {
         int _width;
         int _height;
         std::string _title;
+
+    public:
+        std::list<MenuItem> menu_items;
 
     public:
         /**
@@ -67,10 +78,11 @@ namespace ui {
 
         /**
          * 在此窗口的相对位置显示内容
+         * @param text: 显示的内容
          * @param row: 相对行坐标
          * @param col: 相对列坐标
          */
-        void display(const std::string &value, int row, int col) const;
+        void display(const std::string &text, int row, int col) const;
 
         /**
          * 根据传入的相对行坐标，获取绝对行坐标
@@ -113,6 +125,21 @@ namespace ui {
          * @return 窗口内部高度
          */
         int get_inner_height() const;
+
+        /**
+         * 注册一个菜单项
+         * @param text: 菜单项文本
+         * @param row: 行坐标
+         * @param col: 列坐标
+         * @param action: 菜单项动作
+         */
+        void register_menu_item(const std::string &text, int row, int col, std::function<void()> action = nullptr);
+
+        /**
+         * 显示窗口菜单
+         * @param menu_items: 菜单项列表
+         */
+        static void showInteractiveMenu(const std::list<MenuItem> &menu_items);
     };
 
     /**

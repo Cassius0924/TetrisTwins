@@ -108,7 +108,7 @@ namespace game {
     /**
      * 初始化游戏
      */
-    void init();
+    void spg_init();
 
     /**
      * 左移方块

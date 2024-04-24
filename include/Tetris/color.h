@@ -14,6 +14,8 @@ namespace ui{
         Green = 10,
         Blue = 12,
         Purple = 13,
+        Gray = 8,
+        Black = 0,
     };
 
 }
