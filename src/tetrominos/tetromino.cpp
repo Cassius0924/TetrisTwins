@@ -1,14 +1,16 @@
 #include "tetrominos/tetromino.h"
-#include "tetrominos/tetro_o.h"
+
 #include "game.h"
+#include "tetrominos/tetro_o.h"
+#include "ui.h"
 
 using namespace game::tetro;
 
-Tetromino::Tetromino() {
+Tetromino::Tetromino() : color() {
     _state = TetrominoState::Zero;
 }
 
-Tetromino::Tetromino(TetrominoState init_state) {
+Tetromino::Tetromino(TetrominoState init_state) : color() {
     _state = init_state;
 }
 
