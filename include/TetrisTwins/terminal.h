@@ -1,11 +1,10 @@
 #ifndef TETRIS_TERMINAL_H
 #define TETRIS_TERMINAL_H
 
-
 /**
  * 终端输出打印
  */
-namespace term { //terminal
+namespace term { // terminal
 
     /**
      * 移动光标到指定位置

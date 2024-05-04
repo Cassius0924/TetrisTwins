@@ -63,6 +63,7 @@ Checks: >
   readability-*,
   readability-identifier-naming,
   readability-static-accessed-through-instance,
+  -readability-redundant-inline-specifier
   -readability-redundant-preprocessor,
   -readability-named-parameter,
   -readability-function-size,
@@ -96,7 +97,7 @@ CheckOptions:
   - key: readability-identifier-naming.EnumConstantCase  # 枚举值
     value: UPPER_CASE
   - key: readability-identifier-naming.ScopedEnumConstantCase  # enum class 枚举值
-    value: CamelCase
+    value: UPPER_CASE
 
   - key: readability-identifier-naming.UnionCase  # 联合名
     value: CamelCase

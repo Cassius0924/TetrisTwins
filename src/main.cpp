@@ -2,11 +2,11 @@
 #include <thread>
 
 #include "menu.h"
+#include "style.h"
 #include "terminal.h"
 #include "tetrominos/define.h"
-#include "utils.h"
 #include "ui.h"
-#include "style.h"
+#include "utils/utils.h"
 
 using namespace std::chrono_literals;
 
@@ -40,8 +40,7 @@ void start() {
         ui::ghost_tetromino(game::cur_tetromino, game::main_win->absolute_col(ui::block_to_col(game::block_col)),
                             game::main_win->absolute_row(game::ghost_row));
         // 显示正在下落的俄罗斯方块
-        ui::tetromino(game::cur_tetromino,
-                      game::main_win->absolute_col(ui::block_to_col(game::block_col)),
+        ui::tetromino(game::cur_tetromino, game::main_win->absolute_col(ui::block_to_col(game::block_col)),
                       game::main_win->absolute_row(game::block_row));
 
         // 显示方块堆

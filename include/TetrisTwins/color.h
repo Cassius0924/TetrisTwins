@@ -1,7 +1,7 @@
 #ifndef TETRIS_COLOR_H
 #define TETRIS_COLOR_H
 
-namespace ui{
+namespace ui {
 
     /**
      * 俄罗斯方块颜色，颜色值对应终端颜色

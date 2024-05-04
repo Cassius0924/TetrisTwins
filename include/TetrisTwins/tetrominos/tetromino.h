@@ -2,12 +2,10 @@
 #define TETRIS_TETROMINO_H
 
 #include <vector>
-#include <unordered_map>
 
 #include "color.h"
 
 namespace game::tetro {
-
     enum class TetrominoState {
         Zero = 0,
         Right = 1,
@@ -72,7 +70,6 @@ namespace game::tetro {
         ValidOffset _voffset{};
 
     public:
-
         /**
          * 方块颜色
          */
@@ -84,7 +81,7 @@ namespace game::tetro {
 
         Tetromino(const Tetromino &tetro) = default;
 
-//        explicit Tetromino(std::vector<std::vector<int>> data);
+        //        explicit Tetromino(std::vector<std::vector<int>> data);
 
         virtual ~Tetromino();
 
@@ -127,7 +124,6 @@ namespace game::tetro {
 
         static TetrominoState nextState(TetrominoState state);
 
-
     private:
         void _rotate();
 
@@ -135,7 +131,6 @@ namespace game::tetro {
          * 校准方块数据，根据踢墙表调整位置
          */
         void _calibrate();
-
     };
 }
 

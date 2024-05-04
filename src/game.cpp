@@ -1,11 +1,12 @@
+#include "game.h"
+
 #include <iostream>
 
-#include "ui.h"
-#include "game.h"
 #include "control.h"
-#include "tetrominos/define.h"
-#include "utils.h"
 #include "remove.h"
+#include "tetrominos/define.h"
+#include "ui.h"
+#include "utils/utils.h"
 
 namespace game {
     bool is_running;
@@ -22,30 +23,30 @@ namespace game {
     int score;
     TetroHeap tetro_heap;
     bool is_next_win_updated;
-}
+} // namespace game
 
 void game::spg_init() {
-    game::main_win = new ui::Window(10, 1, 12, 22, "TetrisTwins");
-    game::hold_win = new ui::Window(1, 1, 9, 6, "Hold");
-    game::status_win = new ui::Window(1, 7, 9, 16, "Status");
-    game::next_win = new ui::Window(22, 1, 8, 18, "Next");
-    game::info_win = new ui::Window(22, 19, 8, 4, "Info");
+    main_win = new ui::Window(10, 1, 12, 22, "TetrisTwins");
+    hold_win = new ui::Window(1, 1, 9, 6, "Hold");
+    status_win = new ui::Window(1, 7, 9, 16, "Status");
+    next_win = new ui::Window(22, 1, 8, 18, "Next");
+    info_win = new ui::Window(22, 19, 8, 4, "Info");
 
-    game::hold_win->draw();
-    game::status_win->draw();
-    game::info_win->draw();
+    hold_win->draw();
+    status_win->draw();
+    info_win->draw();
 
     // 开始键盘监听
     ctrl::start_key_listener();
 
     is_running = true;
 
-    tetro_heap.heap = std::vector<std::vector<int>>(main_win->get_inner_height(),
-                                                    std::vector<int>(main_win->get_inner_width(), 0));
+    tetro_heap.heap =
+        std::vector<std::vector<int>>(main_win->get_inner_height(), std::vector<int>(main_win->get_inner_width(), 0));
     score = 0;
 
     // 生成一个随机的俄罗斯方块
-    for (auto &tetro: tetro_queue) {
+    for (auto &tetro : tetro_queue) {
         tetro = generate_tetromino();
     }
     cur_tetromino = generate_tetromino();
@@ -120,7 +121,6 @@ bool game::is_touch_heap(const std::vector<std::vector<int>> &tetro_data, tetro:
     }
     return false;
 }
-
 
 bool game::touch_heap(std::shared_ptr<tetro::Tetromino> &tetro, int row, int col, int next_row, int next_col) {
     // 将方块加入堆中

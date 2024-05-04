@@ -1,20 +1,15 @@
-#include <iostream>
-#include <utility>
-
 #include "ui.h"
-#include "terminal.h"
-#include "style.h"
+
+#include <iostream>
+
 #include "control.h"
-#include "utils.h"
 #include "menu.h"
+#include "style.h"
+#include "terminal.h"
+#include "utils/utils.h"
 
-
-ui::Window::Window(int left, int top, int width, int height, std::string title) : _left(left), _top(top),
-                                                                                  _width(width),
-                                                                                  _height(height),
-                                                                                  _title(std::move(title)),
-                                                                                  menu_items() {
-}
+ui::Window::Window(int left, int top, int width, int height, std::string title)
+    : _left(left), _top(top), _width(width), _height(height), _title(std::move(title)), menu_items() {}
 
 void ui::Window::draw() {
     if (_top < 0 || _left < 0 || _width < 0 || _height < 0) {
@@ -70,8 +65,7 @@ void ui::Window::draw() {
     std::cout << DS::br();
 }
 
-ui::Window::~Window() {
-}
+ui::Window::~Window() {}
 
 void ui::Window::display(const std::string &text, int row, int col) const {
     term::move_to(absolute_row(row), absolute_col(col));
@@ -99,7 +93,7 @@ void ui::Window::register_menu_item(const std::string &text, int row, int col, s
 }
 
 void ui::Window::showInteractiveMenu(const std::list<MenuItem> &menu_items) {
-    for (auto &item: menu_items) {
+    for (auto &item : menu_items) {
         term::move_to(item.arow, item.acol);
         std::cout << item.text;
     }

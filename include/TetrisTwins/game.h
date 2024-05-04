@@ -1,11 +1,9 @@
 #ifndef TETRIS_GAME_H
 #define TETRIS_GAME_H
 
-#include <unordered_map>
 #include <deque>
 
 #include "tetrominos/tetromino.h"
-#include "ui.h"
 
 namespace ui {
     class Window;
@@ -158,7 +156,8 @@ namespace game {
      * @param next_col: 方块泛区下一步左上角列坐标
      * @return 是否碰到堆
      */
-    bool is_touch_heap(const std::vector<std::vector<int>>& tetro_data, tetro::ValidOffset valid_offset, int next_row, int next_col);
+    bool is_touch_heap(const std::vector<std::vector<int>> &tetro_data, tetro::ValidOffset valid_offset, int next_row,
+                       int next_col);
 
     /**
      * 生成一个随机的俄罗斯方块

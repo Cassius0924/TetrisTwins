@@ -1,10 +1,11 @@
+#include "control.h"
+
+#include <future>
 #include <thread>
 #include <unordered_map>
-#include <future>
 
-#include "control.h"
-#include "utils.h"
 #include "game.h"
+#include "utils/utils.h"
 
 typedef std::chrono::milliseconds MS;
 
@@ -15,17 +16,17 @@ namespace ctrl {
     char command;
 
     std::unordered_map<char, std::function<void()>> cmd_func{
-            {k_KEY_Q,     cmd_quit},
-            {k_KEY_P,     cmd_pause},
-            {k_KEY_C,     cmd_continue},
-            {k_KEY_SPACE, cmd_rotate},
-            {k_KEY_A,     cmd_left},
-            {k_KEY_D,     cmd_right},
-            {k_KEY_S,     cmd_down},
+        {k_KEY_Q,     cmd_quit    },
+        {k_KEY_P,     cmd_pause   },
+        {k_KEY_C,     cmd_continue},
+        {k_KEY_SPACE, cmd_rotate  },
+        {k_KEY_A,     cmd_left    },
+        {k_KEY_D,     cmd_right   },
+        {k_KEY_S,     cmd_down    },
     };
 
     bool is_hard_drop = false;
-}
+} // namespace ctrl
 
 void ctrl::listen_key_event() {
     while (game::is_running) {
@@ -62,11 +63,9 @@ void ctrl::cmd_quit() {
     game::quit();
 }
 
-void ctrl::cmd_pause() {
-}
+void ctrl::cmd_pause() {}
 
-void ctrl::cmd_continue() {
-}
+void ctrl::cmd_continue() {}
 
 void ctrl::cmd_rotate() {
     game::rotate();
@@ -92,7 +91,7 @@ void ctrl::cmd_down() {
     game::block_row = game::ghost_row;
 
     // 延迟 k_LOCK_DELAY_MS 毫秒后再次移动
-    std::thread t([]{
+    std::thread t([] {
         std::this_thread::sleep_for(MS(k_LOCK_DELAY_MS));
         if (!is_hard_drop) {
             return;

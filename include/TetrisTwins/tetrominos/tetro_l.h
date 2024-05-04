@@ -4,7 +4,6 @@
 #include "tetrominos/tetromino.h"
 
 namespace game::tetro {
-
     class TetroL : public Tetromino {
     public:
         TetroL();
@@ -16,9 +15,8 @@ namespace game::tetro {
          */
         static ui::Color s_color;
 
-//        void _calibrate() override;
-
+        //        void _calibrate() override;
     };
-}
+} // namespace game::tetro
 
-#endif //TETRIS_TETRO_L_H
+#endif // TETRIS_TETRO_L_H

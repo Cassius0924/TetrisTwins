@@ -9,4 +9,4 @@
 #include "tetrominos/tetro_t.h"
 #include "tetrominos/tetro_z.h"
 
-#endif //TETRIS_DEFINE_H
+#endif // TETRIS_DEFINE_H

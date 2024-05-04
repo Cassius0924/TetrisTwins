@@ -2,21 +2,19 @@
 #define TETRIS_STYLE_H
 #include <vector>
 
-
 namespace ui {
-/**
- * 窗口绘制主题
- */
+    /**
+     * 窗口绘制主题
+     */
     class Style {
     private:
-        static const std::vector <std::string> style1;
-        static const std::vector <std::string> style2;
-        static const std::vector <std::string> style3;
-        static const std::vector <std::string> style4;
-        static std::vector <std::string> cur_style;
+        static const std::vector<std::string> style1;
+        static const std::vector<std::string> style2;
+        static const std::vector<std::string> style3;
+        static const std::vector<std::string> style4;
+        static std::vector<std::string> cur_style;
 
     public:
-
         /**
          * 左上角
          * @return 左上角字符块
@@ -46,7 +44,6 @@ namespace ui {
          * @return 水平边框字符块
          */
         static std::string h_edge();
-
 
         /**
          * 靠左垂直边框

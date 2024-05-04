@@ -15,8 +15,7 @@ namespace game::tetro {
          */
         static ui::Color s_color;
 
-//        void _calibrate() override;
-
+        //        void _calibrate() override;
     };
-}
-#endif //TETRIS_TETRO_S_H
+} // namespace game::tetro
+#endif // TETRIS_TETRO_S_H

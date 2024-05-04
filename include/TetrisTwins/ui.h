@@ -1,12 +1,11 @@
-#ifndef TETRIS_UI_H
-#define TETRIS_UI_H
+#ifndef TETRIS_TWINS_UI_H
+#define TETRIS_TWINS_UI_H
 
-#include <string>
 #include <list>
+#include <string>
 
-#include "tetrominos/tetromino.h"
 #include "game.h"
-
+#include "tetrominos/tetromino.h"
 
 // 0	1	2	3	4	5	6	7	8	9	A	B	C	D	E	F
 // U+250x	─	━	│	┃	┄	┅	┆	┇	┈	┉	┊	┋	┌	┍	┎	┏
@@ -38,7 +37,7 @@ namespace ui {
         return block * 2 - 1;
     }
 
-    struct MenuItem{
+    struct MenuItem {
         std::string text;
         int arow;
         int acol;
@@ -173,4 +172,4 @@ namespace ui {
     void tetro_queue(std::deque<std::shared_ptr<game::tetro::Tetromino>> &tetro_queue, Window *win);
 }
 
-#endif //TETRIS_UI_H
+#endif //TETRIS_TWINS_UI_H

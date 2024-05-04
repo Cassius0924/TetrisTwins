@@ -1,12 +1,13 @@
-#include <chrono>
-#include <termios.h>
-#include <random>
-#include <ifaddrs.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
+#include "utils/utils.h"
 
-#include "utils.h"
+#include <arpa/inet.h>
+#include <ifaddrs.h>
+#include <netinet/in.h>
+#include <sys/socket.h>
+#include <termios.h>
+
+#include <chrono>
+#include <random>
 
 using namespace std::chrono_literals;
 

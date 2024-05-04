@@ -1,14 +1,15 @@
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <iostream>
-
 #include "room.h"
+
+#include <iostream>
+#include <netinet/in.h>
+#include <sys/socket.h>
+
 #include "menu.h"
 
 namespace room {
 
-    Room::Room(proto::RoomMessage &room_message) : id(room_message.id()), ip(room_message.ip()),
-                                                   port(room_message.port()), name(room_message.name()) {}
+    Room::Room(proto::RoomMessage &room_message)
+        : id(room_message.id()), ip(room_message.ip()), port(room_message.port()), name(room_message.name()) {}
 
     bool Room::operator==(const room::Room &other) const {
         return id == other.id;
@@ -16,10 +17,9 @@ namespace room {
 
     std::unordered_set<Room> game_rooms;
     bool is_keep_receive_broadcast = true;
-}
+} // namespace room
 
-void room::receive_game_room_broadcast() {
-}
+void room::receive_game_room_broadcast() {}
 
 room::UdpBroadcastReceiver::UdpBroadcastReceiver(int port) : _port(port), _sock() {
     init();
@@ -56,8 +56,8 @@ void room::UdpBroadcastReceiver::blocking_recv_data(char *buffer) const {
     while (true) {
         sockaddr_in sender_addr{};
         socklen_t sender_addr_size = sizeof(sender_addr);
-        size_t len = recvfrom(_sock, buffer, sizeof(buffer) - 1, 0,
-                              reinterpret_cast<struct sockaddr *>(&sender_addr), &sender_addr_size);
+        size_t len = recvfrom(_sock, buffer, sizeof(buffer) - 1, 0, reinterpret_cast<struct sockaddr *>(&sender_addr),
+                              &sender_addr_size);
         if (len < 0) {
             continue;
         }
@@ -70,8 +70,8 @@ void room::UdpBroadcastReceiver::blocking_recv_room_message(proto::RoomMessage &
     while (true) {
         sockaddr_in sender_addr{};
         socklen_t sender_addr_size = sizeof(sender_addr);
-        size_t len = recvfrom(_sock, buffer, sizeof(buffer) - 1, 0,
-                              reinterpret_cast<struct sockaddr *>(&sender_addr), &sender_addr_size);
+        size_t len = recvfrom(_sock, buffer, sizeof(buffer) - 1, 0, reinterpret_cast<struct sockaddr *>(&sender_addr),
+                              &sender_addr_size);
         if (len < 0) {
             continue;
         }
@@ -98,9 +98,13 @@ bool room::UdpBroadcastReceiver::recv_room_message(proto::RoomMessage &room_mess
     } else {
         sockaddr_in sender_addr{};
         socklen_t sender_addr_size = sizeof(sender_addr);
-        size_t len = recvfrom(_sock, buffer, sizeof(buffer) - 1, 0,
-                              reinterpret_cast<struct sockaddr *>(&sender_addr), &sender_addr_size);
-        if (len < 0) {
+        size_t len = recvfrom(_sock, buffer, sizeof(buffer) - 1, 0, reinterpret_cast<struct sockaddr *>(&sender_addr),
+                              &sender_addr_size);
+        if (len == 0) {
+            std::cerr << "服务器已关闭" << std::endl;
+            close(_sock);
+            return false;
+        } else if (len < 0) {
             return false;
         }
 
@@ -136,7 +140,7 @@ void room::UdpBroadcastSender::init() {
     _addr = reinterpret_cast<struct sockaddr *>(&_broadcast_addr);
 }
 
-int room::UdpBroadcastSender::send_data(const char *buffer, size_t len) const{
+int room::UdpBroadcastSender::send_data(const char *buffer, size_t len) const {
     return sendto(_sock, buffer, len, 0, _addr, sizeof(_broadcast_addr));
 }
 

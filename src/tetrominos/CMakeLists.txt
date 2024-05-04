@@ -1,0 +1,12 @@
+add_library(TETROMINOS OBJECT)
+
+aux_source_directory(${CMAKE_CURRENT_SOURCE_DIR} TETROMINOS_SRC)
+
+target_sources(TETROMINOS PRIVATE ${TETROMINOS_SRC})
+
+target_include_directories(TETROMINOS PUBLIC ${INCLUDE_DIR} ${Absl_LIBRARIES})
+
+list(APPEND LIBS TETROMINOS)
+set(LIBS ${LIBS} PARENT_SCOPE)
+
+

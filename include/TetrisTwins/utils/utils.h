@@ -1,6 +1,8 @@
 #ifndef TETRIS_UTILS_H
 #define TETRIS_UTILS_H
 
+#include <string>
+
 namespace utils {
     /**
      * 获取游戏帧率

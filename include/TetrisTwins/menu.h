@@ -1,8 +1,8 @@
 #ifndef TETRIS_MENU_H
 #define TETRIS_MENU_H
 
-#include "ui.h"
 #include "room.h"
+#include "ui.h"
 
 namespace menu {
     /**
@@ -37,12 +37,12 @@ namespace menu {
     /**
      * 刷新游戏房间窗口显示
      */
-    void refresh_room_win(ui::Window &room_win);
+    void refresh_room_win(ui::Window &room_win, int room_id);
 
     /**
      * 搜索双人游戏
      */
-    void search_double_player_game(ui::Window& game_rooms_win, ui::Window& menu_win);
+    void search_double_player_game(ui::Window &game_rooms_win, ui::Window &menu_win);
 
     /**
      * 创建双人游戏

@@ -1,11 +1,12 @@
 #include "remove.h"
+
 #include "game.h"
 
 namespace game {
     int full_air_count;
     std::vector<int> row_air;
     int score_table[5] = {0, 100, 300, 500, 800};
-}
+} // namespace game
 
 void game::remove_full_rows(int top_row, int bottom_row) {
     int full_row_count = 0;
