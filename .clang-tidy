@@ -108,7 +108,7 @@ CheckOptions:
   - key: readability-identifier-naming.TypeAliasCase # 类型别名
     value: CamelCase
   - key: readability-identifier-naming.TypedefCase  # 类型定义
-    value: CamelCase
+    value: CamelCase, lower_case
 
   - key: readability-identifier-naming.FunctionCase # 函数名
     value: lower_case
