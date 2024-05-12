@@ -1,12 +1,12 @@
 #include <iostream>
 #include <thread>
 
-#include "menu.h"
-#include "style.h"
-#include "terminal.h"
-#include "tetrominos/define.h"
-#include "ui.h"
-#include "utils/utils.h"
+#include "tt/menu.h"
+#include "tt/style.h"
+#include "tt/terminal.h"
+#include "tt/tetrominos/define.h"
+#include "tt/ui.h"
+#include "tt/utils/utils.h"
 
 using namespace std::chrono_literals;
 

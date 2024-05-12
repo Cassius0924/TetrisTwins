@@ -1,10 +1,10 @@
-#include "room.h"
+#include "tt/room.h"
 
 #include <iostream>
 #include <netinet/in.h>
 #include <sys/socket.h>
 
-#include "menu.h"
+#include "tt/menu.h"
 
 namespace room {
 
@@ -104,10 +104,10 @@ bool room::UdpBroadcastReceiver::recv_room_message(proto::RoomMessage &room_mess
             std::cerr << "服务器已关闭" << std::endl;
             close(_sock);
             return false;
-        } else if (len < 0) {
+        }
+        if (len < 0) {
             return false;
         }
-
         room_message.ParseFromArray(buffer, len);
         return true;
     }

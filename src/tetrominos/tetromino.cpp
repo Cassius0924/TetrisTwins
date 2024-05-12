@@ -1,8 +1,8 @@
-#include "tetrominos/tetromino.h"
+#include "tt/tetrominos/tetromino.h"
 
-#include "game.h"
-#include "tetrominos/tetro_o.h"
-#include "ui.h"
+#include "tt/game.h"
+#include "tt/tetrominos/tetro_o.h"
+#include "tt/ui.h"
 
 using namespace game::tetro;
 

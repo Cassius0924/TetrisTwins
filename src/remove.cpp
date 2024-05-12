@@ -1,6 +1,6 @@
-#include "remove.h"
+#include "tt/remove.h"
 
-#include "game.h"
+#include "tt/game.h"
 
 namespace game {
     int full_air_count;

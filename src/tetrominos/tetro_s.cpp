@@ -1,4 +1,4 @@
-#include "tetrominos/tetro_s.h"
+#include "tt/tetrominos/tetro_s.h"
 
 using namespace game::tetro;
 

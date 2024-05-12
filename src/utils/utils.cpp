@@ -1,4 +1,4 @@
-#include "utils/utils.h"
+#include "tt/utils/utils.h"
 
 #include <arpa/inet.h>
 #include <ifaddrs.h>
@@ -28,7 +28,7 @@ int utils::fps() {
 
 char utils::getch() {
     char c;
-    struct termios old, cur;
+    termios old{}, cur{};
     tcgetattr(0, &cur);
     old = cur;
     cfmakeraw(&cur);

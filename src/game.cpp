@@ -1,12 +1,12 @@
-#include "game.h"
+#include "tt/game.h"
 
 #include <iostream>
 
-#include "control.h"
-#include "remove.h"
-#include "tetrominos/define.h"
-#include "ui.h"
-#include "utils/utils.h"
+#include "tt/control.h"
+#include "tt/remove.h"
+#include "tt/tetrominos/define.h"
+#include "tt/ui.h"
+#include "tt/utils/utils.h"
 
 namespace game {
     bool is_running;

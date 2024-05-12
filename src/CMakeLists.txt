@@ -1,7 +1,7 @@
 # 声明空的项目子库列表
 set(LIBS)
 
-add_subdirectory("network")
+add_subdirectory("net")
 add_subdirectory("tetrominos")
 add_subdirectory("utils")
 add_subdirectory("proto")

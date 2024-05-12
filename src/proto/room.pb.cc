@@ -2,7 +2,7 @@
 // source: room.proto
 // Protobuf C++ Version: 5.26.1
 
-#include "proto/room.pb.h"
+#include "tt/proto/room.pb.h"
 
 #include <algorithm>
 #include "google/protobuf/io/coded_stream.h"

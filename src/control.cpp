@@ -1,11 +1,11 @@
-#include "control.h"
+#include "tt/control.h"
 
 #include <future>
 #include <thread>
 #include <unordered_map>
 
-#include "game.h"
-#include "utils/utils.h"
+#include "tt/game.h"
+#include "tt/utils/utils.h"
 
 typedef std::chrono::milliseconds MS;
 

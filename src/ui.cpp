@@ -1,12 +1,12 @@
-#include "ui.h"
+#include "tt/ui.h"
 
 #include <iostream>
 
-#include "control.h"
-#include "menu.h"
-#include "style.h"
-#include "terminal.h"
-#include "utils/utils.h"
+#include "tt/control.h"
+#include "tt/menu.h"
+#include "tt/style.h"
+#include "tt/terminal.h"
+#include "tt/utils/utils.h"
 
 ui::Window::Window(int left, int top, int width, int height, std::string title)
     : _left(left), _top(top), _width(width), _height(height), _title(std::move(title)), menu_items() {}
