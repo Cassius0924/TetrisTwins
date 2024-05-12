@@ -5,6 +5,7 @@ add_subdirectory("network")
 add_subdirectory("tetrominos")
 add_subdirectory("utils")
 add_subdirectory("proto")
+#add_subdirectory("base")
 
 # 头文件目录
 aux_source_directory("${PROJECT_SOURCE_DIR}/src" SRC_FILES)
