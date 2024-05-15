@@ -1,31 +1,41 @@
 #include "tt/game.h"
 
 #include <iostream>
+#include <thread>
 
 #include "tt/control.h"
 #include "tt/remove.h"
+#include "tt/terminal.h"
 #include "tt/tetrominos/define.h"
 #include "tt/ui.h"
 #include "tt/utils/utils.h"
 
+using namespace std::chrono_literals;
+
 namespace game {
-    bool is_running;
-    int block_row;
-    int block_col;
-    int ghost_row;
-    ui::Window *main_win;
-    ui::Window *hold_win;
-    ui::Window *status_win;
-    ui::Window *next_win;
-    ui::Window *info_win;
-    std::shared_ptr<tetro::Tetromino> cur_tetromino;
-    std::deque<std::shared_ptr<tetro::Tetromino>> tetro_queue(5);
-    int score;
-    TetroHeap tetro_heap;
-    bool is_next_win_updated;
+
+bool is_running = true;
+bool is_single_started = false;
+bool is_double_started = false;
+std::mutex start_mutex;
+std::condition_variable start_cv;
+int block_row;
+int block_col;
+int ghost_row;
+ui::Window *main_win;
+ui::Window *hold_win;
+ui::Window *status_win;
+ui::Window *next_win;
+ui::Window *info_win;
+std::shared_ptr<tetro::Tetromino> cur_tetromino;
+std::deque<std::shared_ptr<tetro::Tetromino>> tetro_queue(5);
+int score;
+TetroHeap tetro_heap;
+bool is_next_win_updated;
+
 } // namespace game
 
-void game::spg_init() {
+void game::single_init() {
     main_win = new ui::Window(10, 1, 12, 22, "TetrisTwins");
     hold_win = new ui::Window(1, 1, 9, 6, "Hold");
     status_win = new ui::Window(1, 7, 9, 16, "Status");
@@ -35,11 +45,6 @@ void game::spg_init() {
     hold_win->draw();
     status_win->draw();
     info_win->draw();
-
-    // 开始键盘监听
-    ctrl::start_key_listener();
-
-    is_running = true;
 
     tetro_heap.heap =
         std::vector<std::vector<int>>(main_win->get_inner_height(), std::vector<int>(main_win->get_inner_width(), 0));
@@ -62,7 +67,7 @@ void game::spg_init() {
 }
 
 void game::quit(int signal) {
-    is_running = false;
+    is_single_started = false;
 }
 
 void game::move_left() {
@@ -202,4 +207,50 @@ int game::cal_ghost_tetromino_row(const std::shared_ptr<tetro::Tetromino> &tetro
 
 bool game::check_touch_top(std::vector<int> row_air) {
     return row_air[0] < full_air_count;
+}
+
+void game::start_single_game() {
+    single_init();
+
+    // 注册FPS text
+    status_win->register_text_item(3, ui::block_to_col(2), [] {
+        return "FPS: " + std::to_string(utils::fps());
+    });
+    // 注册分数 text
+    status_win->register_text_item(4, ui::block_to_col(2), [] {
+        return "Score: " + std::to_string(score);
+    });
+
+    while (is_single_started) {
+        if (is_next_win_updated) {
+            next_win->draw();
+            ui::tetro_queue(tetro_queue, next_win);
+            is_next_win_updated = false;
+        }
+
+        // 绘制窗口
+        main_win->draw();
+
+        // 绘制文本项
+        status_win->draw_text_items();
+
+        // 显示阴影块
+        ui::ghost_tetromino(cur_tetromino, main_win->absolute_col(ui::block_to_col(block_col)),
+                            main_win->absolute_row(ghost_row));
+        // 显示正在下落的俄罗斯方块
+        ui::tetromino(cur_tetromino, main_win->absolute_col(ui::block_to_col(block_col)),
+                      main_win->absolute_row(block_row));
+
+        // 显示方块堆
+        ui::game_board(tetro_heap, main_win);
+
+        term::reset_color();
+        std::cout << std::flush;
+        std::this_thread::sleep_for(100ms);
+    }
+}
+
+void game::start_double_game(){
+
+
 }

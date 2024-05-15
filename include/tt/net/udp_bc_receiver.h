@@ -13,9 +13,13 @@ public:
 
     ~UdpBcReceiver() = default;
 
+    void set_non_block(bool on) const;
+
     int recv(char *data, int size, sockaddr_in &cli_addr, socklen_t &cli_addr_size) const;
 
     int recv(std::string &data, int size, sockaddr_in &cli_addr, socklen_t &cli_addr_size) const;
+
+    std::pair<std::string, int> recv(int size) const;
 
     std::pair<std::string, int> recv(int size, sockaddr_in &cli_addr, socklen_t &cli_addr_size) const;
 

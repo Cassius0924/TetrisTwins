@@ -6,12 +6,11 @@
 #include "tt/menu.h"
 #include "tt/style.h"
 #include "tt/terminal.h"
-#include "tt/utils/utils.h"
 
 ui::Window::Window(int left, int top, int width, int height, std::string title)
-    : _left(left), _top(top), _width(width), _height(height), _title(std::move(title)), menu_items() {}
+    : _left(left), _top(top), _width(width), _height(height), _title(std::move(title)), menu_items{} {}
 
-void ui::Window::draw() {
+void ui::Window::draw() const {
     if (_top < 0 || _left < 0 || _width < 0 || _height < 0) {
         return;
     }
@@ -63,11 +62,41 @@ void ui::Window::draw() {
         std::cout << DS::h_edge();
     }
     std::cout << DS::br();
+    std::cout << std::flush;
 }
 
-ui::Window::~Window() {}
+void ui::Window::draw_menu_items() const {
+    if (menu_items.empty()) {
+        return;
+    }
+    for (auto &item : menu_items) {
+        term::move_to(item.arow, item.acol);
+        std::cout << item.text;
+    }
+    // 显示选中菜单项
+    term::set_back_color(static_cast<int>(Color::Gray));
+    term::move_to(selected_menu_item->arow, selected_menu_item->acol);
+    std::cout << selected_menu_item->text;
+    term::reset_color();
+    std::cout << std::flush;
+}
+void ui::Window::draw_text_items() const {
+    if (text_items.empty()) {
+        return;
+    }
+    for (auto &item : text_items) {
+        term::move_to(item.arow, item.acol);
+        if (std::holds_alternative<std::function<std::string()>>(item.text)) {
+            std::cout << std::get<std::function<std::string()>>(item.text)() << std::flush;
+        } else {
+            std::cout << std::get<std::string>(item.text) << std::flush;
+        }
+    }
+}
 
-void ui::Window::display(const std::string &text, int row, int col) const {
+ui::Window::~Window() = default;
+
+void ui::Window::display(int row, int col, const std::string &text) const {
     term::move_to(absolute_row(row), absolute_col(col));
     std::cout << text;
 }
@@ -88,46 +117,40 @@ int ui::Window::get_inner_height() const {
     return _height - 2 < 0 ? 0 : _height - 2;
 }
 
-void ui::Window::register_menu_item(const std::string &text, int row, int col, std::function<void()> action) {
-    menu_items.emplace_back(MenuItem{text, absolute_row(row), absolute_col(col), std::move(action)});
+std::shared_ptr<ui::Window> ui::Window::createPtr(int left, int top, int width, int height, std::string title) {
+    return std::make_shared<Window>(left, top, width, height, std::move(title));
 }
 
-void ui::Window::showInteractiveMenu(const std::list<MenuItem> &menu_items) {
-    for (auto &item : menu_items) {
-        term::move_to(item.arow, item.acol);
-        std::cout << item.text;
+void ui::Window::handleKeyEvent(char command) {
+    auto top_win = menu::window_stack.top();
+    if (top_win->menu_items.empty()) {
+        return;
     }
-    auto item = menu_items.begin();
-    while (menu::is_showing_menu) {
-        term::set_back_color(static_cast<int>(Color::Gray));
-        term::move_to(item->arow, item->acol);
-        std::cout << item->text;
-        std::cout << std::flush;
-        term::reset_color();
-        while (true) {
-            char command = utils::getch();
-            if (command == ctrl::k_KEY_W || command == ctrl::k_KEY_UP) {
-                if (item != menu_items.begin()) {
-                    term::move_to(item->arow, item->acol);
-                    std::cout << item->text;
-                    item--;
-                }
-                break;
-            } else if (command == ctrl::k_KEY_S || command == ctrl::k_KEY_DOWN) {
-                if (item != --menu_items.end()) {
-                    term::move_to(item->arow, item->acol);
-                    std::cout << item->text;
-                    item++;
-                }
-                break;
-            } else if (command == ctrl::k_KEY_SPACE || command == ctrl::k_KEY_ENTER) {
-                if (item->action) {
-                    item->action();
-                }
-                break;
-            }
+    auto item = top_win->selected_menu_item;
+    if (command == ctrl::k_KEY_W || command == ctrl::k_KEY_UP) {
+        if (item != top_win->menu_items.begin()) {
+            term::move_to(item->arow, item->acol);
+            std::cout << item->text;
+            --item;
+        }
+    } else if (command == ctrl::k_KEY_S || command == ctrl::k_KEY_DOWN) {
+        if (item != --top_win->menu_items.end()) {
+            term::move_to(item->arow, item->acol);
+            std::cout << item->text;
+            ++item;
+        }
+    } else if (command == ctrl::k_KEY_SPACE || command == ctrl::k_KEY_ENTER) {
+        if (item->action) {
+            item->action();
+            return;
         }
     }
+    // 更新选中菜单项
+    top_win->selected_menu_item = item;
+    term::set_back_color(static_cast<int>(Color::Gray));
+    term::move_to(item->arow, item->acol);
+    std::cout << item->text << std::flush;
+    term::reset_color();
 }
 
 void ui::tetromino(std::shared_ptr<game::tetro::Tetromino> &tetro, int left, int top) {

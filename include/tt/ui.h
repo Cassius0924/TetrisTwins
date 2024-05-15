@@ -2,7 +2,10 @@
 #define TETRIS_TWINS_UI_H
 
 #include <list>
+#include <memory>
+#include <stack>
 #include <string>
+#include <variant>
 
 #include "tt/game.h"
 #include "tt/tetrominos/tetromino.h"
@@ -20,7 +23,9 @@
 // 1.^ As of Unicode version 15.1
 
 namespace game {
+
 struct TetroHeap;
+
 } // namespace game
 
 /**
@@ -44,6 +49,12 @@ struct MenuItem {
     std::function<void()> action;
 };
 
+struct TextItem {
+    std::variant<std::string, std::function<std::string()>> text;
+    int arow;
+    int acol;
+};
+
 /**
  * UI 窗口类
  */
@@ -56,7 +67,17 @@ private:
     std::string _title;
 
 public:
+    // TODO: 封装一个循环链表
+    /**
+     * 菜单项列表
+     */
     std::list<MenuItem> menu_items;
+    std::list<MenuItem>::iterator selected_menu_item;
+
+    /**
+     * 文本项列表
+     */
+    std::list<TextItem> text_items;
 
 public:
     /**
@@ -73,15 +94,25 @@ public:
     /**
      * 绘制窗口
      */
-    void draw();
+    void draw() const;
+
+    /**
+     * 绘制菜单
+     */
+    void draw_menu_items() const;
+
+    /**
+     * 绘制文本项
+     */
+    void draw_text_items() const;
 
     /**
      * 在此窗口的相对位置显示内容
-     * @param text: 显示的内容
      * @param row: 相对行坐标
      * @param col: 相对列坐标
+     * @param text: 显示的内容
      */
-    void display(const std::string &text, int row, int col) const;
+    void display(int row, int col, const std::string &text) const;
 
     /**
      * 根据传入的相对行坐标，获取绝对行坐标
@@ -127,49 +158,72 @@ public:
 
     /**
      * 注册一个菜单项
-     * @param text: 菜单项文本
      * @param row: 行坐标
      * @param col: 列坐标
+     * @param text: 菜单项文本
      * @param action: 菜单项动作
      */
-    void register_menu_item(const std::string &text, int row, int col, std::function<void()> action = nullptr);
+    inline void register_menu_item(int row, int col, const std::string &text,
+                                   const std::function<void()> &action = nullptr) {
+        menu_items.emplace_back(MenuItem{text, absolute_row(row), absolute_col(col), action});
+        if (menu_items.size() == 1) {
+            selected_menu_item = menu_items.begin();
+        }
+    }
 
     /**
-     * 显示窗口菜单
-     * @param menu_items: 菜单项列表
+     * 注册一个文本项
+     * @param row: 行坐标
+     * @param col: 列坐标
+     * @param text: 显示的内容
      */
-    static void showInteractiveMenu(const std::list<MenuItem> &menu_items);
+    inline void register_text_item(int row, int col,
+                                   const std::variant<std::string, std::function<std::string()>> &text) {
+        text_items.emplace_back(TextItem{text, absolute_row(row), absolute_col(col)});
+    }
+
+    /**
+     * 创建Window对象shared_ptr智能指针
+     */
+    static std::shared_ptr<Window> createPtr(int left, int top, int width, int height, std::string title = "");
+
+    /**
+     * 处理键盘事件
+     */
+    static void handleKeyEvent(char command);
 };
+
+using WindowPtr = std::shared_ptr<Window>;
 
 /**
  * 绘制俄罗斯方块
  * @param tetro: 俄罗斯方块
  * @param left: 左侧位置
-     * @param top: 顶部位置
-     */
-    void tetromino(std::shared_ptr<game::tetro::Tetromino> &tetro, int left, int top);
+ * @param top: 顶部位置
+ */
+void tetromino(std::shared_ptr<game::tetro::Tetromino> &tetro, int left, int top);
 
-    /**
-     * 绘制俄罗斯方块堆
-     * @param tetro_heap: 俄罗斯方块堆
-     * @param win: 窗口
-     */
-    void game_board(game::TetroHeap &tetro_heap, Window *win);
+/**
+ * 绘制俄罗斯方块堆
+ * @param tetro_heap: 俄罗斯方块堆
+ * @param win: 窗口
+ */
+void game_board(game::TetroHeap &tetro_heap, Window *win);
 
-    /**
-     * 绘制方块的阴影块
-     * @param tetro: 俄罗斯方块
-     * @param left: 左侧位置
-     * @param top: 顶部位置
-     */
-    void ghost_tetromino(std::shared_ptr<game::tetro::Tetromino> &tetro, int left, int top);
+/**
+ * 绘制方块的阴影块
+ * @param tetro: 俄罗斯方块
+ * @param left: 左侧位置
+ * @param top: 顶部位置
+ */
+void ghost_tetromino(std::shared_ptr<game::tetro::Tetromino> &tetro, int left, int top);
 
-    /**
-     * 绘制俄罗斯方块队列
-     * @param tetro_queue: 俄罗斯方块队列
-     * @param win: 窗口
-     */
-    void tetro_queue(std::deque<std::shared_ptr<game::tetro::Tetromino>> &tetro_queue, Window *win);
+/**
+ * 绘制俄罗斯方块队列
+ * @param tetro_queue: 俄罗斯方块队列
+ * @param win: 窗口
+ */
+void tetro_queue(std::deque<std::shared_ptr<game::tetro::Tetromino>> &tetro_queue, Window *win);
 }
 
 #endif //TETRIS_TWINS_UI_H

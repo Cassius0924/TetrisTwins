@@ -38,10 +38,10 @@ char utils::getch() {
     return c;
 }
 
-int utils::random_int(int start, int end) {
+int utils::random_int(int min, int max) {
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_int_distribution<int> dis(start, end);
+    std::uniform_int_distribution<int> dis(min, max);
     return dis(gen);
 }
 

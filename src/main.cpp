@@ -1,55 +1,39 @@
 #include <iostream>
-#include <thread>
 
+#include "tt/control.h"
 #include "tt/menu.h"
 #include "tt/style.h"
 #include "tt/terminal.h"
 #include "tt/tetrominos/define.h"
 #include "tt/ui.h"
-#include "tt/utils/utils.h"
-
-using namespace std::chrono_literals;
 
 void init() {
     term::clean_screen();
     term::hide_cursor();
     ui::Style::set_style(3);
+}
 
+void show_menu() {
+    ctrl::start_key_listener();
     // 显示菜单
     menu::show_menu();
 }
 
 void start() {
+    std::unique_lock lock(game::start_mutex);
     while (game::is_running) {
+        // 等待游戏开始
+        game::start_cv.wait(lock, [] {
+            return game::is_single_started || game::is_double_started;
+        });
 
-        if (game::is_next_win_updated) {
-            game::next_win->draw();
-            ui::tetro_queue(game::tetro_queue, game::next_win);
-            game::is_next_win_updated = false;
+        if (game::is_single_started) {
+            game::start_single_game();
+        } else if (game::is_double_started) {
+            game::start_double_game();
         }
 
-        // 绘制窗口
-        game::main_win->draw();
-
-        // 显示FPS
-        game::status_win->display("FPS: " + std::to_string(utils::fps()), 3, ui::block_to_col(2));
-        // 显示分数
-        game::status_win->display("Score: " + std::to_string(game::score), 4, ui::block_to_col(2));
-
-        // 显示阴影块
-        ui::ghost_tetromino(game::cur_tetromino, game::main_win->absolute_col(ui::block_to_col(game::block_col)),
-                            game::main_win->absolute_row(game::ghost_row));
-        // 显示正在下落的俄罗斯方块
-        ui::tetromino(game::cur_tetromino, game::main_win->absolute_col(ui::block_to_col(game::block_col)),
-                      game::main_win->absolute_row(game::block_row));
-
-        // 显示方块堆
-        ui::game_board(game::tetro_heap, game::main_win);
-
-        term::reset_color();
-
-        std::cout << std::flush;
-        std::this_thread::sleep_for(100ms);
+        menu::refresh_top_win();
     }
 }
 
@@ -70,8 +54,9 @@ void exit() {
 
 int main() {
     init();
-//    start();
-//    exit();
+    show_menu();
+    start();
+    exit();
 
     return 0;
 }
