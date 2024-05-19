@@ -6,6 +6,7 @@
 #include "tt/terminal.h"
 #include "tt/tetrominos/define.h"
 #include "tt/ui.h"
+#include "google/protobuf/port_def.inc"
 
 void init() {
     term::clean_screen();
@@ -20,17 +21,19 @@ void show_menu() {
 }
 
 void start() {
-    std::unique_lock lock(game::start_mutex);
     while (game::is_running) {
+        std::unique_lock lock(game::start_mutex);
         // 等待游戏开始
         game::start_cv.wait(lock, [] {
-            return game::is_single_started || game::is_double_started;
+            return game::is_single_started || game::is_joined_room || game::is_created_room || !game::is_running;
         });
 
-        if (game::is_single_started) {
+        if (game::is_single_started){
             game::start_single_game();
-        } else if (game::is_double_started) {
-            game::start_double_game();
+        } else if (game::is_joined_room) {
+            game::start_double_game_client();
+        } else if (game::is_created_room) {
+            game::start_double_game_server();
         }
 
         menu::refresh_top_win();

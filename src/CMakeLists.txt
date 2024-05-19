@@ -12,7 +12,7 @@ aux_source_directory("${PROJECT_SOURCE_DIR}/src" SRC_FILES)
 
 add_executable(TetrisTwins ${SRC_FILES})
 
-target_include_directories(TetrisTwins PUBLIC ${INCLUDE_DIR})
+target_include_directories(TetrisTwins PUBLIC ${INCLUDE_DIR}, ${Protobuf_INCLUDE_DIRS})
 
 target_link_libraries(TetrisTwins PUBLIC ${Absl_LIBRARIES} ${Protobuf_LIBRARIES} ${LIBS})
 

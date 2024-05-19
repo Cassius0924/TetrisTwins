@@ -98,7 +98,7 @@ ui::Window::~Window() = default;
 
 void ui::Window::display(int row, int col, const std::string &text) const {
     term::move_to(absolute_row(row), absolute_col(col));
-    std::cout << text;
+    std::cout << text << std::flush;
 }
 
 int ui::Window::get_height() const {
@@ -115,10 +115,6 @@ int ui::Window::get_inner_width() const {
 
 int ui::Window::get_inner_height() const {
     return _height - 2 < 0 ? 0 : _height - 2;
-}
-
-std::shared_ptr<ui::Window> ui::Window::createPtr(int left, int top, int width, int height, std::string title) {
-    return std::make_shared<Window>(left, top, width, height, std::move(title));
 }
 
 void ui::Window::handleKeyEvent(char command) {
@@ -153,7 +149,7 @@ void ui::Window::handleKeyEvent(char command) {
     term::reset_color();
 }
 
-void ui::tetromino(std::shared_ptr<game::tetro::Tetromino> &tetro, int left, int top) {
+void ui::tetromino(std::shared_ptr<game::tetro::Tetromino> tetro, int left, int top) {
     term::set_back_color(static_cast<int>(tetro->color));
     auto voffset = tetro->get_valid_offset();
     for (int i = voffset.top; i <= voffset.bottom; i++) {
@@ -168,7 +164,7 @@ void ui::tetromino(std::shared_ptr<game::tetro::Tetromino> &tetro, int left, int
     term::reset_color();
 }
 
-void ui::game_board(game::TetroHeap &tetro_heap, ui::Window *win) {
+void ui::game_board(const game::TetroHeap &tetro_heap, ui::Window *win) {
     int pre_block = -1;
     for (int i = 0; i < tetro_heap.heap.size(); i++) {
         term::move_to(win->absolute_row(i + 1), win->absolute_col(block_to_col(1)));
@@ -186,7 +182,7 @@ void ui::game_board(game::TetroHeap &tetro_heap, ui::Window *win) {
     }
 }
 
-void ui::ghost_tetromino(std::shared_ptr<game::tetro::Tetromino> &tetro, int left, int top) {
+void ui::ghost_tetromino(std::shared_ptr<game::tetro::Tetromino> tetro, int left, int top) {
     term::set_fore_color(static_cast<int>(tetro->color));
     auto voffset = tetro->get_valid_offset();
     for (int i = voffset.top; i <= voffset.bottom; i++) {
@@ -201,11 +197,11 @@ void ui::ghost_tetromino(std::shared_ptr<game::tetro::Tetromino> &tetro, int lef
     term::reset_color();
 }
 
-void ui::tetro_queue(std::deque<std::shared_ptr<game::tetro::Tetromino>> &tetro_queue, ui::Window *win) {
+void ui::tetro_queue(const std::deque<std::shared_ptr<game::tetro::Tetromino>> &tetro_queue, ui::Window *win) {
     for (int i = 0; i < tetro_queue.size(); ++i) {
         auto voffset = tetro_queue[i]->get_valid_offset();
-        ui::tetromino(tetro_queue[i],
-                      win->absolute_col(block_to_col(3 - (voffset.left + (voffset.right - voffset.left + 2) / 2 - 1))),
+        tetromino(tetro_queue[i],
+                  win->absolute_col(block_to_col(3 - (voffset.left + (voffset.right - voffset.left + 2) / 2 - 1))),
                       win->absolute_row(i * 3 + 3) - (voffset.top + (voffset.bottom - voffset.top + 1) / 2));
     }
 }

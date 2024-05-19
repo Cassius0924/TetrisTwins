@@ -1,7 +1,6 @@
 #ifndef TETRIS_MENU_H
 #define TETRIS_MENU_H
 
-#include "tt/room.h"
 #include "tt/terminal.h"
 #include "tt/ui.h"
 
@@ -22,7 +21,7 @@ extern std::stack<std::shared_ptr<ui::Window>> window_stack;
 /**
  * 当前搜索到游戏房间列表
  */
-extern std::set<room::Room> game_room_set;
+extern std::set<game::Room> game_room_set;
 
 /**
  * 显示游戏菜单
@@ -68,7 +67,7 @@ void search_double_game(const ui::WindowPtr &win, const ui::WindowPtr &menu_win)
 /**
  * 创建双人游戏
  */
-void create_double_game(const ui::WindowPtr &room_win);
+void create_double_game(const ui::WindowPtr &win);
 
 }
 

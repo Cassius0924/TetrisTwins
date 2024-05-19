@@ -1,9 +1,11 @@
 #ifndef TETRIS_GAME_H
 #define TETRIS_GAME_H
 
-#include <deque>
 #include <condition_variable>
+#include <deque>
+#include <unordered_set>
 
+#include "tt/proto/room.pb.h"
 #include "tt/tetrominos/tetromino.h"
 
 namespace ui {
@@ -22,6 +24,39 @@ namespace game {
  */
 extern bool is_running;
 
+struct Room {
+    int id;
+    std::string ip;
+    int port;
+    std::string name;
+
+    explicit Room(const proto::RoomMessage &room_message);
+
+    bool operator==(const Room &other) const;
+};
+
+/**
+ * 游戏房间列表
+ */
+extern std::unordered_set<Room> game_rooms;
+
+/**
+ * 被选择的游戏房间
+ */
+extern std::unique_ptr<Room> game_room;
+
+constexpr int k_PORT = 9898;
+
+/**
+ * 是否已经创建房间
+ */
+extern bool is_created_room;
+
+/**
+ * 是否已经加入房间
+ */
+extern bool is_joined_room;
+
 /**
  * 是否开始单人游戏
  */
@@ -36,11 +71,13 @@ extern bool is_double_started;
  * 游戏开始互斥量
  */
 extern std::mutex start_mutex;
+extern std::mutex double_start_mutex;
 
 /**
  * 游戏开始条件变量
  */
 extern std::condition_variable start_cv;
+extern std::condition_variable double_start_cv;
 
 /**
  * 当前方块
@@ -217,10 +254,23 @@ bool check_touch_top(std::vector<int> row_air);
 void start_single_game();
 
 /**
- * 开始双人游戏
+ * 开始双人游戏服务端
  */
-void start_double_game();
+void start_double_game_server();
+
+/**
+ * 开始双人游戏客户端
+ */
+void start_double_game_client();
 
 }
+
+
+template <>
+struct std::hash<game::Room> {
+    std::size_t operator()(const game::Room &room) const {
+        return std::hash<int>()(room.id);
+    }
+};
 
 #endif //TETRIS_GAME_H

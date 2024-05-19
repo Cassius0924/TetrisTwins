@@ -185,7 +185,10 @@ public:
     /**
      * 创建Window对象shared_ptr智能指针
      */
-    static std::shared_ptr<Window> createPtr(int left, int top, int width, int height, std::string title = "");
+    inline static std::shared_ptr<Window> createPtr(int left, int top, int width, int height,
+                                                    const std::string &title = "") {
+        return std::make_shared<Window>(left, top, width, height, title);
+    };
 
     /**
      * 处理键盘事件
@@ -201,14 +204,14 @@ using WindowPtr = std::shared_ptr<Window>;
  * @param left: 左侧位置
  * @param top: 顶部位置
  */
-void tetromino(std::shared_ptr<game::tetro::Tetromino> &tetro, int left, int top);
+void tetromino(std::shared_ptr<game::tetro::Tetromino> tetro, int left, int top);
 
 /**
  * 绘制俄罗斯方块堆
  * @param tetro_heap: 俄罗斯方块堆
  * @param win: 窗口
  */
-void game_board(game::TetroHeap &tetro_heap, Window *win);
+void game_board(const game::TetroHeap &tetro_heap, Window *win);
 
 /**
  * 绘制方块的阴影块
@@ -216,14 +219,14 @@ void game_board(game::TetroHeap &tetro_heap, Window *win);
  * @param left: 左侧位置
  * @param top: 顶部位置
  */
-void ghost_tetromino(std::shared_ptr<game::tetro::Tetromino> &tetro, int left, int top);
+void ghost_tetromino(std::shared_ptr<game::tetro::Tetromino> tetro, int left, int top);
 
 /**
  * 绘制俄罗斯方块队列
  * @param tetro_queue: 俄罗斯方块队列
  * @param win: 窗口
  */
-void tetro_queue(std::deque<std::shared_ptr<game::tetro::Tetromino>> &tetro_queue, Window *win);
+void tetro_queue(const std::deque<std::shared_ptr<game::tetro::Tetromino>> &tetro_queue, Window *win);
 }
 
 #endif //TETRIS_TWINS_UI_H

@@ -21,9 +21,10 @@ public:
 
     bool has_data_read() override;
 
-    int nonblock_recv(char *data, int size) override;
-    int nonblock_recv(std::string &data, int size) override;
-    std::pair<std::string, int> nonblock_recv(int size) override;
+    // int nonblock_recv(char *data, int size) override;
+    // int nonblock_recv(std::string &data, int size) override;
+    // std::pair<std::string, int> nonblock_recv(int size) override;
+
 
 protected:
     Communicator(int port);

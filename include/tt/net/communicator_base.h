@@ -23,7 +23,7 @@ public:
      * 获取端口号
      * @return 端口号
      */
-    int get_port() const {
+    inline int get_port() const {
         return _port;
     }
 
@@ -71,28 +71,28 @@ public:
      */
     virtual bool has_data_read() = 0;
 
-    /**
-     * 非阻塞式接收数据
-     * @param data 数据
-     * @param size 数据大小
-     * @return 接收的字节数
-     */
-    virtual int nonblock_recv(char *data, int size) = 0;
-
-    /**
-     * 非阻塞式接收数据
-     * @param data 数据
-     * @param size 数据大小
-     * @return 接收的字节数
-     */
-    virtual int nonblock_recv(std::string &data, int size) = 0;
-
-    /**
-     * 非阻塞式接收数据
-     * @param size 数据大小
-     * @return 接收的数据和字节数
-     */
-    virtual std::pair<std::string, int> nonblock_recv(int size) = 0;
+    // /**
+    //  * 非阻塞式接收数据
+    //  * @param data 数据
+    //  * @param size 数据大小
+    //  * @return 接收的字节数
+    //  */
+    // virtual int nonblock_recv(char *data, int size) = 0;
+    //
+    // /**
+    //  * 非阻塞式接收数据
+    //  * @param data 数据
+    //  * @param size 数据大小
+    //  * @return 接收的字节数
+    //  */
+    // virtual int nonblock_recv(std::string &data, int size) = 0;
+    //
+    // /**
+    //  * 非阻塞式接收数据
+    //  * @param size 数据大小
+    //  * @return 接收的数据和字节数
+    //  */
+    // virtual std::pair<std::string, int> nonblock_recv(int size) = 0;
 
 protected:
     /**

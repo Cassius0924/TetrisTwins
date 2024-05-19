@@ -27,4 +27,8 @@ void TcpServer::start_and_wait() {
     FD_SET(_connfd, &_read_fds); // 将sockfd加入到read_fds中
 }
 
+std::string TcpServer::get_client_address() const {
+    return inet_ntoa(_cli_addr.sin_addr);
+}
+
 } // namespace net

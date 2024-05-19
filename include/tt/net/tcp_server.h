@@ -17,6 +17,11 @@ public:
      */
     void start_and_wait();
 
+    /**
+     * 获取客户端地址
+     */
+    std::string get_client_address()const;
+
 private:
     void _init();
 

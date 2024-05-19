@@ -1,10 +1,10 @@
 #include "tt/menu.h"
 
 #include <functional>
-#include <iostream>
 #include <thread>
 
 #include "tt/control.h"
+#include "tt/net/packer.h"
 #include "tt/net/udp_bc_receiver.h"
 #include "tt/net/udp_bc_sender.h"
 #include "tt/terminal.h"
@@ -20,22 +20,20 @@ bool is_searching_game_rooms = false;
 
 bool is_sending_game_room = false;
 
-std::set<room::Room> game_room_set = {};
+std::set<game::Room> game_room_set = {};
 
 std::stack<std::shared_ptr<ui::Window>> window_stack;
 
-} // namespace menu
-
-void menu::show_menu() {
+void show_menu() {
     auto menu_win = ui::Window::createPtr(6, 1, 14, 20, "TetrisTwins");
     auto game_rooms_win = ui::Window::createPtr(7, 2, 12, 18, "Game Rooms");
     auto room_win = ui::Window::createPtr(7, 2, 12, 18, "My Room");
     auto help_win = ui::Window::createPtr(7, 2, 12, 18, "Help");
 
     menu_win->register_menu_item(2, ui::block_to_col(4), "1. 单人游戏", [] {
-        std::unique_lock lock(game::start_mutex);
         game::is_single_started = true;
         // is_showing_menu = false;
+        std::lock_guard<std::mutex> lock(game::start_mutex);
         game::start_cv.notify_one();
     });
     menu_win->register_menu_item(3, ui::block_to_col(4), "2. 搜索双人游戏", [game_rooms_win, menu_win] {
@@ -46,21 +44,25 @@ void menu::show_menu() {
     menu_win->register_menu_item(4, ui::block_to_col(4), "3. 创建双人游戏", [room_win] {
         push_window(room_win, false);
         is_sending_game_room = true;
+        // 发送UDP广播
         create_double_game(room_win);
+        // 开启TCP服务器
+        std::lock_guard<std::mutex> lock(game::start_mutex);
+        game::is_created_room = true;
+        game::start_cv.notify_one();
     });
-
     menu_win->register_menu_item(5, ui::block_to_col(4), "4. 帮助", [help_win] {
         push_window(help_win, false);
     });
     menu_win->register_menu_item(17, ui::block_to_col(4), "0. 退出游戏", [] {
-        term::clean_screen();
-        term::move_to(0, 0);
-        term::show_cursor();
-        exit(-1);
+        game::is_running = false;
+        std::lock_guard<std::mutex> lock(game::start_mutex);
+        game::start_cv.notify_all();
     });
 
     game_rooms_win->register_menu_item(16, ui::block_to_col(2), "0. 返回", [] {
         is_searching_game_rooms = false;
+        // std::this_thread::sleep_for(1s);
         pop_window();
     });
     game_rooms_win->register_text_item(1, ui::block_to_col(2), "搜索中...");
@@ -70,72 +72,105 @@ void menu::show_menu() {
         pop_window();
     });
 
-    room_win->register_menu_item(14, ui::block_to_col(2), "1.开始游戏", game::start_double_game);
-
+    room_win->register_menu_item(14, ui::block_to_col(2), "1.开始游戏", [] {
+        //FIXME: 检测玩家是否已经加入
+        std::lock_guard<std::mutex> lock(game::double_start_mutex);
+        game::is_double_started = true;
+        game::double_start_cv.notify_one();
+    });
     room_win->register_menu_item(16, ui::block_to_col(2), "0.返回", [] {
         is_sending_game_room = false;
+        game::is_created_room = false;
         pop_window();
     });
     room_win->register_text_item(1, ui::block_to_col(2), "TetrisTwins Room");
     room_win->register_text_item(4, ui::block_to_col(2), "我:" + utils::get_lan_ip_linux());
     room_win->register_text_item(6, ui::block_to_col(2), "─ ─ ─ VS ─ ─ ─");
     room_win->register_text_item(8, ui::block_to_col(2), "等待对手加入...");
+
     push_window(menu_win);
 }
 
-void menu::search_double_game(const ui::WindowPtr &win, const ui::WindowPtr &menu_win) {
-    room::game_rooms.clear();
+// TODO: 下面两个函数换命名空间
+void search_double_game(const ui::WindowPtr &win, const ui::WindowPtr &menu_win) {
+    game::game_rooms.clear();
     // 删除game_rooms_win.menu_items除第一个外的所有元素
     win->menu_items.erase(win->menu_items.begin(), std::prev(win->menu_items.end()));
     std::this_thread::sleep_for(0.5s);
     std::thread t = std::thread([&win] {
-        net::UdpBcReceiver bc_receiver(room::k_PORT);
+        net::UdpBcReceiver bc_receiver(game::k_PORT);
         // 设置为非阻塞模式，以便线程自动结束
         bc_receiver.set_non_block(true);
-        proto::RoomMessage room_message;
-
-        // 加入房间函数
-        auto join_room = [](int room_id) {
-            // TODO: TCP连接
-
-        };
         while (is_searching_game_rooms) {
+            // 更新加载提示
+            // for (int i = 0; i < 3; ++i) {
+            //     win->display(1, 9+i, ".");
+            //     std::this_thread::sleep_for(0.25s);
+            // }
+            // win->display(1, 9, "    ");
+
+            // TODO: 任意长度接收支持
             auto [data, len] = bc_receiver.recv(1024);
             if (len <= 0) {
                 continue;
             }
-            room_message.ParseFromString(data);
-            if (room::game_rooms.count(room::Room(room_message)) > 0) {
+
+            std::unique_ptr<google::protobuf::Message> room_message = net::unpack_message(data);
+            game::Room room = game::Room(*dynamic_cast<proto::RoomMessage *>(room_message.get()));
+
+            if (game::game_rooms.count(room) > 0) {
                 continue;
             }
-            room::game_rooms.emplace(room_message);
-            win->menu_items.insert(std::prev(win->menu_items.end()),
-                                   ui::MenuItem{room_message.name() + " " + std::to_string(room_message.id()),
-                                                win->absolute_row(win->menu_items.size() + 3), win->absolute_col(2),
-                                                std::bind(join_room, room_message.id())});
+            game::game_rooms.emplace(room);
+            auto it = game::game_rooms.find(room);
 
+            // TODO: 优化，封装
+            // 插入在返回菜单项之前
+            const std::string text = room.name + "#" + std::to_string(room.id);
+            win->menu_items.insert(
+                std::prev(win->menu_items.end()),
+                ui::MenuItem{text, win->absolute_row(win->menu_items.size() + 3), win->absolute_col(3), [it] {
+                                 game::is_joined_room = true;
+                                 game::game_room = std::make_unique<game::Room>(*it);
+                                 // 显示房主房间界面
+                                 auto room_win = ui::Window::createPtr(7, 2, 12, 18, "Room");
+                                 room_win->register_text_item(1, ui::block_to_col(2), "TetrisTwins Room");
+                                 room_win->register_text_item(4, ui::block_to_col(2),
+                                                              "我:" + utils::get_lan_ip_linux());
+                                 room_win->register_text_item(6, ui::block_to_col(2), "─ ─ ─ VS ─ ─ ─");
+                                 room_win->register_text_item(8, ui::block_to_col(2), "对手:" + it->ip);
+                                 push_window(room_win, false);
+
+
+                                 game::start_cv.notify_one();
+                             }});
             win->draw_menu_items();
+
+            std::this_thread::sleep_for(0.25s);
         }
     });
     t.detach();
 }
 
-void menu::create_double_game(const ui::WindowPtr &room_win) {
+void create_double_game(const ui::WindowPtr &win) {
     proto::RoomMessage room_message;
-    room_message.set_name("一个TT房间");
+    // TODO: 随机房间名字
+    room_message.set_name("Tetris房间");
     int room_id = utils::random_int(1000, 9999);
     room_message.set_id(room_id);
     room_message.set_ip(utils::get_lan_ip_linux());
-    room_message.set_port(room::k_PORT);
-    room_win->display(2, ui::block_to_col(2), "房间号: " + std::to_string(room_id));
+    room_message.set_port(game::k_PORT);
+    win->display(2, ui::block_to_col(2), "房间号: " + std::to_string(room_id));
 
     std::thread t = std::thread([room_message] {
-        net::UdpBcSender bc_sender(room::k_PORT);
+        net::UdpBcSender bc_sender(game::k_PORT);
         while (is_sending_game_room) {
-            bc_sender.send(room_message.SerializeAsString());
+            bc_sender.send( net::pack_message(room_message));
             std::this_thread::sleep_for(1s);
         }
     });
     t.detach();
 }
 
+
+} // namespace menu

@@ -95,10 +95,10 @@ bool Communicator::has_data_read() {
     return true;
 }
 
-int Communicator::nonblock_recv(char *data, int size) {}
-
-int Communicator::nonblock_recv(std::string &data, int size) {}
-
-std::pair<std::string, int> Communicator::nonblock_recv(int size) {}
+// int Communicator::nonblock_recv(char *data, int size) {}
+//
+// int Communicator::nonblock_recv(std::string &data, int size) {}
+//
+// std::pair<std::string, int> Communicator::nonblock_recv(int size) {}
 
 } // namespace net

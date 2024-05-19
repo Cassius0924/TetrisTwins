@@ -4,7 +4,7 @@ aux_source_directory(${CMAKE_CURRENT_SOURCE_DIR} TETROMINOS_SRC)
 
 target_sources(TETROMINOS PRIVATE ${TETROMINOS_SRC})
 
-target_include_directories(TETROMINOS PUBLIC ${INCLUDE_DIR} ${Absl_LIBRARIES})
+target_include_directories(TETROMINOS PUBLIC ${INCLUDE_DIR} ${Protobuf_INCLUDE_DIRS})
 
 list(APPEND LIBS TETROMINOS)
 set(LIBS ${LIBS} PARENT_SCOPE)
