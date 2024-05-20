@@ -23,12 +23,19 @@ public:
      * 连接服务器
      * @return 连接成功返回true，否则返回false
      */
-    void  connect();
+    void connect();
 
     /**
      * 断开连接
      */
     void disconnect() const;
+
+    /**
+     * 获取服务器地址
+     */
+    inline std::string get_server_address() const {
+        return inet_ntoa(_serv_addr.sin_addr);
+    };
 
 private:
     void _init();

@@ -20,7 +20,9 @@ public:
     /**
      * 获取客户端地址
      */
-    std::string get_client_address()const;
+    inline std::string get_client_address() const {
+        return inet_ntoa(_cli_addr.sin_addr);
+    }
 
 private:
     void _init();
