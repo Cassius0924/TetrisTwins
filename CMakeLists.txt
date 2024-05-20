@@ -9,7 +9,7 @@ find_package(absl REQUIRED)
 find_package(Protobuf REQUIRED)
 
 set(Absl_LIBRARIES absl::log_internal_message absl::log_internal_check_op)
-set(INCLUDE_DIR "${PROJECT_SOURCE_DIR}/include")
+set(INCLUDE_DIR "${PROJECT_SOURCE_DIR}/include" "${CMAKE_CURRENT_BINARY_DIR}/src/proto/include")
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
 

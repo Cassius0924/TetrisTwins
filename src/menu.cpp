@@ -141,7 +141,6 @@ void search_double_game(const ui::WindowPtr &win, const ui::WindowPtr &menu_win)
                                  room_win->register_text_item(8, ui::block_to_col(2), "对手:" + it->ip);
                                  push_window(room_win, false);
 
-
                                  game::start_cv.notify_one();
                              }});
             win->draw_menu_items();

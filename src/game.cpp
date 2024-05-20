@@ -15,8 +15,7 @@
 #include "tt/tetrominos/define.h"
 #include "tt/ui.h"
 #include "tt/utils/utils.h"
-
-#include <tt/menu.h>
+#include "tt/menu.h"
 
 using namespace std::chrono_literals;
 
@@ -269,7 +268,7 @@ void start_single_game() {
                       main_win->absolute_row(block_row));
 
         // 显示方块堆
-        ui::game_board(tetro_heap, main_win);
+        ui::tetro_heap(tetro_heap, main_win);
 
         term::reset_color();
         std::cout << std::flush;
@@ -321,11 +320,11 @@ void start_double_game(net::Communicator &commu) {
     });
 
     // FIXME: 使用智能指针
-    ui::Window *peer_main_win = new ui::Window(10, 1, 12, 22, "Your TetrisTwins");
-    ui::Window *peer_hold_win = new ui::Window(1, 1, 9, 6, "Hold");
-    ui::Window *peer_status_win = new ui::Window(1, 7, 9, 16, "Status");
-    ui::Window *peer_next_win = new ui::Window(22, 1, 8, 18, "Next");
-    ui::Window *peer_info_win = new ui::Window(22, 19, 8, 4, "Info");
+    ui::Window *peer_main_win = new ui::Window(40, 1, 12, 22, "Peer TetrisTwins");
+    ui::Window *peer_hold_win = new ui::Window(31, 1, 9, 6, "Hold");
+    ui::Window *peer_status_win = new ui::Window(31, 7, 9, 16, "Status");
+    ui::Window *peer_next_win = new ui::Window(52, 1, 8, 18, "Next");
+    ui::Window *peer_info_win = new ui::Window(52, 19, 8, 4, "Info");
 
     peer_hold_win->draw();
     peer_status_win->draw();
@@ -343,12 +342,11 @@ void start_double_game(net::Communicator &commu) {
             is_next_win_updated = false;
         }
 
-        // 同步队端游戏状态
+        // 同步对端游戏状态
         if (commu.has_data_read()) {
             auto [data, len] = commu.recv(1024);
             auto message = net::unpack_message(data);
             dispatcher.on_message(std::move(message));
-
 
         }
 
@@ -366,9 +364,11 @@ void start_double_game(net::Communicator &commu) {
                       main_win->absolute_row(block_row));
 
         // 显示方块堆
-        ui::game_board(tetro_heap, main_win);
+        ui::tetro_heap(tetro_heap, main_win);
 
         // 发送方块位置信息给对端
+        // commu.send();
+
         // 发送tetro_heap变化给对端
         // FIXME: 难点：双方同步next方块队列
 

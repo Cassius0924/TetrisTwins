@@ -164,7 +164,7 @@ void ui::tetromino(std::shared_ptr<game::tetro::Tetromino> tetro, int left, int 
     term::reset_color();
 }
 
-void ui::game_board(const game::TetroHeap &tetro_heap, ui::Window *win) {
+void ui::tetro_heap(const game::TetroHeap &tetro_heap, ui::Window *win) {
     int pre_block = -1;
     for (int i = 0; i < tetro_heap.heap.size(); i++) {
         term::move_to(win->absolute_row(i + 1), win->absolute_col(block_to_col(1)));
