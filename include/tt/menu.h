@@ -62,7 +62,7 @@ inline void pop_window(bool is_clean_screen = true) {
 /**
  * 搜索双人游戏
  */
-void search_double_game(const ui::WindowPtr &win, const ui::WindowPtr &menu_win);
+void search_double_game(const ui::WindowPtr &win);
 
 /**
  * 创建双人游戏

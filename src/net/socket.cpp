@@ -133,8 +133,8 @@ void Socket::connect(int family, int port, int addr) const {
     connect(&serv_addr);
 }
 
-void Socket::listen_and_wait(int backlog) const {
-    int ret = listen(_fd, backlog);
+void Socket::listen(int backlog) const {
+    int ret = ::listen(_fd, backlog);
     if (ret < 0) {
         std::cerr << "Error: listen failed" << std::endl;
         abort();

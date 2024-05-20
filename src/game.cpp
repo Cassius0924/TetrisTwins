@@ -384,13 +384,22 @@ void start_double_game_server() {
 
     // 创建TCP服务器
     net::TcpServer server(k_PORT);
-    server.start_and_wait();
+    server.start();
+    while(is_created_room) {
+        if (server.has_connection_request()) {
+            break;
+        }
+    }
+    if (!is_created_room) {
+        return;
+    }
+    server.accept();
 
     // 显示对手信息
     menu::window_stack.top()->display(8, ui::block_to_col(2), "对手:" + server.get_client_address());
 
     // TODO: 配置 Cmake 自动生成protobuf代码
-    while (is_running) {
+    while (is_created_room) {
         std::unique_lock<std::mutex> lock(double_start_mutex);
         double_start_cv.wait(lock, [] {
             return is_double_started;

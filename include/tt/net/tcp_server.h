@@ -13,9 +13,25 @@ public:
     ~TcpServer() override;
 
     /**
-     * 开始监听
+     * 开始监听并阻塞等待客户端连接
      */
     void start_and_wait();
+
+    /**
+     * 开始监听
+     */
+    void start();
+
+    /**
+     * 是否有客户端请求连接
+     */
+    bool has_connection_request();
+
+    /**
+     * 接受客户端连接
+     */
+    void accept();
+
 
     /**
      * 获取客户端地址
@@ -47,6 +63,11 @@ private:
      * 客户端地址长度
      */
     socklen_t _cli_addr_size;
+
+    /**
+     *
+     */
+    fd_set _listen_fd_set;
 };
 
 } // namespace net

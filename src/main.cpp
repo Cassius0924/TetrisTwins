@@ -36,7 +36,7 @@ void start() {
             game::start_double_game_server();
         }
 
-        menu::refresh_top_win();
+        // menu::refresh_top_win();
     }
 }
 

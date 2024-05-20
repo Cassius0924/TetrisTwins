@@ -36,10 +36,13 @@ void show_menu() {
         std::lock_guard<std::mutex> lock(game::start_mutex);
         game::start_cv.notify_one();
     });
-    menu_win->register_menu_item(3, ui::block_to_col(4), "2. 搜索双人游戏", [game_rooms_win, menu_win] {
+    menu_win->register_menu_item(3, ui::block_to_col(4), "2. 搜索双人游戏", [game_rooms_win] {
+        // 删除game_rooms_win.menu_items除第一个外的所有元素
+        game_rooms_win->menu_items.erase(game_rooms_win->menu_items.begin(),
+                                         std::prev(game_rooms_win->menu_items.end()));
         push_window(game_rooms_win, false);
         is_searching_game_rooms = true;
-        search_double_game(game_rooms_win, menu_win);
+        search_double_game(game_rooms_win);
     });
     menu_win->register_menu_item(4, ui::block_to_col(4), "3. 创建双人游戏", [room_win] {
         push_window(room_win, false);
@@ -73,7 +76,7 @@ void show_menu() {
     });
 
     room_win->register_menu_item(14, ui::block_to_col(2), "1.开始游戏", [] {
-        //FIXME: 检测玩家是否已经加入
+        // FIXME: 检测玩家是否已经加入
         std::lock_guard<std::mutex> lock(game::double_start_mutex);
         game::is_double_started = true;
         game::double_start_cv.notify_one();
@@ -92,10 +95,8 @@ void show_menu() {
 }
 
 // TODO: 下面两个函数换命名空间
-void search_double_game(const ui::WindowPtr &win, const ui::WindowPtr &menu_win) {
+void search_double_game(const ui::WindowPtr &win) {
     game::game_rooms.clear();
-    // 删除game_rooms_win.menu_items除第一个外的所有元素
-    win->menu_items.erase(win->menu_items.begin(), std::prev(win->menu_items.end()));
     std::this_thread::sleep_for(0.5s);
     std::thread t = std::thread([&win] {
         net::UdpBcReceiver bc_receiver(game::k_PORT);
@@ -130,6 +131,8 @@ void search_double_game(const ui::WindowPtr &win, const ui::WindowPtr &menu_win)
             win->menu_items.insert(
                 std::prev(win->menu_items.end()),
                 ui::MenuItem{text, win->absolute_row(win->menu_items.size() + 3), win->absolute_col(3), [it] {
+                                 // 加入游戏
+                                 std::lock_guard<std::mutex> lock(game::start_mutex);
                                  game::is_joined_room = true;
                                  game::game_room = std::make_unique<game::Room>(*it);
                                  // 显示房主房间界面

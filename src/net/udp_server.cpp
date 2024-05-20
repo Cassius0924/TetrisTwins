@@ -32,8 +32,8 @@ void UdpServer::start_and_wait() {
     _conn_socket.connect(&cli_addr);
     std::cout << "连接成功" << std::endl;
 
-    FD_ZERO(&_read_fds);         // 将read_fds清零
-    FD_SET(_connfd, &_read_fds); // 将sockfd加入到read_fds中
+    FD_ZERO(&_read_fd_set);         // 将read_fds清零
+    FD_SET(_connfd, &_read_fd_set); // 将sockfd加入到read_fds中
 }
 
 } // namespace net

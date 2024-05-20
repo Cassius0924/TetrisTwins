@@ -143,10 +143,10 @@ public:
     void connect(int family, int port, int addr) const;
 
     /**
-     * 监听连接
+     * 监听连接并阻塞等待连接
      * @param backlog 最大连接数
      */
-    void listen_and_wait(int backlog) const;
+    void listen(int backlog) const;
 
     /**
      * 接受连接

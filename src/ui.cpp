@@ -15,7 +15,7 @@ void ui::Window::draw() const {
         return;
     }
 
-    typedef ui::Style DS;
+    typedef Style DS;
 
     //                top=1(real top=0)
     //                 v

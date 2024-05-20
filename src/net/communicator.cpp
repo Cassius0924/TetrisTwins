@@ -2,7 +2,7 @@
 
 
 namespace net {
-Communicator::Communicator(const int port) : CommunicatorBase(port), _read_timeout{0, 0}, _read_fds{} {}
+Communicator::Communicator(const int port) : CommunicatorBase(port), _read_timeout{0, 0}, _read_fd_set{} {}
 
 Communicator::~Communicator() {
     close(_connfd);
@@ -88,7 +88,7 @@ std::pair<std::string, int> Communicator::recv(int size) {
 }
 
 bool Communicator::has_data_read() {
-    int ret = select(_connfd + 1, &_read_fds, nullptr, nullptr, &_read_timeout);
+    int ret = select(_connfd + 1, &_read_fd_set, nullptr, nullptr, &_read_timeout);
     if (ret == -1 || ret == 0) {
         return false;
     }

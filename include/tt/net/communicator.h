@@ -31,7 +31,7 @@ protected:
     virtual ~Communicator();
 
 protected:
-    fd_set _read_fds;
+    fd_set _read_fd_set;
     timeval _read_timeout;
 };
 
