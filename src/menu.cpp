@@ -40,6 +40,7 @@ void show_menu() {
         // 删除game_rooms_win.menu_items除第一个外的所有元素
         game_rooms_win->menu_items.erase(game_rooms_win->menu_items.begin(),
                                          std::prev(game_rooms_win->menu_items.end()));
+        game_rooms_win->selected_menu_item = game_rooms_win->menu_items.begin();
         push_window(game_rooms_win, false);
         is_searching_game_rooms = true;
         search_double_game(game_rooms_win);

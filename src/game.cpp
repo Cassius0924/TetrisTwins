@@ -4,6 +4,7 @@
 #include <thread>
 
 #include "tt/control.h"
+#include "tt/menu.h"
 #include "tt/net/communicator.h"
 #include "tt/net/dispatcher.h"
 #include "tt/net/packer.h"
@@ -15,7 +16,6 @@
 #include "tt/tetrominos/define.h"
 #include "tt/ui.h"
 #include "tt/utils/utils.h"
-#include "tt/menu.h"
 
 using namespace std::chrono_literals;
 
@@ -63,6 +63,11 @@ bool Room::operator==(const Room &other) const {
 
 void quit(int signal) {
     is_single_started = false;
+    is_double_started = false;
+    is_created_room = false;
+    is_joined_room = false;
+    menu::is_searching_game_rooms = false;
+    menu::is_sending_game_room = false;
 }
 
 void move_left() {
@@ -145,6 +150,7 @@ bool touch_heap(std::shared_ptr<tetro::Tetromino> &tetro, int row, int col, int 
         // 判断是否触顶
         if (check_touch_top(row_air)) {
             quit(0);
+            menu::refresh_top_win(true);
         }
 
         // 生成新的的俄罗斯方块
@@ -307,6 +313,20 @@ void double_init() {
     ctrl::start_gravity_thread();
 }
 
+void signal_message_callback(std::unique_ptr<proto::SignalMessage> message, bool &flag) {
+    // flag用于标识是否传来的是START信号
+    switch (message->signal()) {
+        case proto::Signal::START:
+            flag = true;
+            break;
+        case proto::Signal::QUIT:
+        default:
+            quit();
+            menu::pop_window(2);
+            flag = false;
+    }
+}
+
 void start_double_game(net::Communicator &commu) {
     double_init();
 
@@ -320,20 +340,21 @@ void start_double_game(net::Communicator &commu) {
     });
 
     // FIXME: 使用智能指针
-    ui::Window *peer_main_win = new ui::Window(40, 1, 12, 22, "Peer TetrisTwins");
-    ui::Window *peer_hold_win = new ui::Window(31, 1, 9, 6, "Hold");
-    ui::Window *peer_status_win = new ui::Window(31, 7, 9, 16, "Status");
-    ui::Window *peer_next_win = new ui::Window(52, 1, 8, 18, "Next");
-    ui::Window *peer_info_win = new ui::Window(52, 19, 8, 4, "Info");
+    const ui::Window *peer_main_win = new ui::Window(40, 1, 12, 22, "Peer TetrisTwins");
+    const ui::Window *peer_hold_win = new ui::Window(31, 1, 9, 6, "Hold");
+    const ui::Window *peer_status_win = new ui::Window(31, 7, 9, 16, "Status");
+    const ui::Window *peer_next_win = new ui::Window(52, 1, 8, 18, "Next");
+    const ui::Window *peer_info_win = new ui::Window(52, 19, 8, 4, "Info");
 
+    peer_main_win->draw();
     peer_hold_win->draw();
     peer_status_win->draw();
-    peer_info_win->draw();
-    peer_main_win->draw();
     peer_next_win->draw();
+    peer_info_win->draw();
 
     net::Dispatcher dispatcher;
-    // dispatcher.register_message_callback();
+    dispatcher.register_message_callback<proto::SignalMessage>(
+        std::bind(signal_message_callback, std::placeholders::_1, std::ref(is_double_started)));
 
     while (is_double_started) {
         if (is_next_win_updated) {
@@ -347,7 +368,9 @@ void start_double_game(net::Communicator &commu) {
             auto [data, len] = commu.recv(1024);
             auto message = net::unpack_message(data);
             dispatcher.on_message(std::move(message));
-
+            if (!is_double_started) {
+                return;
+            }
         }
 
         // 绘制窗口
@@ -370,22 +393,26 @@ void start_double_game(net::Communicator &commu) {
         // commu.send();
 
         // 发送tetro_heap变化给对端
-        // FIXME: 难点：双方同步next方块队列
+        // FIXME: 难点：双方同步next方块队列；
+        // FIXME:
+        // 解决方法：双方各自维护一个相同的next方块队列，以及一个对端进度指针，哪一端进度快就生成新方块，通过网络同步
 
         term::reset_color();
         std::cout << std::flush;
         std::this_thread::sleep_for(100ms);
-
     }
+
+    // 发送退出消息
+    proto::SignalMessage signal_message;
+    signal_message.set_signal(proto::Signal::QUIT);
+    commu.send(net::pack_message(signal_message));
 }
 
 void start_double_game_server() {
-    // std::thread t = std::thread([] {
-
     // 创建TCP服务器
     net::TcpServer server(k_PORT);
     server.start();
-    while(is_created_room) {
+    while (is_created_room) {
         if (server.has_connection_request()) {
             break;
         }
@@ -413,21 +440,6 @@ void start_double_game_server() {
 
         // 开始双人游戏
         start_double_game(server);
-    };
-
-    // });
-    // t.detach();
-}
-
-// flag用于标识是否传来的是START信号
-void signal_message_callback(std::unique_ptr<proto::SignalMessage> message, bool &flag) {
-    switch (message->signal()) {
-        case proto::Signal::START:
-            flag = true;
-            break;
-        case proto::Signal::QUIT:
-        default:
-            flag = false;
     }
 }
 
@@ -439,22 +451,20 @@ void start_double_game_client() {
     net::TcpClient client(game_room->ip, game_room->port);
     client.connect();
 
-    bool flag = false;
-
     net::Dispatcher dispatcher;
     // 注册消息处理回调函数
-    dispatcher.register_message_callback<proto::SignalMessage>(std::bind(signal_message_callback, std::placeholders::_1, std::ref(flag)));
+    dispatcher.register_message_callback<proto::SignalMessage>(std::bind(signal_message_callback, std::placeholders::_1, std::ref(game::is_double_started)));
 
     // TODO: 循环条件控制
-    while(is_running) {
+    while(is_joined_room) {
         auto[data, len] = client.recv(1024);
-        std::unique_ptr<google::protobuf::Message> message = net::unpack_message(data);
         if (len < 0) {
             continue;
         }
+        std::unique_ptr<google::protobuf::Message> message = net::unpack_message(data);
 
         dispatcher.on_message(std::move(message));
-        if (!flag) {
+        if (!is_double_started) {
             continue;
         }
 

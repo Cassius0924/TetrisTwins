@@ -55,7 +55,27 @@ inline void push_window(const ui::WindowPtr &win, bool is_clean_screen = true) {
  * @param is_clean_screen 是否清屏
  */
 inline void pop_window(bool is_clean_screen = true) {
-    window_stack.pop();
+    // 如果是最后一个窗口，则不弹出
+    if (window_stack.size() > 1) {
+        window_stack.pop();
+    }
+    refresh_top_win(is_clean_screen);
+}
+
+/**
+ * 弹出窗口
+ * @param num 弹出窗口数量
+ * @param is_clean_screen 是否清屏
+ */
+inline void pop_window(int num, bool is_clean_screen = true) {
+    if (num <= 0) {
+        return;
+    }
+    for (int i = 0; i < num; ++i) {
+        if (window_stack.size() > 1) {
+            window_stack.pop();
+        }
+    }
     refresh_top_win(is_clean_screen);
 }
 

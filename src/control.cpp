@@ -67,6 +67,11 @@ void ctrl::start_gravity_thread() {
 }
 
 void ctrl::cmd_quit() {
+    if(game::is_double_started){
+        menu::pop_window(2);
+    } else {
+        menu::refresh_top_win(true);
+    }
     game::quit();
 }
 

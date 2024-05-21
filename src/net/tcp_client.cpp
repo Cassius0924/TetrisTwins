@@ -23,6 +23,9 @@ void TcpClient::_init() {
 
 void TcpClient::connect() {
     _conn_socket.connect(&_serv_addr);
+
+    FD_ZERO(&_read_fd_set);
+    FD_SET(_connfd,&_read_fd_set);
 }
 
 void TcpClient::disconnect() const {

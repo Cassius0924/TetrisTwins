@@ -129,20 +129,21 @@ void ui::Window::handleKeyEvent(char command) {
             std::cout << item->text;
             --item;
         }
+        // 更新选中菜单项
+        top_win->selected_menu_item = item;
     } else if (command == ctrl::k_KEY_S || command == ctrl::k_KEY_DOWN) {
         if (item != --top_win->menu_items.end()) {
             term::move_to(item->arow, item->acol);
             std::cout << item->text;
             ++item;
         }
+        top_win->selected_menu_item = item;
     } else if (command == ctrl::k_KEY_SPACE || command == ctrl::k_KEY_ENTER) {
         if (item->action) {
             item->action();
             return;
         }
     }
-    // 更新选中菜单项
-    top_win->selected_menu_item = item;
     term::set_back_color(static_cast<int>(Color::Gray));
     term::move_to(item->arow, item->acol);
     std::cout << item->text << std::flush;

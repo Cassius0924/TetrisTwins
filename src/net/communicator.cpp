@@ -88,11 +88,15 @@ std::pair<std::string, int> Communicator::recv(int size) {
 }
 
 bool Communicator::has_data_read() {
-    int ret = select(_connfd + 1, &_read_fd_set, nullptr, nullptr, &_read_timeout);
-    if (ret == -1 || ret == 0) {
+    fd_set tmp_set = _read_fd_set;
+    int ret = select(_connfd + 1, &tmp_set, nullptr, nullptr, &_read_timeout);
+    if (ret < 0) {
         return false;
     }
-    return true;
+    if (FD_ISSET(_connfd, &tmp_set)) {
+        return true;
+    }
+    return false;
 }
 
 // int Communicator::nonblock_recv(char *data, int size) {}
