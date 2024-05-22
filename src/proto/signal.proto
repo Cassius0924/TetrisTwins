@@ -2,11 +2,13 @@ syntax = "proto3";
 
 package proto;
 
-enum Signal{
-    START = 0;
-    QUIT = 1;
+enum Signal {
+    SIGNAL_UNSPECIFIED = 0;
+    SIGNAL_START = 1;
+    SIGNAL_QUIT = 2;
+    SIGNAL_NEXT_TETRO_REQUEST = 3;
 }
 
-message SignalMessage{
+message SignalMessage {
     Signal signal = 1;
 }

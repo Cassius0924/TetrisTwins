@@ -10,7 +10,9 @@
 #include "tt/net/packer.h"
 #include "tt/net/tcp_client.h"
 #include "tt/net/tcp_server.h"
+#include "tt/proto/next.pb.h"
 #include "tt/proto/signal.pb.h"
+#include "tt/proto/tetrominos.pb.h"
 #include "tt/remove.h"
 #include "tt/terminal.h"
 #include "tt/tetrominos/define.h"
@@ -46,9 +48,9 @@ ui::Window *next_win;
 ui::Window *info_win;
 
 std::shared_ptr<tetro::Tetromino> cur_tetromino;
-std::deque<std::shared_ptr<tetro::Tetromino>> tetro_queue(5);
+std::deque<std::shared_ptr<tetro::Tetromino>> tetro_queue;
 
-int score;
+int score = 0;
 
 TetroHeap tetro_heap;
 
@@ -173,19 +175,19 @@ std::shared_ptr<tetro::Tetromino> generate_tetromino() {
     for (;;) {
         switch (utils::random_int(0, 6)) {
             case 0:
-                return std::make_unique<game::tetro::TetroI>();
+                return std::make_unique<tetro::TetroI>();
             case 1:
-                return std::make_unique<game::tetro::TetroJ>();
+                return std::make_unique<tetro::TetroJ>();
             case 2:
-                return std::make_unique<game::tetro::TetroL>();
+                return std::make_unique<tetro::TetroL>();
             case 3:
-                return std::make_unique<game::tetro::TetroO>();
+                return std::make_unique<tetro::TetroO>();
             case 4:
-                return std::make_unique<game::tetro::TetroS>();
+                return std::make_unique<tetro::TetroS>();
             case 5:
-                return std::make_unique<game::tetro::TetroT>();
+                return std::make_unique<tetro::TetroT>();
             case 6:
-                return std::make_unique<game::tetro::TetroZ>();
+                return std::make_unique<tetro::TetroZ>();
             default:
                 continue;
         }
@@ -211,6 +213,8 @@ bool check_touch_top(std::vector<int> row_air) {
 }
 
 void single_init() {
+    tetro_queue.resize(5);
+
     main_win = new ui::Window(10, 1, 12, 22, "TetrisTwins");
     hold_win = new ui::Window(1, 1, 9, 6, "Hold");
     status_win = new ui::Window(1, 7, 9, 16, "Status");
@@ -223,7 +227,6 @@ void single_init() {
 
     tetro_heap.heap =
         std::vector<std::vector<int>>(main_win->get_inner_height(), std::vector<int>(main_win->get_inner_width(), 0));
-    score = 0;
 
     // 生成一个随机的俄罗斯方块
     for (auto &tetro : tetro_queue) {
@@ -242,8 +245,6 @@ void single_init() {
 }
 
 void start_single_game() {
-    single_init();
-
     // 注册FPS text
     status_win->register_text_item(3, ui::block_to_col(2), [] {
         return "FPS: " + std::to_string(utils::fps());
@@ -282,7 +283,35 @@ void start_single_game() {
     }
 }
 
+void double_server_init(net::Communicator &commu) {
+    // 初始化，生成next方块队列，双端同步
+    proto::NextQueueMessage next_queue_message;
+    auto next_queue = next_queue_message.mutable_queue();
+    next_queue->Reserve(6);
+    for (auto &tetro : tetro_queue) {
+        tetro = generate_tetromino();
+        next_queue->Add(to_proto(tetro));
+    }
+    commu.send(net::pack_message(next_queue_message));
+    is_next_win_updated = true;
+
+    // 同步当前方块信息
+    cur_tetromino = generate_tetromino();
+    proto::TetroMessage tetro_message;
+    tetro_message.set_tetro(to_proto(cur_tetromino));
+    commu.send(net::pack_message(tetro_message));
+    move_to_top_center(cur_tetromino);
+
+    ctrl::start_gravity_thread();
+}
+
+void double_client_init() {
+}
+
 void double_init() {
+    // 多一个next方块用于缓存，用于抵消网络延迟
+    tetro_queue.resize(6);
+
     main_win = new ui::Window(10, 1, 12, 22, "Your TetrisTwins");
     hold_win = new ui::Window(1, 1, 9, 6, "Hold");
     status_win = new ui::Window(1, 7, 9, 16, "Status");
@@ -295,46 +324,52 @@ void double_init() {
 
     tetro_heap.heap =
         std::vector<std::vector<int>>(main_win->get_inner_height(), std::vector<int>(main_win->get_inner_width(), 0));
-    score = 0;
-
-    // 生成一个随机的俄罗斯方块
-    for (auto &tetro : tetro_queue) {
-        tetro = generate_tetromino();
-    }
-    cur_tetromino = generate_tetromino();
-    move_to_top_center(cur_tetromino);
 
     full_air_count = main_win->get_inner_width();
     row_air = std::vector<int>(main_win->get_height() - 2, full_air_count);
 
-    is_next_win_updated = true;
-
-    // 创建方块重力
-    ctrl::start_gravity_thread();
 }
 
 void signal_message_callback(std::unique_ptr<proto::SignalMessage> message, bool &flag) {
     // flag用于标识是否传来的是START信号
     switch (message->signal()) {
-        case proto::Signal::START:
+        case proto::SIGNAL_START: {
             flag = true;
             break;
-        case proto::Signal::QUIT:
-        default:
+        }
+        case proto::SIGNAL_NEXT_TETRO_REQUEST: {
+            break;
+        }
+        case proto::SIGNAL_QUIT:
+        case proto::SIGNAL_UNSPECIFIED:
+        default: {
             quit();
             menu::pop_window(2);
             flag = false;
+        }
     }
 }
 
-void start_double_game(net::Communicator &commu) {
-    double_init();
+void next_queue_message_callback(std::unique_ptr<proto::NextQueueMessage> message,
+                                 std::deque<std::shared_ptr<tetro::Tetromino>> &queue, bool &updated) {
+    for (int i = 0; i < queue.size(); ++i) {
+        queue[i] = tetro::from_proto(message->queue(i));
+    }
+    updated = true;
+}
 
-    // 注册FPS text
+void tetro_message_callback(std::unique_ptr<proto::TetroMessage> message,
+                            std::shared_ptr<tetro::Tetromino> &cur_tetro) {
+    cur_tetro = tetro::from_proto(message->tetro());
+    move_to_top_center(cur_tetromino);
+    // 创建方块重力
+    ctrl::start_gravity_thread();
+}
+
+void start_double_game(net::Communicator &commu) {
     status_win->register_text_item(3, ui::block_to_col(2), [] {
         return "FPS: " + std::to_string(utils::fps());
     });
-    // 注册分数 text
     status_win->register_text_item(4, ui::block_to_col(2), [] {
         return "Score: " + std::to_string(score);
     });
@@ -355,6 +390,10 @@ void start_double_game(net::Communicator &commu) {
     net::Dispatcher dispatcher;
     dispatcher.register_message_callback<proto::SignalMessage>(
         std::bind(signal_message_callback, std::placeholders::_1, std::ref(is_double_started)));
+    dispatcher.register_message_callback<proto::NextQueueMessage>(std::bind(
+        next_queue_message_callback, std::placeholders::_1, std::ref(tetro_queue), std::ref(is_next_win_updated)));
+    dispatcher.register_message_callback<proto::TetroMessage>(
+        std::bind(tetro_message_callback, std::placeholders::_1, std::ref(cur_tetromino)));
 
     while (is_double_started) {
         if (is_next_win_updated) {
@@ -391,11 +430,7 @@ void start_double_game(net::Communicator &commu) {
 
         // 发送方块位置信息给对端
         // commu.send();
-
         // 发送tetro_heap变化给对端
-        // FIXME: 难点：双方同步next方块队列；
-        // FIXME:
-        // 解决方法：双方各自维护一个相同的next方块队列，以及一个对端进度指针，哪一端进度快就生成新方块，通过网络同步
 
         term::reset_color();
         std::cout << std::flush;
@@ -404,7 +439,7 @@ void start_double_game(net::Communicator &commu) {
 
     // 发送退出消息
     proto::SignalMessage signal_message;
-    signal_message.set_signal(proto::Signal::QUIT);
+    signal_message.set_signal(proto::SIGNAL_QUIT);
     commu.send(net::pack_message(signal_message));
 }
 
@@ -434,11 +469,13 @@ void start_double_game_server() {
 
         // 向客户端发送开始信号
         proto::SignalMessage signal_message;
-        signal_message.set_signal(proto::START);
+        signal_message.set_signal(proto::SIGNAL_START);
 
         server.send(net::pack_message(signal_message));
 
         // 开始双人游戏
+        double_init();
+        double_server_init(server);
         start_double_game(server);
     }
 }
@@ -453,11 +490,12 @@ void start_double_game_client() {
 
     net::Dispatcher dispatcher;
     // 注册消息处理回调函数
-    dispatcher.register_message_callback<proto::SignalMessage>(std::bind(signal_message_callback, std::placeholders::_1, std::ref(game::is_double_started)));
+    dispatcher.register_message_callback<proto::SignalMessage>(
+        std::bind(signal_message_callback, std::placeholders::_1, std::ref(is_double_started)));
 
     // TODO: 循环条件控制
-    while(is_joined_room) {
-        auto[data, len] = client.recv(1024);
+    while (is_joined_room) {
+        auto [data, len] = client.recv(1024);
         if (len < 0) {
             continue;
         }
@@ -469,9 +507,10 @@ void start_double_game_client() {
         }
 
         // 开始双人游戏
+        double_init();
+        double_client_init();
         start_double_game(client);
     }
 }
-
 
 } // namespace game

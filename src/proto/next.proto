@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package proto;
+
+import "tetrominos.proto";
+
+message NextQueueMessage {
+    repeated Tetro queue = 1;
+}
+
+message NextTetroMessage {
+    Tetro tetro = 1;
+}

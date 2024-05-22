@@ -3,12 +3,12 @@
 #include "tt/game.h"
 
 namespace game {
-    int full_air_count;
-    std::vector<int> row_air;
-    int score_table[5] = {0, 100, 300, 500, 800};
-} // namespace game
 
-void game::remove_full_rows(int top_row, int bottom_row) {
+int full_air_count;
+std::vector<int> row_air;
+int score_table[5] = {0, 100, 300, 500, 800};
+
+void remove_full_rows(int top_row, int bottom_row) {
     int full_row_count = 0;
     int i = top_row;
     auto remove = [&]() {
@@ -52,7 +52,8 @@ void game::remove_full_rows(int top_row, int bottom_row) {
     }
 
     if (total_air_count > 0) {
-        game::score += game::score_table[total_air_count];
+        score += score_table[total_air_count];
     }
 }
 
+} // namespace game

@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "tt/color.h"
+#include "tt/proto/tetrominos.pb.h"
 
 namespace game::tetro {
 
@@ -149,6 +150,9 @@ private:
 
 };
 
+proto::Tetro to_proto(std::shared_ptr<Tetromino> tetro);
+
+std::shared_ptr<Tetromino> from_proto(proto::Tetro tetro);
 
 }
 

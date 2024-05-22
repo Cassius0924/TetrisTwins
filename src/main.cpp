@@ -29,6 +29,7 @@ void start() {
         });
 
         if (game::is_single_started){
+            game::single_init();
             game::start_single_game();
         } else if (game::is_joined_room) {
             game::start_double_game_client();

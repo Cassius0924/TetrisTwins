@@ -2,5 +2,23 @@ syntax = "proto3";
 
 package proto;
 
-message TetroMessage{
+enum Tetro {
+    TETRO_UNSPECIFIED = 0;
+    TETRO_I = 1;
+    TETRO_O = 2;
+    TETRO_T = 3;
+    TETRO_S = 4;
+    TETRO_Z = 5;
+    TETRO_J = 6;
+    TETRO_L = 7;
 }
+
+message TetroMessage {
+    Tetro tetro = 1;
+}
+
+message TetroPositionMessage {
+    int32 col = 1;
+    int32 row = 2;
+}
+

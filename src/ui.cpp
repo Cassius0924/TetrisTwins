@@ -7,6 +7,8 @@
 #include "tt/style.h"
 #include "tt/terminal.h"
 
+constexpr int k_NEXT_TETRO_SIZE = 5;
+
 ui::Window::Window(int left, int top, int width, int height, std::string title)
     : _left(left), _top(top), _width(width), _height(height), _title(std::move(title)), menu_items{} {}
 
@@ -151,6 +153,9 @@ void ui::Window::handleKeyEvent(char command) {
 }
 
 void ui::tetromino(std::shared_ptr<game::tetro::Tetromino> tetro, int left, int top) {
+    if (tetro == nullptr) {
+        return;
+    }
     term::set_back_color(static_cast<int>(tetro->color));
     auto voffset = tetro->get_valid_offset();
     for (int i = voffset.top; i <= voffset.bottom; i++) {
@@ -184,6 +189,9 @@ void ui::tetro_heap(const game::TetroHeap &tetro_heap, ui::Window *win) {
 }
 
 void ui::ghost_tetromino(std::shared_ptr<game::tetro::Tetromino> tetro, int left, int top) {
+    if (tetro == nullptr) {
+        return;
+    }
     term::set_fore_color(static_cast<int>(tetro->color));
     auto voffset = tetro->get_valid_offset();
     for (int i = voffset.top; i <= voffset.bottom; i++) {
@@ -199,7 +207,7 @@ void ui::ghost_tetromino(std::shared_ptr<game::tetro::Tetromino> tetro, int left
 }
 
 void ui::tetro_queue(const std::deque<std::shared_ptr<game::tetro::Tetromino>> &tetro_queue, ui::Window *win) {
-    for (int i = 0; i < tetro_queue.size(); ++i) {
+    for (int i = 0; i < k_NEXT_TETRO_SIZE; ++i) {
         auto voffset = tetro_queue[i]->get_valid_offset();
         tetromino(tetro_queue[i],
                   win->absolute_col(block_to_col(3 - (voffset.left + (voffset.right - voffset.left + 2) / 2 - 1))),

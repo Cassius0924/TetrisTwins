@@ -1,7 +1,13 @@
 #include "tt/tetrominos/tetromino.h"
 
 #include "tt/game.h"
+#include "tt/tetrominos/tetro_i.h"
+#include "tt/tetrominos/tetro_j.h"
+#include "tt/tetrominos/tetro_l.h"
 #include "tt/tetrominos/tetro_o.h"
+#include "tt/tetrominos/tetro_s.h"
+#include "tt/tetrominos/tetro_t.h"
+#include "tt/tetrominos/tetro_z.h"
 #include "tt/ui.h"
 
 namespace game::tetro {
@@ -127,4 +133,62 @@ void Tetromino::_calibrate() {
     }
 }
 
+proto::Tetro to_proto(std::shared_ptr<Tetromino> tetro) {
+    switch (tetro->type) {
+        case TetrominoType::I: {
+            return proto::TETRO_I;
+        }
+        case TetrominoType::J: {
+            return proto::TETRO_J;
+        }
+        case TetrominoType::L: {
+            return proto::TETRO_L;
+        }
+        case TetrominoType::O: {
+            return proto::TETRO_O;
+        }
+        case TetrominoType::S: {
+            return proto::TETRO_S;
+        }
+        case TetrominoType::T: {
+            return proto::TETRO_T;
+        }
+        case TetrominoType::Z: {
+            return proto::TETRO_Z;
+        }
+        default: {
+            return proto::TETRO_UNSPECIFIED;
+        }
+    }
 }
+
+std::shared_ptr<Tetromino> from_proto(proto::Tetro tetro) {
+    switch (tetro) {
+        case proto::TETRO_I: {
+            return std::make_shared<TetroI>();
+        }
+        case proto::TETRO_J: {
+            return std::make_shared<TetroJ>();
+        }
+        case proto::TETRO_L: {
+            return std::make_shared<TetroL>();
+        }
+        case proto::TETRO_O: {
+            return std::make_shared<TetroO>();
+        }
+        case proto::TETRO_S: {
+            return std::make_shared<TetroS>();
+        }
+        case proto::TETRO_T: {
+            return std::make_shared<TetroT>();
+        }
+        case proto::TETRO_Z: {
+            return std::make_shared<TetroZ>();
+        }
+        default: {
+            return nullptr;
+        }
+    }
+}
+
+} // namespace game::tetro

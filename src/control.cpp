@@ -52,7 +52,7 @@ void ctrl::start_key_listener() {
 }
 
 void ctrl::gravity() {
-    while (game::is_single_started) {
+    while (game::is_single_started || game::is_double_started) {
         if (is_hard_drop) {
             continue;
         }
