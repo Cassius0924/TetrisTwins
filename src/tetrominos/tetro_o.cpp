@@ -1,8 +1,8 @@
 #include "tt/tetrominos/tetro_o.h"
 
-using namespace game::tetro;
+namespace game::tetro {
 
-TetroO::TetroO() : Tetromino() {
+TetroO::TetroO() : Tetromino(s_color, s_type) {
     _raw_data = {
         {0, 2, 2},
         {0, 2, 2},
@@ -17,10 +17,10 @@ TetroO::TetroO() : Tetromino() {
     _kick_table = {{{0, 0}}, {{0, 0}}, {{0, 0}}, {{0, 0}}};
 
     _voffset = {1, 2, 0, 1};
-
-    color = TetroO::s_color;
 }
 
 ui::Color TetroO::s_color = ui::Color::Yellow;
 
-TetroO::TetroO(TetrominoState init_state) : TetroO() {}
+TetrominoType TetroO::s_type = TetrominoType::O;
+
+} // namespace game::tetro

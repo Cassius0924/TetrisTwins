@@ -4,15 +4,9 @@
 #include "tt/tetrominos/tetro_o.h"
 #include "tt/ui.h"
 
-using namespace game::tetro;
+namespace game::tetro {
 
-Tetromino::Tetromino() : color() {
-    _state = TetrominoState::Zero;
-}
-
-Tetromino::Tetromino(TetrominoState init_state) : color() {
-    _state = init_state;
-}
+Tetromino::Tetromino(ui::Color color, TetrominoType type) : color(color), type(type), _state(TetrominoState::Zero) {}
 
 Tetromino::~Tetromino() = default;
 
@@ -131,5 +125,6 @@ void Tetromino::_calibrate() {
         _voffset = {_voffset.left + ox, _voffset.right + ox, _voffset.top - oy, _voffset.bottom - oy};
         return;
     }
+}
 
 }

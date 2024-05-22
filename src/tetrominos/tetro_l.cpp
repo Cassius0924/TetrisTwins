@@ -1,8 +1,8 @@
 #include "tt/tetrominos/tetro_l.h"
 
-using namespace game::tetro;
+namespace game::tetro {
 
-TetroL::TetroL() : Tetromino() {
+TetroL::TetroL() : Tetromino(s_color, s_type) {
     _raw_data = {
         {0, 0, 0, 0, 0, 0, 0},
         {0, 0, 0, 0, 0, 0, 0},
@@ -19,17 +19,17 @@ TetroL::TetroL() : Tetromino() {
     // 2	( 0, 0)	( 0, 0)	( 0, 0)	( 0, 0)	( 0, 0)
     // L	( 0, 0)	(-1, 0)	(-1,-1)	( 0,+2)	(-1,+2)
     _kick_table = {
-        {{0, 0},  {0, 0},   {0, 0}, {0, 0},  {0, 0}},
-        {{0, 0},  {1, 0},  {1, -1}, {0, 2},  {1, 2}},
-        {{0, 0},  {0, 0},   {0, 0}, {0, 0},  {0, 0}},
+        {{0, 0}, {0, 0},  {0, 0},   {0, 0}, {0, 0} },
+        {{0, 0}, {1, 0},  {1, -1},  {0, 2}, {1, 2} },
+        {{0, 0}, {0, 0},  {0, 0},   {0, 0}, {0, 0} },
         {{0, 0}, {-1, 0}, {-1, -1}, {0, 2}, {-1, 2}},
     };
 
     _voffset = {2, 4, 2, 3};
-
-    color = TetroL::s_color;
 }
 
 ui::Color TetroL::s_color = ui::Color::Orange;
 
-TetroL::TetroL(TetrominoState init_state) : TetroL() {}
+TetrominoType TetroL::s_type = TetrominoType::L;
+
+} // namespace game::tetro

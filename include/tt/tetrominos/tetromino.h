@@ -6,132 +6,150 @@
 #include "tt/color.h"
 
 namespace game::tetro {
-    enum class TetrominoState {
-        Zero = 0,
-        Right = 1,
-        Two = 2,
-        Left = 3,
-    };
+
+enum class TetrominoState {
+    Zero = 0,
+    Right = 1,
+    Two = 2,
+    Left = 3,
+};
+
+/**
+ * 方块数据
+ */
+struct TetrominoData {
+    std::vector<std::vector<int>> raw_data;
+    std::vector<std::vector<int>> data;
+    TetrominoState state;
+};
+
+/**
+ * 踢墙位移
+ */
+struct KickOffset {
+    int x;
+    int y;
+};
+
+struct ValidOffset {
+    /**
+     * 左右上下边界
+     */
+    int left;
+    int right;
+    int top;
+    int bottom;
+};
+
+using KickTable = std::vector<std::vector<KickOffset>>;
+
+enum class TetrominoType {
+    I = 0,
+    J = 1,
+    L = 2,
+    O = 3,
+    S = 4,
+    T = 5,
+    Z = 6,
+};
+
+class Tetromino {
+protected:
+    /**
+     * 原始方块姿态数据
+     */
+    std::vector<std::vector<int>> _raw_data;
 
     /**
-     * 方块数据
+     * 当前方块姿态数据
      */
-    struct TetrominoData {
-        std::vector<std::vector<int>> raw_data;
-        std::vector<std::vector<int>> data;
-        TetrominoState state;
-    };
+    std::vector<std::vector<int>> _data;
 
     /**
-     * 踢墙位移
+     * 方块姿态当前姿态
      */
-    struct KickOffset {
-        int x;
-        int y;
-    };
+    TetrominoState _state;
 
-    struct ValidOffset {
-        /**
-         * 左右上下边界
-         */
-        int left;
-        int right;
-        int top;
-        int bottom;
-    };
+    /**
+     * 踢墙表
+     */
+    KickTable _kick_table;
 
-    using KickTable = std::vector<std::vector<KickOffset>>;
+    /**
+     * 有效坐标偏移量
+     */
+    ValidOffset _voffset{};
 
-    class Tetromino {
-    protected:
-        /**
-         * 原始方块姿态数据
-         */
-        std::vector<std::vector<int>> _raw_data;
+public:
+    /**
+     * 方块颜色
+     */
+    ui::Color color;
 
-        /**
-         * 当前方块姿态数据
-         */
-        std::vector<std::vector<int>> _data;
+    /**
+     * 方块类型
+     */
+    TetrominoType type;
 
-        /**
-         * 方块姿态当前姿态
-         */
-        TetrominoState _state;
+public:
+    Tetromino(ui::Color color, TetrominoType type);
 
-        /**
-         * 踢墙表
-         */
-        KickTable _kick_table;
+    Tetromino(const Tetromino &tetro) = default;
 
-        /**
-         * 有效坐标偏移量
-         */
-        ValidOffset _voffset{};
+    //        explicit Tetromino(std::vector<std::vector<int>> data);
 
-    public:
-        /**
-         * 方块颜色
-         */
-        ui::Color color;
+    virtual ~Tetromino();
 
-        Tetromino();
+    /**
+     * 获取方块数据
+     * @param i: 行
+     * @return 方块数据
+     */
+    std::vector<int> &operator[](int i);
 
-        explicit Tetromino(TetrominoState init_state);
+    /**
+     * 获取方块行数
+     * @return 行数
+     */
+    int rows() const;
 
-        Tetromino(const Tetromino &tetro) = default;
+    /**
+     * 获取方块列数
+     * @return 列数
+     */
+    int cols() const;
 
-        //        explicit Tetromino(std::vector<std::vector<int>> data);
+    /**
+     * 获取有效坐标偏移量
+     */
+    inline ValidOffset get_valid_offset() const {
+        return _voffset;
+    }
 
-        virtual ~Tetromino();
+    /**
+     * 获取方块数据的拷贝
+     */
+    inline std::vector<std::vector<int>> get_data() const {
+        return _data;
+    }
 
-        /**
-         * 获取方块数据
-         * @param i: 行
-         * @return 方块数据
-         */
-        std::vector<int> &operator[](int i);
+    void rotate();
 
-        /**
-         * 获取方块行数
-         * @return 行数
-         */
-        int rows() const;
+    static TetrominoState prevState(TetrominoState state);
 
-        /**
-         * 获取方块列数
-         * @return 列数
-         */
-        int cols() const;
+    static TetrominoState nextState(TetrominoState state);
 
-        /**
-         * 获取有效坐标偏移量
-         */
-        inline ValidOffset get_valid_offset() const {
-            return _voffset;
-        }
+private:
+    void _rotate();
 
-        /**
-         * 获取方块数据的拷贝
-         */
-        inline std::vector<std::vector<int>> get_data() const {
-            return _data;
-        }
+    /**
+     * 校准方块数据，根据踢墙表调整位置
+     */
+    void _calibrate();
 
-        void rotate();
+};
 
-        static TetrominoState prevState(TetrominoState state);
 
-        static TetrominoState nextState(TetrominoState state);
-
-    private:
-        void _rotate();
-
-        /**
-         * 校准方块数据，根据踢墙表调整位置
-         */
-        void _calibrate();
-    };
 }
 
 #endif //TETRIS_TETROMINO_H

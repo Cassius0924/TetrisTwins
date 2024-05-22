@@ -5,19 +5,24 @@
 
 namespace game::tetro {
 
-    class TetroT : public Tetromino {
-    public:
-        TetroT();
+class TetroT : public Tetromino {
+public:
+    TetroT();
 
-        explicit TetroT(TetrominoState init_state);
+    explicit TetroT(TetrominoState init_state);
 
-        /**
-         * 方块颜色
-         */
-        static ui::Color s_color;
+    /**
+     * 方块颜色
+     */
+    static ui::Color s_color;
 
-        //        void _calibrate() override;
-    };
+    /**
+     * 方块类型
+     */
+    static TetrominoType s_type;
+
+};
+
 } // namespace game::tetro
 
 #endif // TETRIS_TETRO_T_H

@@ -1,8 +1,8 @@
 #include "tt/tetrominos/tetro_t.h"
 
-using namespace game::tetro;
+namespace game::tetro {
 
-TetroT::TetroT() : Tetromino() {
+TetroT::TetroT() : Tetromino(s_color, s_type) {
     _raw_data = {
         {0, 0, 0, 0, 0, 0, 0},
         {0, 0, 0, 0, 0, 0, 0},
@@ -26,10 +26,10 @@ TetroT::TetroT() : Tetromino() {
     };
 
     _voffset = {2, 4, 2, 3};
-
-    color = TetroT::s_color;
 }
 
 ui::Color TetroT::s_color = ui::Color::Purple;
 
-TetroT::TetroT(TetrominoState init_state) : TetroT() {}
+TetrominoType TetroT::s_type = TetrominoType::T;
+
+} // namespace game::tetro

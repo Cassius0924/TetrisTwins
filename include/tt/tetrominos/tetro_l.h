@@ -4,19 +4,24 @@
 #include "tt/tetrominos/tetromino.h"
 
 namespace game::tetro {
-    class TetroL : public Tetromino {
-    public:
-        TetroL();
 
-        explicit TetroL(TetrominoState init_state);
+class TetroL : public Tetromino {
+public:
+    TetroL();
 
-        /**
-         * 方块颜色
-         */
-        static ui::Color s_color;
+    explicit TetroL(TetrominoState init_state);
 
-        //        void _calibrate() override;
-    };
+    /**
+     * 方块颜色
+     */
+    static ui::Color s_color;
+
+    /**
+     * 方块类型
+     */
+    static TetrominoType s_type;
+};
+
 } // namespace game::tetro
 
 #endif // TETRIS_TETRO_L_H

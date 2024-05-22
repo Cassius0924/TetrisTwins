@@ -1,7 +1,5 @@
 #include "tt/tetrominos/tetro_i.h"
 
-using namespace game::tetro;
-
 // constexpr int k_TETRO_I_RAW_DATA[5][5] = {
 //         {0, 0, 0, 0, 0},
 //         {0, 0, 0, 0, 0},
@@ -10,7 +8,9 @@ using namespace game::tetro;
 //         {0, 0, 0, 0, 0},
 // };
 
-TetroI::TetroI() : Tetromino() {
+namespace game::tetro {
+
+TetroI::TetroI() : Tetromino(s_color, s_type) {
     _raw_data = {
         {0, 0, 0, 0, 0, 0, 0, 0},
         {0, 0, 0, 0, 0, 0, 0, 0},
@@ -41,11 +41,10 @@ TetroI::TetroI() : Tetromino() {
     };
 
     _voffset = {2, 5, 3, 3};
-
-    color = TetroI::s_color;
 }
 
 ui::Color TetroI::s_color = ui::Color::Cyan;
 
-TetroI::TetroI(TetrominoState init_state) : TetroI() {
+TetrominoType TetroI::s_type = TetrominoType::I;
+
 }

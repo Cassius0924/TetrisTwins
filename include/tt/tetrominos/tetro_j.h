@@ -3,22 +3,25 @@
 
 #include "tt/tetrominos/tetromino.h"
 
-namespace game {
-    namespace tetro {
-        class TetroJ : public Tetromino {
-        public:
-            TetroJ();
+namespace game::tetro {
 
-            explicit TetroJ(TetrominoState init_state);
+class TetroJ : public Tetromino {
+public:
+    TetroJ();
 
-            /**
-             * 方块颜色
-             */
-            static ui::Color s_color;
+    explicit TetroJ(TetrominoState init_state);
 
-            //        void _calibrate() override;
-        };
-    } // namespace tetro
-} // namespace game
+    /**
+     * 方块颜色
+     */
+    static ui::Color s_color;
+
+    /**
+     * 方块类型
+     */
+    static TetrominoType s_type;
+};
+
+} // namespace game::tetro
 
 #endif // TETRIS_TETRO_J_H
