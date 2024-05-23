@@ -5,7 +5,7 @@
 #include <netinet/in.h>
 #include <sys/socket.h>
 
-#include "tt/utils/noncopyable.h"
+#include "tt/util/noncopyable.h"
 
 namespace net {
 

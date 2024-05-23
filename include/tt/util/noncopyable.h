@@ -1,5 +1,5 @@
-#ifndef UTILS_NONCOPYABLE_H
-#define UTILS_NONCOPYABLE_H
+#ifndef UTIL_NONCOPYABLE_H
+#define UTIL_NONCOPYABLE_H
 
 class noncopyable {
 public:
@@ -13,4 +13,4 @@ protected:
     virtual  ~noncopyable() = default;
 };
 
-#endif // UTILS_NONCOPYABLE_H
+#endif // UTIL_NONCOPYABLE_H

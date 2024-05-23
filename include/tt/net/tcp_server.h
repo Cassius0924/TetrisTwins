@@ -2,7 +2,7 @@
 #define TCP_SERVER_H
 
 #include "tt/net/communicator.h"
-#include "tt/utils/noncopyable.h"
+#include "tt/util/noncopyable.h"
 
 namespace net {
 

@@ -4,7 +4,7 @@
 #include <unordered_map>
 
 #include "tt/game.h"
-#include "tt/utils/utils.h"
+#include "tt/util/util.h"
 
 #include <tt/menu.h>
 
@@ -31,7 +31,7 @@ bool is_hard_drop = false;
 
 void ctrl::listen_key_event() {
     while (game::is_running) {
-        command = utils::getch();
+        command = util::getch();
         if (game::is_single_started || game::is_double_started){
             if(cmd_func.find(command) != cmd_func.end()) {
                 // 游戏开始后

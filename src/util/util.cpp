@@ -1,4 +1,4 @@
-#include "tt/utils/utils.h"
+#include "tt/util/util.h"
 
 #include <arpa/inet.h>
 #include <ifaddrs.h>
@@ -11,7 +11,7 @@
 
 using namespace std::chrono_literals;
 
-int utils::fps() {
+int util::fps() {
     static int frame_count = 0; // 帧数
     static auto start_time = std::chrono::steady_clock::now();
     auto end_time = std::chrono::steady_clock::now();
@@ -26,7 +26,7 @@ int utils::fps() {
     return fps;
 }
 
-char utils::getch() {
+char util::getch() {
     char c;
     termios old{}, cur{};
     tcgetattr(0, &cur);
@@ -38,14 +38,14 @@ char utils::getch() {
     return c;
 }
 
-int utils::random_int(int min, int max) {
+int util::random_int(int min, int max) {
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_int_distribution<int> dis(min, max);
     return dis(gen);
 }
 
-std::string utils::get_lan_ip_linux() {
+std::string util::get_lan_ip_linux() {
     std::string lan_ip;
 
     int ret_val = 0;

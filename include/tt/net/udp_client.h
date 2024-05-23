@@ -2,7 +2,7 @@
 #define UDP_CLIENT_H
 
 #include "communicator.h"
-#include "tt/utils/noncopyable.h"
+#include "tt/util/noncopyable.h"
 
 namespace net {
 

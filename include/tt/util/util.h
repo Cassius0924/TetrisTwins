@@ -1,9 +1,9 @@
-#ifndef TETRIS_UTILS_H
-#define TETRIS_UTILS_H
+#ifndef TETRIS_UTIL_H
+#define TETRIS_UTIL_H
 
 #include <string>
 
-namespace utils {
+namespace util {
     /**
      * 获取游戏帧率
      */
@@ -31,4 +31,4 @@ namespace utils {
 }
 
 
-#endif //TETRIS_UTILS_H
+#endif //TETRIS_UTIL_H

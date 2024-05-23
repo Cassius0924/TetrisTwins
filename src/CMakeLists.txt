@@ -3,7 +3,7 @@ set(LIBS)
 
 add_subdirectory("net")
 add_subdirectory("tetrominos")
-add_subdirectory("utils")
+add_subdirectory("util")
 add_subdirectory("proto")
 #add_subdirectory("base")
 

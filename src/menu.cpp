@@ -8,7 +8,7 @@
 #include "tt/net/udp_bc_receiver.h"
 #include "tt/net/udp_bc_sender.h"
 #include "tt/terminal.h"
-#include "tt/utils/utils.h"
+#include "tt/util/util.h"
 
 using namespace std::chrono_literals;
 
@@ -88,7 +88,7 @@ void show_menu() {
         pop_window();
     });
     room_win->register_text_item(1, ui::block_to_col(2), "TetrisTwins Room");
-    room_win->register_text_item(4, ui::block_to_col(2), "我:" + utils::get_lan_ip_linux());
+    room_win->register_text_item(4, ui::block_to_col(2), "我:" + util::get_lan_ip_linux());
     room_win->register_text_item(6, ui::block_to_col(2), "─ ─ ─ VS ─ ─ ─");
     room_win->register_text_item(8, ui::block_to_col(2), "等待对手加入...");
 
@@ -140,7 +140,7 @@ void search_double_game(const ui::WindowPtr &win) {
                                  auto room_win = ui::Window::createPtr(7, 2, 12, 18, "Room");
                                  room_win->register_text_item(1, ui::block_to_col(2), "TetrisTwins Room");
                                  room_win->register_text_item(4, ui::block_to_col(2),
-                                                              "我:" + utils::get_lan_ip_linux());
+                                                              "我:" + util::get_lan_ip_linux());
                                  room_win->register_text_item(6, ui::block_to_col(2), "─ ─ ─ VS ─ ─ ─");
                                  room_win->register_text_item(8, ui::block_to_col(2), "对手:" + it->ip);
                                  push_window(room_win, false);
@@ -159,9 +159,9 @@ void create_double_game(const ui::WindowPtr &win) {
     proto::RoomMessage room_message;
     // TODO: 随机房间名字
     room_message.set_name("Tetris房间");
-    int room_id = utils::random_int(1000, 9999);
+    int room_id = util::random_int(1000, 9999);
     room_message.set_id(room_id);
-    room_message.set_ip(utils::get_lan_ip_linux());
+    room_message.set_ip(util::get_lan_ip_linux());
     room_message.set_port(game::k_PORT);
     win->display(2, ui::block_to_col(2), "房间号: " + std::to_string(room_id));
 
