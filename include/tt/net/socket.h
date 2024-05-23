@@ -5,7 +5,7 @@
 #include <netinet/in.h>
 #include <sys/socket.h>
 
-#include "tt/base/noncopyable.h"
+#include "tt/utils/noncopyable.h"
 
 namespace net {
 
@@ -33,7 +33,7 @@ enum class SocketType {
 constexpr SocketType UDP = SocketType::UDP;
 constexpr SocketType TCP = SocketType::TCP;
 
-class Socket : public NonCopyable {
+class Socket : public noncopyable {
 public:
     /**
      * @param fd 套接字文件描述符

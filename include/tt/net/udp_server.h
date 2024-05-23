@@ -1,13 +1,13 @@
 #ifndef UDP_SERVER_H
 #define UDP_SERVER_H
 
-#include "tt/base/noncopyable.h"
 #include "tt/net/communicator.h"
+#include "tt/utils/noncopyable.h"
 
 namespace net {
 
 class UdpServer : public Communicator,
-                  public NonCopyable {
+                  public noncopyable {
 public:
     explicit UdpServer(int port);
 

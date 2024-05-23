@@ -2,11 +2,12 @@
 #define TCP_SERVER_H
 
 #include "tt/net/communicator.h"
+#include "tt/utils/noncopyable.h"
 
 namespace net {
 
 class TcpServer : public Communicator,
-                  public NonCopyable {
+                  public noncopyable {
 public:
     explicit TcpServer(int port);
 
@@ -31,7 +32,6 @@ public:
      * 接受客户端连接
      */
     void accept();
-
 
     /**
      * 获取客户端地址

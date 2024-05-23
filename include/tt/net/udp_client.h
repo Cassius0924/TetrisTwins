@@ -1,13 +1,13 @@
 #ifndef UDP_CLIENT_H
 #define UDP_CLIENT_H
 
-#include "tt/base/noncopyable.h"
 #include "communicator.h"
+#include "tt/utils/noncopyable.h"
 
 namespace net {
 
 class UdpClient : public Communicator,
-                  public NonCopyable {
+                  public noncopyable {
 public:
     UdpClient(const std::string &ip, int port);
 

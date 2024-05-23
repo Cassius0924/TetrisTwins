@@ -7,7 +7,7 @@
 
 namespace net {
 
-class UdpBcReceiver : NonCopyable {
+class UdpBcReceiver : noncopyable {
 public:
     explicit UdpBcReceiver(int port);
 
