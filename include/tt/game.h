@@ -7,6 +7,7 @@
 
 #include "tt/proto/room.pb.h"
 #include "tt/tetrominos/tetromino.h"
+#include "util/safe_deque.h"
 
 namespace ui {
 
@@ -18,6 +19,8 @@ class Window;
  * 游戏控制、状态、逻辑
  */
 namespace game {
+
+constexpr int k_PORT = 9898;
 
 /**
  * 游戏是否正在运行
@@ -44,8 +47,6 @@ extern std::unordered_set<Room> game_rooms;
  * 被选择的游戏房间
  */
 extern std::unique_ptr<Room> game_room;
-
-constexpr int k_PORT = 9898;
 
 /**
  * 是否已经创建房间
@@ -87,7 +88,7 @@ extern std::shared_ptr<tetro::Tetromino> cur_tetromino;
 /**
  * 方块队列
  */
-extern std::deque<std::shared_ptr<tetro::Tetromino>> tetro_queue;
+extern util::SafeDeque<std::shared_ptr<tetro::Tetromino>> tetro_queue;
 
 /**
  * 游戏分数

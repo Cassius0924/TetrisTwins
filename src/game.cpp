@@ -48,7 +48,7 @@ ui::Window *next_win;
 ui::Window *info_win;
 
 std::shared_ptr<tetro::Tetromino> cur_tetromino;
-std::deque<std::shared_ptr<tetro::Tetromino>> tetro_queue;
+util::SafeDeque<std::shared_ptr<tetro::Tetromino>> tetro_queue;
 
 int score = 0;
 
@@ -291,7 +291,7 @@ void double_server_init(net::Communicator &commu) {
     next_queue->Reserve(6);
     for (auto &tetro : tetro_queue) {
         tetro = generate_tetromino();
-        next_queue->Add(to_proto(tetro));
+        next_queue->Add(tetro::to_proto(tetro));
     }
     commu.send(net::pack_message(next_queue_message));
     is_next_win_updated = true;
@@ -353,7 +353,7 @@ void signal_message_callback(std::unique_ptr<proto::SignalMessage> message, bool
 }
 
 void next_queue_message_callback(std::unique_ptr<proto::NextQueueMessage> message,
-                                 std::deque<std::shared_ptr<tetro::Tetromino>> &queue, bool &updated) {
+                                 util::SafeDeque<std::shared_ptr<tetro::Tetromino>> &queue, bool &updated) {
     for (int i = 0; i < queue.size(); ++i) {
         queue[i] = tetro::from_proto(message->queue(i));
     }
@@ -361,12 +361,11 @@ void next_queue_message_callback(std::unique_ptr<proto::NextQueueMessage> messag
 }
 
 void next_tetro_message_callback(std::unique_ptr<proto::NextTetroMessage> message,
-                                 std::deque<std::shared_ptr<tetro::Tetromino>> &queue) {
+                                 util::SafeDeque<std::shared_ptr<tetro::Tetromino>> &queue) {
     queue.push_back(tetro::from_proto(message->tetro()));
 }
 
-void tetro_message_callback(std::unique_ptr<proto::TetroMessage> message,
-                            std::shared_ptr<tetro::Tetromino> cur_tetro) {
+void tetro_message_callback(std::unique_ptr<proto::TetroMessage> message, std::shared_ptr<tetro::Tetromino> cur_tetro) {
     cur_tetro = tetro::from_proto(message->tetro());
     move_to_top_center(cur_tetromino);
     // 创建方块重力

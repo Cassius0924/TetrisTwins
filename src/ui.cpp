@@ -206,11 +206,11 @@ void ui::ghost_tetromino(std::shared_ptr<game::tetro::Tetromino> tetro, int left
     term::reset_color();
 }
 
-void ui::tetro_queue(const std::deque<std::shared_ptr<game::tetro::Tetromino>> &tetro_queue, ui::Window *win) {
+void ui::tetro_queue(util::SafeDeque<std::shared_ptr<game::tetro::Tetromino>> &tetro_queue, Window *win) {
     for (int i = 0; i < k_NEXT_TETRO_SIZE; ++i) {
-        auto voffset = tetro_queue[i]->get_valid_offset();
+        auto [left, right, top, bottom] = tetro_queue[i]->get_valid_offset();
         tetromino(tetro_queue[i],
-                  win->absolute_col(block_to_col(3 - (voffset.left + (voffset.right - voffset.left + 2) / 2 - 1))),
-                      win->absolute_row(i * 3 + 3) - (voffset.top + (voffset.bottom - voffset.top + 1) / 2));
+                  win->absolute_col(block_to_col(3 - (left + (right - left + 2) / 2 - 1))),
+                      win->absolute_row(i * 3 + 3) - (top + (bottom - top + 1) / 2));
     }
 }
