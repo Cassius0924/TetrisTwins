@@ -131,44 +131,45 @@ bool is_touch_heap(const std::vector<std::vector<int>> &tetro_data, tetro::Valid
 
 bool touch_heap(std::shared_ptr<tetro::Tetromino> &tetro, int row, int col, int next_row, int next_col) {
     // 将方块加入堆中
-    if (is_touch_heap(tetro, next_row, next_col)) {
-        auto voffset = tetro->get_valid_offset();
-
-        for (int i = voffset.top; i <= voffset.bottom; i++) {
-            for (int j = voffset.left; j <= voffset.right; j++) {
-                if ((*tetro)[i][j] == 0) {
-                    continue;
-                }
-
-                tetro_heap.heap[row - 1 + i][col - 1 + j] = static_cast<int>(tetro->color);
-                dec_row_air(row - 1 + i);
-            }
-        }
-        tetro_heap.is_updated = true;
-
-        // 尝试消行
-        remove_full_rows(row - 1 + voffset.top, row - 1 + voffset.bottom);
-
-        // 判断是否触顶
-        if (check_touch_top(row_air)) {
-            quit(0);
-            menu::refresh_top_win(true);
-        }
-
-        // 生成新的的俄罗斯方块
-        cur_tetromino = std::move(tetro_queue.front());
-        tetro_queue.pop_front();
-        tetro_queue.emplace_back(generate_tetromino());
-        // FIXME: 发送新方块给对端
-        move_to_top_center(cur_tetromino);
-
-        is_next_win_updated = true;
-
-        ui::tetro_queue(tetro_queue, next_win);
-
-        return true;
+    if (!is_touch_heap(tetro, next_row, next_col)) {
+        return false;
     }
-    return false;
+    auto voffset = tetro->get_valid_offset();
+
+    for (int i = voffset.top; i <= voffset.bottom; i++) {
+        for (int j = voffset.left; j <= voffset.right; j++) {
+            if ((*tetro)[i][j] == 0) {
+                continue;
+            }
+
+            tetro_heap.heap[row - 1 + i][col - 1 + j] = static_cast<int>(tetro->color);
+            dec_row_air(row - 1 + i);
+        }
+    }
+    tetro_heap.is_updated = true;
+
+    // 尝试消行
+    remove_full_rows(row - 1 + voffset.top, row - 1 + voffset.bottom);
+
+    // 判断是否触顶
+    if (check_touch_top(row_air)) {
+        quit(0);
+        menu::refresh_top_win(true);
+    }
+
+    // 生成新的的俄罗斯方块
+    cur_tetromino = std::move(tetro_queue.front());
+    tetro_queue.pop_front();
+    tetro_queue.emplace_back(generate_tetromino());
+    move_to_top_center(cur_tetromino);
+
+    // FIXME: 发送新方块给对端
+
+    is_next_win_updated = true;
+
+    ui::tetro_queue(tetro_queue, next_win);
+
+    return true;
 }
 
 std::shared_ptr<tetro::Tetromino> generate_tetromino() {
@@ -330,7 +331,7 @@ void double_init() {
 }
 
 void signal_message_callback(std::unique_ptr<proto::SignalMessage> message, bool &flag,
-                             std::shared_ptr<tetro::Tetromino> tetro) {
+                             std::shared_ptr<tetro::Tetromino> &tetro) {
     // flag用于标识是否传来的是START信号，tetro用于传递新方块
     switch (message->signal()) {
         case proto::SIGNAL_START: {
@@ -365,9 +366,10 @@ void next_tetro_message_callback(std::unique_ptr<proto::NextTetroMessage> messag
     queue.push_back(tetro::from_proto(message->tetro()));
 }
 
-void tetro_message_callback(std::unique_ptr<proto::TetroMessage> message, std::shared_ptr<tetro::Tetromino> cur_tetro) {
+void tetro_message_callback(std::unique_ptr<proto::TetroMessage> message,
+                            std::shared_ptr<tetro::Tetromino> &cur_tetro) {
     cur_tetro = tetro::from_proto(message->tetro());
-    move_to_top_center(cur_tetromino);
+    move_to_top_center(cur_tetro);
     // 创建方块重力
     ctrl::start_gravity_thread();
 }
@@ -417,22 +419,35 @@ void start_double_game(net::Communicator &commu) {
             is_next_win_updated = false;
         }
 
+        constexpr int k_BUFFER_SIZE = 1024;
         // 同步对端游戏状态
+        std::string total_buffer;
         while (commu.has_data_read()) {
-            auto [data, len] = commu.recv(1024);
-            auto message = net::unpack_message(data);
-            tetro_ptr = nullptr;
-            dispatcher.on_message(std::move(message));
-            if (!is_double_started) {
-                return;
+            auto [data, len] = commu.recv(k_BUFFER_SIZE);
+            if (len < 0 && total_buffer.empty()) {
+                continue;
             }
-            if (tetro_ptr != nullptr) {
-                // 新方块入队
-                tetro_queue.push_back(tetro_ptr);
-                // 发送新方块给对端
-                proto::NextTetroMessage next_tetro_message;
-                next_tetro_message.set_tetro(tetro::to_proto(tetro_ptr));
-                commu.send(net::pack_message(next_tetro_message));
+            total_buffer.append(data);
+            while (!total_buffer.empty()) {
+                std::string pack_data = net::try_extract_one_pack_data(total_buffer);
+                if (pack_data.empty()) {
+                    break;
+                }
+                auto message = net::unpack_message(pack_data);
+
+                tetro_ptr = nullptr;
+                dispatcher.on_message(std::move(message));
+                if (!is_double_started) {
+                    return;
+                }
+                if (tetro_ptr != nullptr) {
+                    // 新方块入队
+                    tetro_queue.push_back(tetro_ptr);
+                    // 发送新方块给对端
+                    proto::NextTetroMessage next_tetro_message;
+                    next_tetro_message.set_tetro(tetro::to_proto(tetro_ptr));
+                    commu.send(net::pack_message(next_tetro_message));
+                }
             }
         }
 
@@ -514,8 +529,8 @@ void start_double_game_client() {
 
     net::Dispatcher dispatcher;
     // 注册消息处理回调函数
-    dispatcher.register_message_callback<proto::SignalMessage>(
-        std::bind(signal_message_callback, std::placeholders::_1, std::ref(is_double_started), nullptr));
+    dispatcher.register_message_callback<proto::SignalMessage>(std::bind(
+        signal_message_callback, std::placeholders::_1, std::ref(is_double_started), std::ref(cur_tetromino)));
 
     // TODO: 循环条件控制
     while (is_joined_room) {

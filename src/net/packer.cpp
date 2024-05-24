@@ -1,10 +1,9 @@
 #include "tt/net/packer.h"
 
-#include <iostream>
-
 #include <google/protobuf/message.h>
 
-std::string net::serialize(const MessageData &message_data) {
+namespace net {
+std::string serialize(const MessageData &message_data) {
     std::string result;
     uint32_t tmp = htonl(message_data.length);
     result.reserve(message_data.length);
@@ -16,7 +15,7 @@ std::string net::serialize(const MessageData &message_data) {
     return result;
 }
 
-std::string net::pack_message(const google::protobuf::Message &message) {
+std::string pack_message(const google::protobuf::Message &message) {
     MessageData message_data{};
     const std::string &type_name = message.GetTypeName();
     message_data.type_name_length = static_cast<uint32_t>(type_name.size());
@@ -27,7 +26,7 @@ std::string net::pack_message(const google::protobuf::Message &message) {
     return serialize(message_data);
 }
 
-bool net::deserialize(const std::string &input, MessageData &message_data) noexcept {
+bool deserialize(const std::string &input, MessageData &message_data) noexcept {
     if (input.size() < 2 * k_UINT32_SIZE) {
         return false; // 输入的字符串太短，无法包含 length 和 type_name_length
     }
@@ -49,7 +48,7 @@ bool net::deserialize(const std::string &input, MessageData &message_data) noexc
     return true;
 }
 
-std::unique_ptr<google::protobuf::Message> net::unpack_message(const std::string &input) noexcept {
+std::unique_ptr<google::protobuf::Message> unpack_message(const std::string &input) noexcept {
     MessageData message_data;
     if (!deserialize(input, message_data)) {
         return nullptr;
@@ -66,7 +65,7 @@ std::unique_ptr<google::protobuf::Message> net::unpack_message(const std::string
     return message;
 }
 
-std::unique_ptr<google::protobuf::Message> net::create_message(const std::string &type_name) {
+std::unique_ptr<google::protobuf::Message> create_message(const std::string &type_name) {
     const google::protobuf::Descriptor *descriptor =
         google::protobuf::DescriptorPool::generated_pool()->FindMessageTypeByName(type_name);
     if (descriptor == nullptr) {
@@ -81,3 +80,18 @@ std::unique_ptr<google::protobuf::Message> net::create_message(const std::string
 
     return std::unique_ptr<google::protobuf::Message>(prototype->New());
 }
+
+std::string try_extract_one_pack_data(std::string &total_buffer) {
+    if (total_buffer.size() < k_UINT32_SIZE) { // 如果小于消息长度字段的长度
+        return {};
+    }
+    uint32_t length = unpack_message_length(total_buffer);
+    if (total_buffer.size() < length) {
+        return {};
+    }
+    std::string pack_data = total_buffer.substr(0, length);
+    total_buffer = total_buffer.substr(length); // 剩余的数据
+    return pack_data;
+}
+
+} // namespace net
