@@ -2,11 +2,9 @@
 
 #include <iostream>
 
-
 namespace net {
 
-TcpClient::TcpClient(const std::string &ip, int port)
-    : Communicator(port), _ip(ip), _serv_addr{}, _conn_socket(V4, TCP) {
+TcpClient::TcpClient(const std::string &ip, int port) : Communicator(port), _ip(ip), _serv_addr{} {
     _init();
 }
 
@@ -25,7 +23,7 @@ void TcpClient::connect() {
     _conn_socket.connect(&_serv_addr);
 
     FD_ZERO(&_read_fd_set);
-    FD_SET(_connfd,&_read_fd_set);
+    FD_SET(_connfd, &_read_fd_set);
 }
 
 void TcpClient::disconnect() const {

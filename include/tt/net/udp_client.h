@@ -37,7 +37,6 @@ private:
 private:
     std::string _ip;
     sockaddr_in _serv_addr;
-    Socket _conn_socket;
 };
 
 } // namespace net

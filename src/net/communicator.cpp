@@ -1,8 +1,8 @@
 #include "tt/net/communicator.h"
 
-
 namespace net {
-Communicator::Communicator(const int port) : CommunicatorBase(port), _read_timeout{0, 0}, _read_fd_set{} {}
+Communicator::Communicator(const int port)
+    : CommunicatorBase(port), _read_timeout{0, 0}, _read_fd_set{}{}
 
 Communicator::~Communicator() {
     close(_connfd);
@@ -78,7 +78,7 @@ std::pair<std::string, int> Communicator::recv(int size) {
     char buf[size];
     int ret = ::recv(_connfd, buf, size, 0);
     if (ret < 0) {
-        return {"", -1};
+        return {"", ret};
     }
     if (ret == 0) {
         close(_connfd);

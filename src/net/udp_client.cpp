@@ -7,8 +7,7 @@
 
 namespace net {
 
-UdpClient::UdpClient(const std::string &ip, int port)
-    : Communicator(port), _ip(ip), _serv_addr{}, _conn_socket(V4, UDP) {
+UdpClient::UdpClient(const std::string &ip, int port) : Communicator(port), _ip(ip), _serv_addr{} {
     _init();
 }
 

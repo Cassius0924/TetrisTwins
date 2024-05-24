@@ -36,7 +36,7 @@ public:
      */
     inline std::string get_server_address() const {
         return inet_ntoa(_serv_addr.sin_addr);
-    };
+    }
 
 private:
     void _init();
@@ -44,10 +44,6 @@ private:
 private:
     std::string _ip;
     sockaddr_in _serv_addr;
-    /**
-     * 连接套接字
-     */
-    Socket _conn_socket;
 };
 
 } // namespace net

@@ -25,9 +25,16 @@ public:
     // int nonblock_recv(std::string &data, int size) override;
     // std::pair<std::string, int> nonblock_recv(int size) override;
 
+    /**
+     * 设置非阻塞模式
+     * @param on 开关
+     */
+    void set_non_block(bool on) const {
+        _conn_socket.set_non_block(on);
+    }
 
 protected:
-    Communicator(int port);
+    explicit Communicator(int port);
     virtual ~Communicator();
 
 protected:

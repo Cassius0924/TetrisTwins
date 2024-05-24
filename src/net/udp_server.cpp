@@ -5,7 +5,7 @@
 
 namespace net {
 
-UdpServer::UdpServer(const int port) : Communicator(port), _conn_socket(V4, UDP) {
+UdpServer::UdpServer(const int port) : Communicator(port) {
     _init();
 }
 

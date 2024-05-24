@@ -20,9 +20,6 @@ public:
 
 private:
     void _init();
-
-private:
-    Socket _conn_socket;
 };
 
 } // namespace net

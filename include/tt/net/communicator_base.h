@@ -15,7 +15,7 @@ namespace net {
 
 class CommunicatorBase {
 public:
-    explicit CommunicatorBase(const int port) : _port(port), _connfd(-1) {}
+    explicit CommunicatorBase(const int port) : _port(port), _connfd(-1), _conn_socket(V4, TCP) {}
 
     virtual ~CommunicatorBase() = default;
 
@@ -99,6 +99,11 @@ protected:
      * 通信端口
      */
     int _port;
+
+    /**
+    * 连接套接字
+    */
+    Socket _conn_socket;
 
     /**
      * 连接套接字描述符

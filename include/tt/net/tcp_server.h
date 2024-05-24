@@ -47,12 +47,12 @@ private:
     /**
      * 监听套接字
      */
-    socket _listenfd;
+    Socket _listen_socket;
 
     /**
      * 监听套接字
      */
-    Socket _listen_socket;
+    socket _listenfd;
 
     /**
      * 客户端地址
@@ -65,7 +65,7 @@ private:
     socklen_t _cli_addr_size;
 
     /**
-     *
+     * 读文件描述符集合
      */
     fd_set _listen_fd_set;
 };
