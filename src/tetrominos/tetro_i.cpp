@@ -43,6 +43,15 @@ TetroI::TetroI() : Tetromino(s_color, s_type) {
     _voffset = {2, 5, 3, 3};
 }
 
+TetroI::TetroI(const std::vector<std::vector<int>> &data): Tetromino(data, s_color, s_type) {
+    _kick_table = {
+        {{0, 0}, {-1, 0}, {+2, 0}, {-1, 0},  {+2, 0} },
+        {{0, 0}, {+1, 0}, {+1, 0}, {+1, +1}, {+1, -2}},
+        {{0, 0}, {+2, 0}, {-1, 0}, {+2, -1}, {-1, -1}},
+        {{0, 0}, {0, 0},  {0, 0},  {0, -2},  {0, 1}  },
+    };
+}
+
 ui::Color TetroI::s_color = ui::Color::Cyan;
 
 TetrominoType TetroI::s_type = TetrominoType::I;

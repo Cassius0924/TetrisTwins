@@ -1,6 +1,8 @@
 #ifndef TETRIS_CONTROL_H
 #define TETRIS_CONTROL_H
 
+#include <thread>
+
 /**
  * 游戏控制
  */
@@ -18,6 +20,8 @@ namespace ctrl {
     constexpr char k_KEY_RIGHT = 67;
     constexpr char k_KEY_SPACE = ' ';
     constexpr char k_KEY_ENTER = '\n';
+
+    using MS = std::chrono::milliseconds;
 
     /**
      * 方块重力下落间隔

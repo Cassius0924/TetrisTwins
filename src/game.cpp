@@ -12,7 +12,7 @@
 #include "tt/net/tcp_server.h"
 #include "tt/proto/next.pb.h"
 #include "tt/proto/signal.pb.h"
-#include "tt/proto/tetrominos.pb.h"
+#include "tt/proto/tetromino.pb.h"
 #include "tt/remove.h"
 #include "tt/terminal.h"
 #include "tt/tetrominos/define.h"
@@ -47,6 +47,9 @@ ui::Window *status_win;
 ui::Window *next_win;
 ui::Window *info_win;
 
+std::atomic<bool> is_position_updated = true;
+std::atomic<bool> is_state_updated = true;
+
 std::shared_ptr<tetro::Tetromino> cur_tetromino;
 util::SafeDeque<std::shared_ptr<tetro::Tetromino>> tetro_queue;
 
@@ -75,53 +78,103 @@ void quit(int signal) {
 void move_left() {
     // 如果没有超出左边界
     if (block_col > 1 - cur_tetromino->get_valid_offset().left &&
-        !is_touch_heap(cur_tetromino, block_row, block_col - 1)) {
+        !is_touch_heap(cur_tetromino, tetro_heap, block_row, block_col - 1)) {
         block_col -= 1;
-        ghost_row = cal_ghost_tetromino_row(cur_tetromino, block_row, block_col);
+        ghost_row = cal_ghost_tetromino_row(cur_tetromino, tetro_heap, block_row, block_col);
+        is_position_updated = true;
     }
 }
 
 void move_right() {
     // 如果没有超出右边界
     if (block_col < main_win->get_inner_width() - cur_tetromino->get_valid_offset().right &&
-        !is_touch_heap(cur_tetromino, block_row, block_col + 1)) {
+        !is_touch_heap(cur_tetromino, tetro_heap, block_row, block_col + 1)) {
         block_col += 1;
-        ghost_row = cal_ghost_tetromino_row(cur_tetromino, block_row, block_col);
+        ghost_row = cal_ghost_tetromino_row(cur_tetromino, tetro_heap, block_row, block_col);
+        is_position_updated = true;
     }
 }
 
 void move_down() {
+    auto [vleft, vright, vtop, vbottom] = cur_tetromino->get_valid_offset();
     // 判断是否碰到堆
-    if (touch_heap(cur_tetromino, block_row, block_col, block_row + 1, block_col)) {
+    if (is_touch_heap(cur_tetromino, tetro_heap, block_row + 1, block_col)) {
+        put_into_heap(cur_tetromino, block_row, block_col);
+
+        // 尝试消行
+        remove_full_rows(block_row - 1 + vtop, block_row - 1 + vbottom);
+
+        // 判断是否触顶，触顶则退出游戏
+        if (is_touch_top(row_air)) {
+            quit(0);
+            menu::refresh_top_win(true);
+        }
+
+        // 生成新的方块，加入到next队列
+        cur_tetromino = std::move(tetro_queue.front());
+        tetro_queue.pop_front();
+        tetro_queue.emplace_back(generate_tetromino());
+        move_to_top_center(cur_tetromino, block_row, block_col);
+        ghost_row = cal_ghost_tetromino_row(cur_tetromino, tetro_heap, block_row, block_col);
+        is_next_win_updated = true;
+
         return;
     }
 
     // 判断是否超出下边界
-    if (block_row < main_win->get_inner_height() - cur_tetromino->get_valid_offset().bottom) {
+    if (block_row < main_win->get_inner_height() - vbottom) {
         block_row += 1;
+        is_position_updated = true;
     }
+}
+
+void hard_drop() {
+    // 硬降后再次按下 S 键，下降一格
+    if (ctrl::is_hard_drop) {
+        ctrl::is_hard_drop = false;
+        return;
+    }
+
+    ctrl::is_hard_drop = true;
+    // 硬降
+    block_row = ghost_row;
+
+    // 延迟 k_LOCK_DELAY_MS 毫秒后再次移动
+    std::thread t([] {
+        std::this_thread::sleep_for(ctrl::MS(ctrl::k_LOCK_DELAY_MS));
+        if (!ctrl::is_hard_drop) {
+            return;
+        }
+        move_down();
+        ctrl::is_hard_drop = false;
+    });
+    t.detach();
+
+    is_position_updated = true;
 }
 
 void rotate() {
     cur_tetromino->rotate();
-    ghost_row = cal_ghost_tetromino_row(cur_tetromino, block_row, block_col);
+    ghost_row = cal_ghost_tetromino_row(cur_tetromino, tetro_heap, block_row, block_col);
+    is_state_updated = true;
 }
 
-bool is_touch_heap(const std::shared_ptr<tetro::Tetromino> &tetro, int next_row, int next_col) {
-    return is_touch_heap(tetro->get_data(), tetro->get_valid_offset(), next_row, next_col);
-}
-
-bool is_touch_heap(const std::vector<std::vector<int>> &tetro_data, tetro::ValidOffset valid_offset, int next_row,
+bool is_touch_heap(const std::shared_ptr<tetro::Tetromino> &tetro, const TetroHeap &tetro_heap, int next_row,
                    int next_col) {
+    return is_touch_heap(tetro->get_data(), tetro_heap.heap, tetro->get_valid_offset(), next_row, next_col);
+}
+
+bool is_touch_heap(const std::vector<std::vector<int>> &tetro_data, const std::vector<std::vector<int>> &heap,
+                   tetro::ValidOffset valid_offset, int next_row, int next_col) {
     // 判断是否碰到堆或越界
     for (int i = next_row + valid_offset.top - 1; i <= next_row + valid_offset.bottom - 1; ++i) {
         for (int j = next_col + valid_offset.left - 1; j <= next_col + valid_offset.right - 1; ++j) {
             // 是否越下界
-            if (i < 0 || i >= tetro_heap.heap.size()) {
+            if (i < 0 || i >= heap.size()) {
                 return true;
             }
             // 是否碰到堆
-            if (tetro_heap.heap[i][j] != 0 && tetro_data[i - next_row + 1][j - next_col + 1] != 0) {
+            if (heap[i][j] != 0 && tetro_data[i - next_row + 1][j - next_col + 1] != 0) {
                 return true;
             }
         }
@@ -129,13 +182,9 @@ bool is_touch_heap(const std::vector<std::vector<int>> &tetro_data, tetro::Valid
     return false;
 }
 
-bool touch_heap(std::shared_ptr<tetro::Tetromino> &tetro, int row, int col, int next_row, int next_col) {
+void put_into_heap(std::shared_ptr<tetro::Tetromino> &tetro, int row, int col) {
     // 将方块加入堆中
-    if (!is_touch_heap(tetro, next_row, next_col)) {
-        return false;
-    }
     auto voffset = tetro->get_valid_offset();
-
     for (int i = voffset.top; i <= voffset.bottom; i++) {
         for (int j = voffset.left; j <= voffset.right; j++) {
             if ((*tetro)[i][j] == 0) {
@@ -147,29 +196,6 @@ bool touch_heap(std::shared_ptr<tetro::Tetromino> &tetro, int row, int col, int 
         }
     }
     tetro_heap.is_updated = true;
-
-    // 尝试消行
-    remove_full_rows(row - 1 + voffset.top, row - 1 + voffset.bottom);
-
-    // 判断是否触顶
-    if (check_touch_top(row_air)) {
-        quit(0);
-        menu::refresh_top_win(true);
-    }
-
-    // 生成新的的俄罗斯方块
-    cur_tetromino = std::move(tetro_queue.front());
-    tetro_queue.pop_front();
-    tetro_queue.emplace_back(generate_tetromino());
-    move_to_top_center(cur_tetromino);
-
-    // FIXME: 发送新方块给对端
-
-    is_next_win_updated = true;
-
-    ui::tetro_queue(tetro_queue, next_win);
-
-    return true;
 }
 
 std::shared_ptr<tetro::Tetromino> generate_tetromino() {
@@ -196,21 +222,23 @@ std::shared_ptr<tetro::Tetromino> generate_tetromino() {
     }
 }
 
-void move_to_top_center(std::shared_ptr<tetro::Tetromino> &tetro) {
-    auto voffset = tetro->get_valid_offset();
-    block_row = 1 - voffset.top;
-    block_col = 5 - (voffset.left + (voffset.right - voffset.left + 1) / 2 - 1);
-    ghost_row = cal_ghost_tetromino_row(cur_tetromino, block_row, block_col);
+void move_to_top_center(std::shared_ptr<tetro::Tetromino> &tetro, int &row, int &col) {
+    auto [vleft, vright, vtop, vbottom] = tetro->get_valid_offset();
+    row = 1 - vtop;
+    col = 5 - (vleft + (vright - vleft + 1) / 2 - 1);
+    is_position_updated = true;
 }
 
-int cal_ghost_tetromino_row(const std::shared_ptr<tetro::Tetromino> &tetro, int row, int col) {
-    while (!is_touch_heap(tetro, row + 1, col)) {
-        row += 1;
+int cal_ghost_tetromino_row(const std::shared_ptr<tetro::Tetromino> &tetro, const TetroHeap &tetro_heap, int row,
+                            int col) {
+    int ghost_row = row;
+    while (!is_touch_heap(tetro, tetro_heap, ghost_row + 1, col)) {
+        ghost_row += 1;
     }
-    return row;
+    return ghost_row;
 }
 
-bool check_touch_top(std::vector<int> row_air) {
+bool is_touch_top(std::vector<int> row_air) {
     return row_air[0] < full_air_count;
 }
 
@@ -230,12 +258,13 @@ void single_init() {
     tetro_heap.heap =
         std::vector<std::vector<int>>(main_win->get_inner_height(), std::vector<int>(main_win->get_inner_width(), 0));
 
-    // 生成一个随机的俄罗斯方块
+    // 生成初始化方块队列
     for (auto &tetro : tetro_queue) {
         tetro = generate_tetromino();
     }
     cur_tetromino = generate_tetromino();
-    move_to_top_center(cur_tetromino);
+    move_to_top_center(cur_tetromino, block_row, block_col);
+    ghost_row = cal_ghost_tetromino_row(cur_tetromino, tetro_heap, block_row, block_col);
 
     full_air_count = main_win->get_inner_width();
     row_air = std::vector<int>(main_win->get_height() - 2, full_air_count);
@@ -257,30 +286,39 @@ void start_single_game() {
     });
 
     while (is_single_started) {
-        if (is_next_win_updated) {
-            next_win->draw();
-            ui::tetro_queue(tetro_queue, next_win);
-            is_next_win_updated = false;
-        }
-
-        // 绘制窗口
-        main_win->draw();
 
         // 绘制文本项
         status_win->draw_text_items();
 
         // 显示阴影块
-        ui::ghost_tetromino(cur_tetromino, main_win->absolute_col(ui::block_to_col(block_col)),
-                            main_win->absolute_row(ghost_row));
-        // 显示正在下落的俄罗斯方块
-        ui::tetromino(cur_tetromino, main_win->absolute_col(ui::block_to_col(block_col)),
-                      main_win->absolute_row(block_row));
+        if (is_position_updated || is_state_updated) {
+            // 绘制窗口
+            main_win->draw();
 
-        // 显示方块堆
-        ui::tetro_heap(tetro_heap, main_win);
+            is_position_updated = false;
+            is_state_updated = false;
 
-        term::reset_color();
-        std::cout << std::flush;
+            ui::ghost_tetromino(cur_tetromino, main_win->absolute_col(ui::block_to_col(block_col)),
+                                main_win->absolute_row(ghost_row));
+            // 显示正在下落的俄罗斯方块
+            ui::tetromino(cur_tetromino, main_win->absolute_col(ui::block_to_col(block_col)),
+                          main_win->absolute_row(block_row));
+
+            // 显示方块堆
+            ui::tetro_heap(tetro_heap, main_win);
+            term::reset_color();
+            // TODO: 包装 std::flush
+            std::cout << std::flush;
+        }
+
+        if (is_next_win_updated) {
+            is_next_win_updated = false;
+            next_win->draw();
+            ui::tetro_queue(tetro_queue, next_win);
+            term::reset_color();
+            std::cout << std::flush;
+        }
+
         std::this_thread::sleep_for(100ms);
     }
 }
@@ -289,20 +327,19 @@ void double_server_init(net::Communicator &commu) {
     // 初始化，生成next方块队列，双端同步
     proto::NextQueueMessage next_queue_message;
     auto next_queue = next_queue_message.mutable_queue();
+    // 生成队列方块
     next_queue->Reserve(6);
-    for (auto &tetro : tetro_queue) {
-        tetro = generate_tetromino();
-        next_queue->Add(tetro::to_proto(tetro));
+    for (auto &te : tetro_queue) {
+        te = generate_tetromino();
+        next_queue->Add(tetro::to_proto(te));
     }
+    // 生成当前方块
+    cur_tetromino = generate_tetromino();
+    next_queue_message.set_cur_tetro(tetro::to_proto(cur_tetromino));
     commu.send(net::pack_message(next_queue_message));
     is_next_win_updated = true;
-
-    // 同步当前方块信息
-    cur_tetromino = generate_tetromino();
-    proto::TetroMessage tetro_message;
-    tetro_message.set_tetro(to_proto(cur_tetromino));
-    commu.send(net::pack_message(tetro_message));
-    move_to_top_center(cur_tetromino);
+    move_to_top_center(cur_tetromino, block_row, block_col);
+    ghost_row = cal_ghost_tetromino_row(cur_tetromino, tetro_heap, block_row, block_col);
 
     ctrl::start_gravity_thread();
 }
@@ -354,11 +391,23 @@ void signal_message_callback(std::unique_ptr<proto::SignalMessage> message, bool
 }
 
 void next_queue_message_callback(std::unique_ptr<proto::NextQueueMessage> message,
-                                 util::SafeDeque<std::shared_ptr<tetro::Tetromino>> &queue, bool &updated) {
+                                 util::SafeDeque<std::shared_ptr<tetro::Tetromino>> &queue,
+                                 std::shared_ptr<tetro::Tetromino> &cur_tetro, TetroHeap &tetro_heap, int &block_row,
+                                 int &block_col, int &ghost_row, std::shared_ptr<tetro::Tetromino> &peer_cur_tetro,
+                                 int &peer_block_row, int &peer_block_col, int &peer_ghost_row, bool &updated) {
     for (int i = 0; i < queue.size(); ++i) {
         queue[i] = tetro::from_proto(message->queue(i));
     }
+
+    cur_tetro = tetro::from_proto(message->cur_tetro());
+    peer_cur_tetro = tetro::from_proto(message->cur_tetro());
+    move_to_top_center(cur_tetro, block_row, block_col);
+    move_to_top_center(peer_cur_tetro, peer_block_row, peer_block_col);
+    ghost_row = cal_ghost_tetromino_row(cur_tetro, tetro_heap, block_row, block_col);
+    peer_ghost_row = cal_ghost_tetromino_row(peer_cur_tetro, tetro_heap, peer_block_row, peer_block_col);
     updated = true;
+    // 创建方块重力
+    ctrl::start_gravity_thread();
 }
 
 void next_tetro_message_callback(std::unique_ptr<proto::NextTetroMessage> message,
@@ -367,11 +416,33 @@ void next_tetro_message_callback(std::unique_ptr<proto::NextTetroMessage> messag
 }
 
 void tetro_message_callback(std::unique_ptr<proto::TetroMessage> message,
-                            std::shared_ptr<tetro::Tetromino> &cur_tetro) {
-    cur_tetro = tetro::from_proto(message->tetro());
-    move_to_top_center(cur_tetro);
-    // 创建方块重力
-    ctrl::start_gravity_thread();
+                            std::shared_ptr<tetro::Tetromino> &peer_cur_tetro, int &peer_block_row, int &peer_block_col,
+                            const TetroHeap &peer_tetro_heap, int &peer_ghost_row) {
+    // TODO: 封装
+    std::vector<std::vector<int>> result;
+    for (const auto &array : message->data()) {
+        std::vector<int> sub_vector(array.value().begin(), array.value().end());
+        result.push_back(sub_vector);
+    }
+    peer_cur_tetro = tetro::from_proto_with_data(message->tetro(), result);
+    peer_ghost_row = cal_ghost_tetromino_row(peer_cur_tetro, peer_tetro_heap, peer_block_row, peer_block_col);
+}
+
+void tetro_position_message_callback(std::unique_ptr<proto::TetroPositionMessage> message,
+                                     const std::shared_ptr<tetro::Tetromino> &peer_cur_tetro, int &peer_block_row,
+                                     int &peer_block_col, const TetroHeap &peer_tetro_heap, int &peer_ghost_row) {
+    peer_block_row = message->row();
+    peer_block_col = message->col();
+    peer_ghost_row = cal_ghost_tetromino_row(peer_cur_tetro, peer_tetro_heap, peer_block_row, peer_block_col);
+}
+
+void tetro_heap_message_callback(std::unique_ptr<proto::TetroHeapMessage> message, TetroHeap &peer_tetro_heap) {
+    for (int i = 0; i < message->heap_size(); ++i) {
+        for (int j = 0; j < message->heap(i).value_size(); ++j) {
+            peer_tetro_heap.heap[i][j] = message->heap(i).value(j);
+        }
+    }
+    peer_tetro_heap.is_updated = true;
 }
 
 void start_double_game(net::Communicator &commu) {
@@ -388,8 +459,14 @@ void start_double_game(net::Communicator &commu) {
     const ui::Window *peer_status_win = new ui::Window(31, 7, 9, 16, "Status");
     const ui::Window *peer_next_win = new ui::Window(52, 1, 8, 18, "Next");
     const ui::Window *peer_info_win = new ui::Window(52, 19, 8, 4, "Info");
+    std::shared_ptr<tetro::Tetromino> peer_cur_tetromino = cur_tetromino;
+    int peer_block_row = block_col;
+    int peer_block_col = block_row;
+    int peer_ghost_row = ghost_row;
+    TetroHeap peer_tetro_heap = {};
+    peer_tetro_heap.heap =
+        std::vector<std::vector<int>>(main_win->get_inner_height(), std::vector<int>(main_win->get_inner_width(), 0));
 
-    peer_main_win->draw();
     peer_hold_win->draw();
     peer_status_win->draw();
     peer_next_win->draw();
@@ -403,23 +480,29 @@ void start_double_game(net::Communicator &commu) {
     dispatcher.register_message_callback<proto::SignalMessage>(
         std::bind(signal_message_callback, std::placeholders::_1, std::ref(is_double_started), std::ref(tetro_ptr)));
     // Next方块队列初始消息处理
-    dispatcher.register_message_callback<proto::NextQueueMessage>(std::bind(
-        next_queue_message_callback, std::placeholders::_1, std::ref(tetro_queue), std::ref(is_next_win_updated)));
+    dispatcher.register_message_callback<proto::NextQueueMessage>(
+        std::bind(next_queue_message_callback, std::placeholders::_1, std::ref(tetro_queue), std::ref(cur_tetromino),
+                  std::ref(tetro_heap), std::ref(block_row), std::ref(block_col), std::ref(ghost_row),
+                  std::ref(peer_cur_tetromino), std::ref(peer_block_row), std::ref(peer_block_col),
+                  std::ref(peer_ghost_row), std::ref(is_next_win_updated)));
     // 新Next方块消息处理
     dispatcher.register_message_callback<proto::NextTetroMessage>(
         std::bind(next_tetro_message_callback, std::placeholders::_1, std::ref(tetro_queue)));
     // 当前方块消息处理
     dispatcher.register_message_callback<proto::TetroMessage>(
-        std::bind(tetro_message_callback, std::placeholders::_1, std::ref(cur_tetromino)));
+        std::bind(tetro_message_callback, std::placeholders::_1, std::ref(peer_cur_tetromino), std::ref(peer_block_row),
+                  std::ref(peer_block_col), std::ref(peer_tetro_heap), std::ref(peer_ghost_row)));
+    // 当前方块位置消息处理
+    dispatcher.register_message_callback<proto::TetroPositionMessage>(std::bind(
+        tetro_position_message_callback, std::placeholders::_1, std::ref(peer_cur_tetromino), std::ref(peer_block_row),
+        std::ref(peer_block_col), std::ref(peer_tetro_heap), std::ref(peer_ghost_row)));
+    // 方块堆消息处理
+    dispatcher.register_message_callback<proto::TetroHeapMessage>(
+        std::bind(tetro_heap_message_callback, std::placeholders::_1, std::ref(peer_tetro_heap)));
 
     while (is_double_started) {
-        if (is_next_win_updated) {
-            next_win->draw();
-            ui::tetro_queue(tetro_queue, next_win);
-            is_next_win_updated = false;
-        }
-
         constexpr int k_BUFFER_SIZE = 1024;
+
         // 同步对端游戏状态
         std::string total_buffer;
         while (commu.has_data_read()) {
@@ -452,27 +535,85 @@ void start_double_game(net::Communicator &commu) {
         }
 
         // 绘制窗口
-        main_win->draw();
+        if (is_position_updated || is_state_updated) {
+            main_win->draw();
 
-        // 绘制文本项
-        status_win->draw_text_items();
+            // 绘制文本项
+            status_win->draw_text_items();
 
-        // 显示阴影块
-        ui::ghost_tetromino(cur_tetromino, main_win->absolute_col(ui::block_to_col(block_col)),
-                            main_win->absolute_row(ghost_row));
-        // 显示正在下落的俄罗斯方块
-        ui::tetromino(cur_tetromino, main_win->absolute_col(ui::block_to_col(block_col)),
-                      main_win->absolute_row(block_row));
+            // 显示阴影块
+            ui::ghost_tetromino(cur_tetromino, main_win->absolute_col(ui::block_to_col(block_col)),
+                                main_win->absolute_row(ghost_row));
+            // 显示正在下落的俄罗斯方块
+            ui::tetromino(cur_tetromino, main_win->absolute_col(ui::block_to_col(block_col)),
+                          main_win->absolute_row(block_row));
+            // 显示方块堆
+            ui::tetro_heap(tetro_heap, main_win);
 
-        // 显示方块堆
-        ui::tetro_heap(tetro_heap, main_win);
+            term::reset_color();
+            std::cout << std::flush;
 
-        // 发送方块位置信息给对端
-        // commu.send();
-        // 发送tetro_heap变化给对端
-
-        term::reset_color();
+            if (is_position_updated) {
+                is_position_updated = false;
+                // 发送方块位置信息给对端
+                proto::TetroPositionMessage position_message;
+                position_message.set_row(block_row);
+                position_message.set_col(block_col);
+                commu.send(net::pack_message(position_message));
+            } else {
+                is_state_updated = false;
+                // 发送方块状态信息给对端
+                proto::TetroMessage tetro_message;
+                tetro_message.set_tetro(to_proto(cur_tetromino));
+                for (const auto &data : cur_tetromino->get_data()) {
+                    proto::Int32Array *array = tetro_message.add_data();
+                    for (const auto &value : data) {
+                        array->add_value(value);
+                    }
+                }
+                commu.send(net::pack_message(tetro_message));
+            }
+        }
+        peer_main_win->draw();
+        peer_status_win->draw_text_items();
+        ui::ghost_tetromino(peer_cur_tetromino, peer_main_win->absolute_col(ui::block_to_col(peer_block_col)),
+                            peer_main_win->absolute_row(peer_ghost_row));
+        ui::tetromino(peer_cur_tetromino, peer_main_win->absolute_col(ui::block_to_col(peer_block_col)),
+                      peer_main_win->absolute_row(peer_block_row));
+        ui::tetro_heap(peer_tetro_heap, peer_main_win);
         std::cout << std::flush;
+
+        if (is_next_win_updated) {
+            is_next_win_updated = false;
+            next_win->draw();
+            ui::tetro_queue(tetro_queue, next_win);
+
+            // 同步当前方块
+            proto::TetroMessage tetro_message;
+            tetro_message.set_tetro(to_proto(cur_tetromino));
+            for (const auto &data : cur_tetromino->get_data()) {
+                proto::Int32Array *array = tetro_message.add_data();
+                for (const auto &value : data) {
+                    array->add_value(value);
+                }
+            }
+            commu.send(net::pack_message(tetro_message));
+
+            // 发送tetro_heap变化给对端
+            proto::TetroHeapMessage heap_message;
+            for (const auto &row : tetro_heap.heap) {
+                proto::Int32Array *array = heap_message.add_heap();
+                for (const auto &value : row) {
+                    array->add_value(value);
+                }
+            }
+            commu.send(net::pack_message(heap_message));
+
+            term::reset_color();
+            std::cout << std::flush;
+        }
+
+
         std::this_thread::sleep_for(100ms);
     }
 
@@ -499,7 +640,6 @@ void start_double_game_server() {
     // 显示对手信息
     menu::window_stack.top()->display(8, ui::block_to_col(2), "对手:" + server.get_client_address());
 
-    // TODO: 配置 Cmake 自动生成protobuf代码
     while (is_created_room) {
         std::unique_lock<std::mutex> lock(double_start_mutex);
         double_start_cv.wait(lock, [] {
@@ -509,7 +649,6 @@ void start_double_game_server() {
         // 向客户端发送开始信号
         proto::SignalMessage signal_message;
         signal_message.set_signal(proto::SIGNAL_START);
-
         server.send(net::pack_message(signal_message));
 
         // 开始双人游戏
@@ -532,7 +671,6 @@ void start_double_game_client() {
     dispatcher.register_message_callback<proto::SignalMessage>(std::bind(
         signal_message_callback, std::placeholders::_1, std::ref(is_double_started), std::ref(cur_tetromino)));
 
-    // TODO: 循环条件控制
     while (is_joined_room) {
         auto [data, len] = client.recv(1024);
         if (len < 0) {

@@ -6,7 +6,6 @@
 #include "tt/terminal.h"
 #include "tt/tetrominos/define.h"
 #include "tt/ui.h"
-#include "google/protobuf/port_def.inc"
 
 void init() {
     term::clean_screen();
@@ -28,7 +27,7 @@ void start() {
             return game::is_single_started || game::is_joined_room || game::is_created_room || !game::is_running;
         });
 
-        if (game::is_single_started){
+        if (game::is_single_started) {
             game::single_init();
             game::start_single_game();
         } else if (game::is_joined_room) {

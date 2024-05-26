@@ -13,8 +13,13 @@ enum Tetro {
     TETRO_L = 7;
 }
 
+message Int32Array{
+    repeated int32 value = 1;
+}
+
 message TetroMessage {
     Tetro tetro = 1;
+    repeated Int32Array data = 2;
 }
 
 message TetroPositionMessage {
@@ -22,3 +27,6 @@ message TetroPositionMessage {
     int32 row = 2;
 }
 
+message TetroHeapMessage {
+    repeated Int32Array heap = 1;
+}

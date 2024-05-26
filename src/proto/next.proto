@@ -2,10 +2,11 @@ syntax = "proto3";
 
 package proto;
 
-import "tetrominos.proto";
+import "tetromino.proto";
 
 message NextQueueMessage {
     repeated Tetro queue = 1;
+    Tetro cur_tetro = 2;
 }
 
 message NextTetroMessage {

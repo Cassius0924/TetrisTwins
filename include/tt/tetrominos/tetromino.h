@@ -4,7 +4,7 @@
 #include <vector>
 
 #include "tt/color.h"
-#include "tt/proto/tetrominos.pb.h"
+#include "tt/proto/tetromino.pb.h"
 
 namespace game::tetro {
 
@@ -95,6 +95,8 @@ public:
 public:
     Tetromino(ui::Color color, TetrominoType type);
 
+    Tetromino(const std::vector<std::vector<int>> &data, ui::Color color, TetrominoType type);
+
     Tetromino(const Tetromino &tetro) = default;
 
     //        explicit Tetromino(std::vector<std::vector<int>> data);
@@ -106,19 +108,33 @@ public:
      * @param i: 行
      * @return 方块数据
      */
-    std::vector<int> &operator[](int i);
+    inline std::vector<int> &operator[](int i) {
+        return _data[i];
+    }
 
     /**
      * 获取方块行数
      * @return 行数
      */
-    int rows() const;
+    inline int rows() const {
+        return static_cast<int>(_data.size());
+    }
 
     /**
      * 获取方块列数
      * @return 列数
      */
-    int cols() const;
+    inline int cols() const {
+        return static_cast<int>(_data[0].size());
+    }
+
+    /**
+     * 获取方块姿态
+     * @return 方块姿态
+     */
+    TetrominoState get_state() const {
+        return _state;
+    }
 
     /**
      * 获取有效坐标偏移量
@@ -134,6 +150,8 @@ public:
         return _data;
     }
 
+    void set_data(const std::vector<std::vector<int>> &data);
+
     void rotate();
 
     static TetrominoState prevState(TetrominoState state);
@@ -147,12 +165,13 @@ private:
      * 校准方块数据，根据踢墙表调整位置
      */
     void _calibrate();
-
 };
 
 proto::Tetro to_proto(std::shared_ptr<Tetromino> tetro);
 
 std::shared_ptr<Tetromino> from_proto(proto::Tetro tetro);
+
+std::shared_ptr<Tetromino> from_proto_with_data(proto::Tetro tetro, const std::vector<std::vector<int>> &data);
 
 }
 

@@ -211,7 +211,7 @@ void tetromino(std::shared_ptr<game::tetro::Tetromino> tetro, int left, int top)
  * @param tetro_heap: 俄罗斯方块堆
  * @param win: 窗口
  */
-void tetro_heap(const game::TetroHeap &tetro_heap, Window *win);
+void tetro_heap(const game::TetroHeap &tetro_heap, const Window *win);
 
 /**
  * 绘制方块的阴影块
@@ -226,7 +226,7 @@ void ghost_tetromino(std::shared_ptr<game::tetro::Tetromino> tetro, int left, in
  * @param tetro_queue: 俄罗斯方块队列
  * @param win: 窗口
  */
-void tetro_queue(util::SafeDeque<std::shared_ptr<game::tetro::Tetromino>> &tetro_queue, Window *win);
+void tetro_queue(util::SafeDeque<std::shared_ptr<game::tetro::Tetromino>> &tetro_queue, const Window *win);
 
 }
 

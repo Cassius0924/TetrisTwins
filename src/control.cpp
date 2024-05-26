@@ -1,14 +1,10 @@
 #include "tt/control.h"
 
-#include <thread>
 #include <unordered_map>
 
 #include "tt/game.h"
+#include "tt/menu.h"
 #include "tt/util/util.h"
-
-#include <tt/menu.h>
-
-typedef std::chrono::milliseconds MS;
 
 namespace ctrl {
 /**
@@ -32,8 +28,8 @@ bool is_hard_drop = false;
 void ctrl::listen_key_event() {
     while (game::is_running) {
         command = util::getch();
-        if (game::is_single_started || game::is_double_started){
-            if(cmd_func.find(command) != cmd_func.end()) {
+        if (game::is_single_started || game::is_double_started) {
+            if (cmd_func.find(command) != cmd_func.end()) {
                 // 游戏开始后
                 cmd_func[command]();
             }
@@ -67,7 +63,7 @@ void ctrl::start_gravity_thread() {
 }
 
 void ctrl::cmd_quit() {
-    if(game::is_double_started){
+    if (game::is_double_started) {
         menu::pop_window(2);
     } else {
         menu::refresh_top_win(true);
@@ -92,24 +88,5 @@ void ctrl::cmd_right() {
 }
 
 void ctrl::cmd_down() {
-    // 硬降后再次按下 S 键，下降一格
-    if (is_hard_drop) {
-        is_hard_drop = false;
-        return;
-    }
-
-    is_hard_drop = true;
-    // 硬降
-    game::block_row = game::ghost_row;
-
-    // 延迟 k_LOCK_DELAY_MS 毫秒后再次移动
-    std::thread t([] {
-        std::this_thread::sleep_for(MS(k_LOCK_DELAY_MS));
-        if (!is_hard_drop) {
-            return;
-        }
-        game::move_down();
-        is_hard_drop = false;
-    });
-    t.detach();
+    game::hard_drop();
 }

@@ -14,19 +14,25 @@ namespace game::tetro {
 
 Tetromino::Tetromino(ui::Color color, TetrominoType type) : color(color), type(type), _state(TetrominoState::Zero) {}
 
+Tetromino::Tetromino(const std::vector<std::vector<int>> &data, ui::Color color, TetrominoType type)
+    : color(color), type(type), _state(TetrominoState::Zero) {
+    _data = data;
+    _raw_data = data;
+    _voffset = {INT_MAX, INT_MIN, INT_MAX, INT_MIN};
+
+    for (int i = 0; i < _data.size(); ++i) {
+        for (int j = 0; j < _data[0].size(); ++j) {
+            if (_data[i][j] > 0) {
+                _voffset.left = std::min(_voffset.left, j);
+                _voffset.right = std::max(_voffset.right, j);
+                _voffset.top = std::min(_voffset.top, i);
+                _voffset.bottom = std::max(_voffset.bottom, i);
+            }
+        }
+    }
+}
+
 Tetromino::~Tetromino() = default;
-
-std::vector<int> &Tetromino::operator[](int i) {
-    return _data[i];
-}
-
-int Tetromino::rows() const {
-    return static_cast<int>(_data.size());
-}
-
-int Tetromino::cols() const {
-    return static_cast<int>(_data[0].size());
-}
 
 TetrominoState Tetromino::prevState(TetrominoState state) {
     switch (state) {
@@ -107,7 +113,7 @@ void Tetromino::_calibrate() {
         int oy = prev_koffset.y - koffset.y;
 
         // 判断是否撞堆碰底，是否超出左右边界
-        if (game::is_touch_heap(_raw_data, _voffset, block_row - oy, block_col + ox) ||
+        if (is_touch_heap(_raw_data, tetro_heap.heap, _voffset, block_row - oy, block_col + ox) ||
             (block_col + ox + _voffset.left - 1 < 0) ||
             (block_col + ox + _voffset.right - 1 >= main_win->get_inner_width())) {
             continue;
@@ -190,5 +196,35 @@ std::shared_ptr<Tetromino> from_proto(proto::Tetro tetro) {
         }
     }
 }
+
+std::shared_ptr<Tetromino> from_proto_with_data(proto::Tetro tetro, const std::vector<std::vector<int>> &data) {
+    switch (tetro) {
+        case proto::TETRO_I: {
+            return std::make_shared<TetroI>(data);
+        }
+        case proto::TETRO_J: {
+            return std::make_shared<TetroJ>(data);
+        }
+        case proto::TETRO_L: {
+            return std::make_shared<TetroL>(data);
+        }
+        case proto::TETRO_O: {
+            return std::make_shared<TetroO>(data);
+        }
+        case proto::TETRO_S: {
+            return std::make_shared<TetroS>(data);
+        }
+        case proto::TETRO_T: {
+            return std::make_shared<TetroT>(data);
+        }
+        case proto::TETRO_Z: {
+            return std::make_shared<TetroZ>(data);
+        }
+        default: {
+            return nullptr;
+        }
+    }
+}
+
 
 } // namespace game::tetro

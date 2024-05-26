@@ -9,6 +9,8 @@ class TetroJ : public Tetromino {
 public:
     TetroJ();
 
+    explicit TetroJ(const std::vector<std::vector<int>> &data);
+
     explicit TetroJ(TetrominoState init_state);
 
     /**

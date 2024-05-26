@@ -19,6 +19,10 @@ TetroO::TetroO() : Tetromino(s_color, s_type) {
     _voffset = {1, 2, 0, 1};
 }
 
+TetroO::TetroO(const std::vector<std::vector<int>> &data) : Tetromino(data, s_color, s_type) {
+    _kick_table = {{{0, 0}}, {{0, 0}}, {{0, 0}}, {{0, 0}}};
+}
+
 ui::Color TetroO::s_color = ui::Color::Yellow;
 
 TetrominoType TetroO::s_type = TetrominoType::O;

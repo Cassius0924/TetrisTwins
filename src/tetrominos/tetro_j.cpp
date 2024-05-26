@@ -28,6 +28,15 @@ TetroJ::TetroJ() : Tetromino(s_color, s_type) {
     _voffset = {2, 4, 2, 3};
 }
 
+TetroJ::TetroJ(const std::vector<std::vector<int>> &data) : Tetromino(data, s_color, s_type) {
+    _kick_table = {
+        {{0, 0}, {0, 0},  {0, 0},   {0, 0}, {0, 0} },
+        {{0, 0}, {1, 0},  {1, -1},  {0, 2}, {1, 2} },
+        {{0, 0}, {0, 0},  {0, 0},   {0, 0}, {0, 0} },
+        {{0, 0}, {-1, 0}, {-1, -1}, {0, 2}, {-1, 2}},
+    };
+}
+
 ui::Color TetroJ::s_color = ui::Color::Blue;
 
 TetrominoType TetroJ::s_type = TetrominoType::J;

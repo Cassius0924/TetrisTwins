@@ -186,40 +186,45 @@ void move_right();
 void move_down();
 
 /**
+ * 硬降方块
+ */
+void hard_drop();
+
+/**
  * 旋转方块
  */
 void rotate();
 
 /**
- * 判断是否碰到堆，如果碰到堆则返回true，并将方块加入堆中，如果没有碰到堆则返回false
+ * 将方块加入堆中
  * @param tetro: 方块
  * @param row: 方块泛区左上角行坐标
  * @param col: 方块泛区左上角列坐标
- * @param next_row: 方块下一步泛区左上角行坐标
- * @param next_col: 方块下一步泛区左上角列坐标
- * @return 是否碰到堆
  */
-bool touch_heap(std::shared_ptr<tetro::Tetromino> &tetro, int row, int col, int next_row, int next_col);
+void put_into_heap(std::shared_ptr<tetro::Tetromino> &tetro, int row, int col);
 
 /**
  * 判断是否碰到堆
  * @param tetro: 方块
+ * @param tetro_heap: 方块堆
  * @param next_row: 方块泛区下一步左上角行坐标
  * @param next_col: 方块泛区下一步左上角列坐标
  * @return 是否碰到堆
  */
-bool is_touch_heap(const std::shared_ptr<tetro::Tetromino> &tetro, int next_row, int next_col);
+bool is_touch_heap(const std::shared_ptr<tetro::Tetromino> &tetro, const TetroHeap &tetro_heap, int next_row,
+                   int next_col);
 
 /**
  * 判断是否碰到堆
  * @param tetro_data: 方块数据
+ * @param heap: 方块堆
  * @param valid_offset: 有效坐标偏移量
  * @param next_row: 方块泛区下一步左上角行坐标
  * @param next_col: 方块泛区下一步左上角列坐标
  * @return 是否碰到堆
  */
-bool is_touch_heap(const std::vector<std::vector<int>> &tetro_data, tetro::ValidOffset valid_offset, int next_row,
-                   int next_col);
+bool is_touch_heap(const std::vector<std::vector<int>> &tetro_data, const std::vector<std::vector<int>> &heap,
+                   tetro::ValidOffset valid_offset, int next_row, int next_col);
 
 /**
  * 生成一个随机的俄罗斯方块
@@ -230,24 +235,27 @@ std::shared_ptr<tetro::Tetromino> generate_tetromino();
 /**
  * 移动方块到顶部中间
  * @param tetro: 俄罗斯方块
+ * @param row: 方块泛区左上角行坐标
+ * @param col: 方块泛区左上角列坐标
  */
-void move_to_top_center(std::shared_ptr<tetro::Tetromino> &tetro);
+void move_to_top_center(std::shared_ptr<tetro::Tetromino> &tetro, int &row, int &col);
 
 /**
  * 计算方块的阴影块位置
  * @param tetro: 方块
+ * @param tetro_heap: 方块堆
  * @param col: 方块泛区左上角行坐标
  * @param col: 方块泛区左上角列坐标
  * @return 阴影块泛区左上角行坐标
  */
-int cal_ghost_tetromino_row(const std::shared_ptr<tetro::Tetromino> &tetro, int row, int col);
+int cal_ghost_tetromino_row(const std::shared_ptr<tetro::Tetromino> &tetro, const TetroHeap &tetro_heap, int row, int col);
 
 /**
  * 检查方块堆是否触顶
  * @param row_air: 空行
  * @return 是否触顶
  */
-bool check_touch_top(std::vector<int> row_air);
+bool is_touch_top(std::vector<int> row_air);
 
 /**
  * 开始单人游戏

@@ -5,7 +5,9 @@
 namespace game {
 
 int full_air_count;
+
 std::vector<int> row_air;
+
 int score_table[5] = {0, 100, 300, 500, 800};
 
 void remove_full_rows(int top_row, int bottom_row) {

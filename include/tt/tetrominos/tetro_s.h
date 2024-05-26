@@ -9,6 +9,8 @@ class TetroS : public Tetromino {
 public:
     TetroS();
 
+    explicit TetroS(const std::vector<std::vector<int>> &data);
+
     explicit TetroS(TetrominoState init_state);
 
     /**

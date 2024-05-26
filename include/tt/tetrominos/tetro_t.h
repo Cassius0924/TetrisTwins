@@ -9,6 +9,8 @@ class TetroT : public Tetromino {
 public:
     TetroT();
 
+    explicit TetroT(const std::vector<std::vector<int>> &data);
+
     explicit TetroT(TetrominoState init_state);
 
     /**
@@ -20,7 +22,6 @@ public:
      * 方块类型
      */
     static TetrominoType s_type;
-
 };
 
 } // namespace game::tetro
