@@ -7,7 +7,7 @@
 namespace net {
 
 class UdpClient : public Communicator,
-                  public noncopyable {
+                  public util::noncopyable {
 public:
     UdpClient(const std::string &ip, int port);
 

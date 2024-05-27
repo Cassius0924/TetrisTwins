@@ -7,7 +7,7 @@
 namespace net {
 
 class TcpClient : public Communicator,
-                  public noncopyable {
+                  public util::noncopyable {
 public:
     TcpClient(const std::string &ip, int port);
 

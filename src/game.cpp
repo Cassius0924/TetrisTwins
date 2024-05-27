@@ -18,6 +18,7 @@
 #include "tt/tetrominos/define.h"
 #include "tt/ui.h"
 #include "tt/util/util.h"
+#include "tt/util/proto.h"
 
 using namespace std::chrono_literals;
 
@@ -51,7 +52,7 @@ std::atomic<bool> is_position_updated = true;
 std::atomic<bool> is_state_updated = true;
 
 std::shared_ptr<tetro::Tetromino> cur_tetromino;
-util::SafeDeque<std::shared_ptr<tetro::Tetromino>> tetro_queue;
+util::stl::SafeDeque<std::shared_ptr<tetro::Tetromino>> tetro_queue;
 
 int score = 0;
 
@@ -201,7 +202,7 @@ void put_into_heap(std::shared_ptr<tetro::Tetromino> &tetro, int row, int col) {
 std::shared_ptr<tetro::Tetromino> generate_tetromino() {
     // 生成随机数
     for (;;) {
-        switch (util::random_int(0, 6)) {
+        switch (util::math::random_int(0, 6)) {
             case 0:
                 return std::make_unique<tetro::TetroI>();
             case 1:
@@ -391,7 +392,7 @@ void signal_message_callback(std::unique_ptr<proto::SignalMessage> message, bool
 }
 
 void next_queue_message_callback(std::unique_ptr<proto::NextQueueMessage> message,
-                                 util::SafeDeque<std::shared_ptr<tetro::Tetromino>> &queue,
+                                 util::stl::SafeDeque<std::shared_ptr<tetro::Tetromino>> &queue,
                                  std::shared_ptr<tetro::Tetromino> &cur_tetro, TetroHeap &tetro_heap, int &block_row,
                                  int &block_col, int &ghost_row, std::shared_ptr<tetro::Tetromino> &peer_cur_tetro,
                                  int &peer_block_row, int &peer_block_col, int &peer_ghost_row, bool &updated) {
@@ -411,7 +412,7 @@ void next_queue_message_callback(std::unique_ptr<proto::NextQueueMessage> messag
 }
 
 void next_tetro_message_callback(std::unique_ptr<proto::NextTetroMessage> message,
-                                 util::SafeDeque<std::shared_ptr<tetro::Tetromino>> &queue) {
+                                 util::stl::SafeDeque<std::shared_ptr<tetro::Tetromino>> &queue) {
     queue.push_back(tetro::from_proto(message->tetro()));
 }
 

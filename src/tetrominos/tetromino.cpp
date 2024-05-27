@@ -226,5 +226,4 @@ std::shared_ptr<Tetromino> from_proto_with_data(proto::Tetro tetro, const std::v
     }
 }
 
-
 } // namespace game::tetro

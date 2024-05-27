@@ -7,7 +7,7 @@
 namespace net {
 
 class TcpServer : public Communicator,
-                  public noncopyable {
+                  public util::noncopyable {
 public:
     explicit TcpServer(int port);
 

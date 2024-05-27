@@ -33,7 +33,7 @@ enum class SocketType {
 constexpr SocketType UDP = SocketType::UDP;
 constexpr SocketType TCP = SocketType::TCP;
 
-class Socket : public noncopyable {
+class Socket : public util::noncopyable {
 public:
     /**
      * @param fd 套接字文件描述符

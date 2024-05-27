@@ -226,7 +226,7 @@ void ghost_tetromino(std::shared_ptr<game::tetro::Tetromino> tetro, int left, in
  * @param tetro_queue: 俄罗斯方块队列
  * @param win: 窗口
  */
-void tetro_queue(util::SafeDeque<std::shared_ptr<game::tetro::Tetromino>> &tetro_queue, const Window *win);
+void tetro_queue(util::stl::SafeDeque<std::shared_ptr<game::tetro::Tetromino>> &tetro_queue, const Window *win);
 
 }
 

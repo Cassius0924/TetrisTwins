@@ -4,12 +4,6 @@
 
 #define CSI "\033["
 
-struct BitField {
-    unsigned int a : 1; // a 占用 1 位
-    unsigned int b : 3; // b 占用 3 位
-    unsigned int c : 4; // c 占用 4 位
-};
-
 void term::move_to(int row, int col) {
     std::cout << CSI << row << ';' << col << 'H';
 }

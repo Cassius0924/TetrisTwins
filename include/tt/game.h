@@ -88,7 +88,7 @@ extern std::shared_ptr<tetro::Tetromino> cur_tetromino;
 /**
  * 方块队列
  */
-extern util::SafeDeque<std::shared_ptr<tetro::Tetromino>> tetro_queue;
+extern util::stl::SafeDeque<std::shared_ptr<tetro::Tetromino>> tetro_queue;
 
 /**
  * 游戏分数

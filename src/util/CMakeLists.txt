@@ -4,7 +4,7 @@ aux_source_directory(${CMAKE_CURRENT_SOURCE_DIR} UTIL_SRC)
 
 target_sources(UTIL PRIVATE ${UTIL_SRC})
 
-target_include_directories(UTIL PRIVATE ${INCLUDE_DIR})
+target_include_directories(UTIL PRIVATE ${INCLUDE_DIR} ${Protobuf_INCLUDE_DIRS})
 
 list(APPEND LIBS UTIL)
 set(LIBS ${LIBS} PARENT_SCOPE)

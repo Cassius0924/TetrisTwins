@@ -7,7 +7,7 @@
 namespace net {
 
 class UdpServer : public Communicator,
-                  public noncopyable {
+                  public util::noncopyable {
 public:
     explicit UdpServer(int port);
 

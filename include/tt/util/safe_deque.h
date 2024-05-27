@@ -1,11 +1,11 @@
-#ifndef SAFE_DEQUE_H
-#define SAFE_DEQUE_H
+#ifndef UTIL_SAFE_DEQUE_H
+#define UTIL_SAFE_DEQUE_H
 
+#include <mutex>
 #include <condition_variable>
 #include <deque>
-#include <mutex>
 
-namespace util {
+namespace util::stl {
 
 template <typename T>
 class SafeDeque {
@@ -161,4 +161,4 @@ public:
 
 }
 
-#endif //SAFE_DEQUE_H
+#endif //UTIL_SAFE_DEQUE_H
