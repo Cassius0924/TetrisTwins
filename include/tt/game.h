@@ -138,7 +138,18 @@ extern ui::Window *info_win;
 /**
  * Next窗口是否需要更新
  */
-extern bool is_next_win_updated;
+extern std::atomic<bool> is_next_win_updated;
+
+/**
+ * 方块位置是否更新
+ */
+extern std::atomic<bool> is_position_updated;
+
+
+/**
+ * 方块姿态是否更新
+ */
+extern std::atomic<bool> is_state_updated;
 
 /**
  * 俄罗斯方块堆
@@ -164,11 +175,6 @@ extern TetroHeap tetro_heap;
  * 退出游戏
  */
 void quit(int signal = 0);
-
-/**
- * 初始化游戏
- */
-void single_init();
 
 /**
  * 左移方块
@@ -256,22 +262,6 @@ int cal_ghost_tetromino_row(const std::shared_ptr<tetro::Tetromino> &tetro, cons
  * @return 是否触顶
  */
 bool is_touch_top(std::vector<int> row_air);
-
-/**
- * 开始单人游戏
- */
-void start_single_game();
-
-/**
- * 开始双人游戏服务端
- */
-void start_double_game_server();
-
-/**
- * 开始双人游戏客户端
- */
-void start_double_game_client();
-
 }
 
 

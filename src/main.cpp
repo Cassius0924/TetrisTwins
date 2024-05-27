@@ -1,10 +1,11 @@
 #include <iostream>
 
 #include "tt/control.h"
+#include "tt/double.h"
 #include "tt/menu.h"
+#include "tt/single.h"
 #include "tt/style.h"
 #include "tt/terminal.h"
-#include "tt/tetrominos/define.h"
 #include "tt/ui.h"
 
 void init() {
@@ -35,8 +36,6 @@ void start() {
         } else if (game::is_created_room) {
             game::start_double_game_server();
         }
-
-        // menu::refresh_top_win();
     }
 }
 
