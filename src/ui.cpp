@@ -64,7 +64,7 @@ void ui::Window::draw() const {
         std::cout << DS::h_edge();
     }
     std::cout << DS::br();
-    std::cout << std::flush;
+    term::flush();
 }
 
 void ui::Window::draw_menu_items() const {
@@ -80,7 +80,7 @@ void ui::Window::draw_menu_items() const {
     term::move_to(selected_menu_item->arow, selected_menu_item->acol);
     std::cout << selected_menu_item->text;
     term::reset_color();
-    std::cout << std::flush;
+    term::flush();
 }
 void ui::Window::draw_text_items() const {
     if (text_items.empty()) {
@@ -89,9 +89,11 @@ void ui::Window::draw_text_items() const {
     for (auto &item : text_items) {
         term::move_to(item.arow, item.acol);
         if (std::holds_alternative<std::function<std::string()>>(item.text)) {
-            std::cout << std::get<std::function<std::string()>>(item.text)() << std::flush;
+            std::cout << std::get<std::function<std::string()>>(item.text)();
+            term::flush();
         } else {
-            std::cout << std::get<std::string>(item.text) << std::flush;
+            std::cout << std::get<std::string>(item.text);
+            term::flush();
         }
     }
 }
@@ -100,7 +102,8 @@ ui::Window::~Window() = default;
 
 void ui::Window::display(int row, int col, const std::string &text) const {
     term::move_to(absolute_row(row), absolute_col(col));
-    std::cout << text << std::flush;
+    std::cout << text;
+    term::flush();
 }
 
 int ui::Window::get_height() const {
@@ -119,7 +122,7 @@ int ui::Window::get_inner_height() const {
     return _height - 2 < 0 ? 0 : _height - 2;
 }
 
-void ui::Window::handleKeyEvent(char command) {
+void ui::Window::handleKeyEvent(const char command) {
     auto top_win = menu::window_stack.top();
     if (top_win->menu_items.empty()) {
         return;
@@ -148,8 +151,9 @@ void ui::Window::handleKeyEvent(char command) {
     }
     term::set_back_color(static_cast<int>(Color::Gray));
     term::move_to(item->arow, item->acol);
-    std::cout << item->text << std::flush;
+    std::cout << item->text;
     term::reset_color();
+    term::flush();
 }
 
 void ui::tetromino(std::shared_ptr<game::tetro::Tetromino> tetro, int left, int top) {
@@ -168,6 +172,7 @@ void ui::tetromino(std::shared_ptr<game::tetro::Tetromino> tetro, int left, int 
         }
     }
     term::reset_color();
+    term::flush();
 }
 
 void ui::tetro_heap(const game::TetroHeap &tetro_heap, const Window *win) {
@@ -183,10 +188,10 @@ void ui::tetro_heap(const game::TetroHeap &tetro_heap, const Window *win) {
                 std::cout << "  ";
             }
             term::move_to(win->absolute_row(i + 1), win->absolute_col(block_to_col(j + 2)));
-            std::cout << std::flush;
         }
     }
     term::reset_color();
+    term::flush();
 }
 
 void ui::ghost_tetromino(std::shared_ptr<game::tetro::Tetromino> tetro, int left, int top) {
@@ -205,6 +210,7 @@ void ui::ghost_tetromino(std::shared_ptr<game::tetro::Tetromino> tetro, int left
         }
     }
     term::reset_color();
+    term::flush();
 }
 
 void ui::tetro_queue(util::stl::SafeDeque<std::shared_ptr<game::tetro::Tetromino>> &tetro_queue, const Window *win) {
@@ -214,4 +220,5 @@ void ui::tetro_queue(util::stl::SafeDeque<std::shared_ptr<game::tetro::Tetromino
                   win->absolute_col(block_to_col(3 - (left + (right - left + 2) / 2 - 1))),
                       win->absolute_row(i * 3 + 3) - (top + (bottom - top + 1) / 2));
     }
+    term::flush();
 }

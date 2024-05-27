@@ -18,7 +18,6 @@
 #include "tt/tetrominos/define.h"
 #include "tt/ui.h"
 #include "tt/util/util.h"
-#include "tt/util/proto.h"
 
 using namespace std::chrono_literals;
 
@@ -308,8 +307,6 @@ void start_single_game() {
             // 显示方块堆
             ui::tetro_heap(tetro_heap, main_win);
             term::reset_color();
-            // TODO: 包装 std::flush
-            std::cout << std::flush;
         }
 
         if (is_next_win_updated) {
@@ -317,7 +314,6 @@ void start_single_game() {
             next_win->draw();
             ui::tetro_queue(tetro_queue, next_win);
             term::reset_color();
-            std::cout << std::flush;
         }
 
         std::this_thread::sleep_for(100ms);
@@ -547,7 +543,6 @@ void start_double_game(net::Communicator &commu) {
             ui::tetro_heap(tetro_heap, main_win);
 
             term::reset_color();
-            std::cout << std::flush;
 
             if (is_position_updated) {
                 is_position_updated = false;
@@ -573,7 +568,6 @@ void start_double_game(net::Communicator &commu) {
         ui::tetromino(peer_cur_tetromino, peer_main_win->absolute_col(ui::block_to_col(peer_block_col)),
                       peer_main_win->absolute_row(peer_block_row));
         ui::tetro_heap(peer_tetro_heap, peer_main_win);
-        std::cout << std::flush;
 
         if (is_next_win_updated) {
             is_next_win_updated = false;
@@ -602,9 +596,7 @@ void start_double_game(net::Communicator &commu) {
             commu.send(net::pack_message(heap_message));
 
             term::reset_color();
-            std::cout << std::flush;
         }
-
 
         std::this_thread::sleep_for(100ms);
     }

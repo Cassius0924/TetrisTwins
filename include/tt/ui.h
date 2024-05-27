@@ -29,8 +29,7 @@ struct TetroHeap;
 } // namespace game
 
 /**
- * 绘图
- *
+ * 绘图模块
  */
 namespace ui {
 /**

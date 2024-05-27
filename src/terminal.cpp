@@ -1,33 +1,35 @@
 #include "tt/terminal.h"
 
-#include <iostream>
+namespace term {
 
-#define CSI "\033["
+constexpr const char* k_CSI = "\033[";
 
-void term::move_to(int row, int col) {
-    std::cout << CSI << row << ';' << col << 'H';
+void move_to(int row, int col) {
+    std::cout << k_CSI << row << ';' << col << 'H';
 }
 
-void term::set_fore_color(int id) {
-    std::cout << CSI << "38;5;" << id << 'm';
+void set_fore_color(int id) {
+    std::cout << k_CSI << "38;5;" << id << 'm';
 }
 
-void term::set_back_color(int id) {
-    std::cout << CSI << "48;5;" << id << 'm';
+void set_back_color(int id) {
+    std::cout << k_CSI << "48;5;" << id << 'm';
 }
 
-void term::clean_screen() {
-    std::cout << CSI << "2J";
+void clean_screen() {
+    std::cout << k_CSI << "2J";
 }
 
-void term::reset_color() {
-    std::cout << CSI << "0m";
+void reset_color() {
+    std::cout << k_CSI << "0m";
 }
 
-void term::hide_cursor() {
-    std::cout << CSI << "?25l";
+void hide_cursor() {
+    std::cout << k_CSI << "?25l";
 }
 
-void term::show_cursor() {
-    std::cout << CSI << "?25H";
+void show_cursor() {
+    std::cout << k_CSI << "?25H";
 }
+
+} // namespace term
