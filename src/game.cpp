@@ -419,12 +419,7 @@ void next_tetro_message_callback(std::unique_ptr<proto::NextTetroMessage> messag
 void tetro_message_callback(std::unique_ptr<proto::TetroMessage> message,
                             std::shared_ptr<tetro::Tetromino> &peer_cur_tetro, int &peer_block_row, int &peer_block_col,
                             const TetroHeap &peer_tetro_heap, int &peer_ghost_row) {
-    // TODO: 封装
-    std::vector<std::vector<int>> result;
-    for (const auto &array : message->data()) {
-        std::vector<int> sub_vector(array.value().begin(), array.value().end());
-        result.push_back(sub_vector);
-    }
+    std::vector<std::vector<int>> result = util::proto::to_vector2<int>(message->data());
     peer_cur_tetro = tetro::from_proto_with_data(message->tetro(), result);
     peer_ghost_row = cal_ghost_tetromino_row(peer_cur_tetro, peer_tetro_heap, peer_block_row, peer_block_col);
 }
@@ -566,12 +561,8 @@ void start_double_game(net::Communicator &commu) {
                 // 发送方块状态信息给对端
                 proto::TetroMessage tetro_message;
                 tetro_message.set_tetro(to_proto(cur_tetromino));
-                for (const auto &data : cur_tetromino->get_data()) {
-                    proto::Int32Array *array = tetro_message.add_data();
-                    for (const auto &value : data) {
-                        array->add_value(value);
-                    }
-                }
+                auto t =tetro_message.mutable_data();
+                t->CopyFrom(util::proto::to_repeated_field<int, proto::Int32Array>(cur_tetromino->get_data()));
                 commu.send(net::pack_message(tetro_message));
             }
         }
