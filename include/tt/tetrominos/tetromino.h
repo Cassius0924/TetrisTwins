@@ -2,6 +2,7 @@
 #define TETRIS_TETROMINO_H
 
 #include <vector>
+#include <mutex>
 
 #include "tt/color.h"
 #include "tt/proto/tetromino.pb.h"
@@ -55,6 +56,11 @@ enum class TetrominoType {
 };
 
 class Tetromino {
+private:
+    /**
+     * 互斥锁
+     */
+    std::mutex _mutex;
 protected:
     /**
      * 原始方块姿态数据
@@ -97,11 +103,15 @@ public:
 
     Tetromino(const std::vector<std::vector<int>> &data, ui::Color color, TetrominoType type);
 
-    Tetromino(const Tetromino &tetro) = default;
+    Tetromino(const Tetromino &other);
 
-    //        explicit Tetromino(std::vector<std::vector<int>> data);
+    Tetromino &operator=(const Tetromino &other);
 
-    virtual ~Tetromino();
+    Tetromino(Tetromino &&other) noexcept;
+
+    Tetromino &operator=(Tetromino &&other) noexcept;
+
+    virtual ~Tetromino() = default;
 
     /**
      * 获取方块数据
@@ -109,6 +119,7 @@ public:
      * @return 方块数据
      */
     inline std::vector<int> &operator[](int i) {
+        std::lock_guard<std::mutex> lock(_mutex);
         return _data[i];
     }
 
@@ -132,21 +143,24 @@ public:
      * 获取方块姿态
      * @return 方块姿态
      */
-    TetrominoState get_state() const {
+    TetrominoState get_state() {
+        std::lock_guard<std::mutex> lock(_mutex);
         return _state;
     }
 
     /**
      * 获取有效坐标偏移量
      */
-    inline ValidOffset get_valid_offset() const {
+    inline ValidOffset get_valid_offset() {
+        std::lock_guard<std::mutex> lock(_mutex);
         return _voffset;
     }
 
     /**
      * 获取方块数据的拷贝
      */
-    inline std::vector<std::vector<int>> get_data() const {
+    inline std::vector<std::vector<int>> get_data() {
+        std::lock_guard<std::mutex> lock(_mutex);
         return _data;
     }
 

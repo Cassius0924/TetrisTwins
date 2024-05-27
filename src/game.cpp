@@ -563,6 +563,7 @@ void start_double_game(net::Communicator &commu) {
         }
         peer_main_win->draw();
         peer_status_win->draw_text_items();
+        // TODO: 或许可以不显示
         ui::ghost_tetromino(peer_cur_tetromino, peer_main_win->absolute_col(ui::block_to_col(peer_block_col)),
                             peer_main_win->absolute_row(peer_ghost_row));
         ui::tetromino(peer_cur_tetromino, peer_main_win->absolute_col(ui::block_to_col(peer_block_col)),

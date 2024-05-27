@@ -32,7 +32,41 @@ Tetromino::Tetromino(const std::vector<std::vector<int>> &data, ui::Color color,
     }
 }
 
-Tetromino::~Tetromino() = default;
+Tetromino::Tetromino(const Tetromino &other)
+    : color(other.color), type(other.type), _state(other._state), _data(other._data), _raw_data(other._raw_data),
+      _voffset(other._voffset), _kick_table(other._kick_table) {}
+
+Tetromino &Tetromino::operator=(const Tetromino &other) {
+    if (this != &other) {
+        std::lock_guard<std::mutex> lock(_mutex);
+        color = other.color;
+        type = other.type;
+        _state = other._state;
+        _data = other._data;
+        _raw_data = other._raw_data;
+        _voffset = other._voffset;
+        _kick_table = other._kick_table;
+    }
+    return *this;
+}
+
+Tetromino::Tetromino(Tetromino &&other) noexcept
+    : color(other.color), type(other.type), _state(other._state), _data(std::move(other._data)),
+      _raw_data(std::move(other._raw_data)), _voffset(other._voffset), _kick_table(std::move(other._kick_table)) {}
+
+Tetromino &Tetromino::operator=(Tetromino &&other) noexcept {
+    if (this != &other) {
+        std::lock_guard<std::mutex> lock(_mutex);
+        color = other.color;
+        type = other.type;
+        _state = other._state;
+        _data = std::move(other._data);
+        _raw_data = std::move(other._raw_data);
+        _voffset = other._voffset;
+        _kick_table = std::move(other._kick_table);
+    }
+    return *this;
+}
 
 TetrominoState Tetromino::prevState(TetrominoState state) {
     switch (state) {
@@ -45,6 +79,7 @@ TetrominoState Tetromino::prevState(TetrominoState state) {
         case TetrominoState::Left:
             return TetrominoState::Two;
     }
+    return TetrominoState::Zero;
 }
 
 TetrominoState Tetromino::nextState(TetrominoState state) {
@@ -58,9 +93,11 @@ TetrominoState Tetromino::nextState(TetrominoState state) {
         case TetrominoState::Left:
             return TetrominoState::Zero;
     }
+    return TetrominoState::Zero;
 }
 
 void Tetromino::rotate() {
+    std::lock_guard<std::mutex> lock(_mutex);
     _state = nextState(_state);
 
     // TODO: 优化
