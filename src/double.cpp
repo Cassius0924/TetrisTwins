@@ -88,7 +88,6 @@ void signal_message_callback(std::unique_ptr<proto::SignalMessage> message, bool
         }
     }
 }
-// HERE!!!
 
 void next_tetro_message_callback(std::unique_ptr<proto::NextTetroMessage> message,
                                  util::stl::SafeDeque<std::shared_ptr<tetro::Tetromino>> &queue) {
@@ -97,35 +96,36 @@ void next_tetro_message_callback(std::unique_ptr<proto::NextTetroMessage> messag
 
 void tetro_message_callback(std::unique_ptr<proto::TetroMessage> message,
                             std::shared_ptr<tetro::Tetromino> &peer_cur_tetro,
-                            std::atomic<bool> &is_need_cal_peer_ghost) {
+                            std::atomic_bool &is_need_cal_peer_ghost) {
     std::vector<std::vector<int>> result = util::proto::to_vector2<int>(message->data());
     peer_cur_tetro = tetro::from_proto_with_data(message->tetro(), result);
     is_need_cal_peer_ghost = true;
 }
 
 void tetro_position_message_callback(std::unique_ptr<proto::TetroPositionMessage> message, int &peer_block_row,
-                                     int &peer_block_col, std::atomic<bool> &is_need_peer_cal_ghost) {
+                                     int &peer_block_col, std::atomic_bool &is_need_cal_peer_ghost) {
     peer_block_row = message->row();
     peer_block_col = message->col();
-    is_need_peer_cal_ghost = true;
+    is_need_cal_peer_ghost = true;
 }
 
-void tetro_heap_message_callback(std::unique_ptr<proto::TetroHeapMessage> message, TetroHeap &peer_tetro_heap) {
+void tetro_heap_message_callback(std::unique_ptr<proto::TetroHeapMessage> message, TetroHeap &peer_tetro_heap, std::atomic_bool &is_need_cal_peer_ghost) {
     for (int i = 0; i < message->heap_size(); ++i) {
         for (int j = 0; j < message->heap(i).value_size(); ++j) {
             peer_tetro_heap.heap[i][j] = message->heap(i).value(j);
         }
     }
     peer_tetro_heap.is_updated = true;
+    is_need_cal_peer_ghost = true;
 }
 
 void next_queue_message_callback(std::unique_ptr<proto::NextQueueMessage> message,
                                  util::stl::SafeDeque<std::shared_ptr<tetro::Tetromino>> &queue,
                                  std::shared_ptr<tetro::Tetromino> &cur_tetro,
                                  std::shared_ptr<tetro::Tetromino> &peer_cur_tetro,
-                                 std::atomic<bool> &is_need_cal_ghost, std::atomic<bool> &is_need_move_to_top_center,
-                                 std::atomic<bool> &is_need_cal_peer_ghost,
-                                 std::atomic<bool> &is_need_peer_move_to_top_center, std::atomic<bool> &is_updated) {
+                                 std::atomic_bool &is_need_cal_ghost, std::atomic_bool &is_need_move_to_top_center,
+                                 std::atomic_bool &is_need_cal_peer_ghost,
+                                 std::atomic_bool &is_need_peer_move_to_top_center, std::atomic_bool &is_updated) {
     for (int i = 0; i < queue.size(); ++i) {
         queue[i] = tetro::from_proto(message->queue(i));
     }
@@ -170,10 +170,10 @@ void start_double_game(net::Communicator &commu) {
 
     std::shared_ptr<tetro::Tetromino> tetro_ptr = nullptr;
 
-    std::atomic<bool> is_need_cal_ghost = true;
-    std::atomic<bool> is_need_move_to_top_center = true;
-    std::atomic<bool> is_need_cal_peer_ghost = true;
-    std::atomic<bool> is_need_peer_move_to_top_center = true;
+    std::atomic_bool is_need_cal_ghost = true;
+    std::atomic_bool is_need_move_to_top_center = true;
+    std::atomic_bool is_need_cal_peer_ghost = true;
+    std::atomic_bool is_need_peer_move_to_top_center = true;
 
     net::Dispatcher dispatcher;
     // 注册消息处理回调函数
@@ -197,7 +197,7 @@ void start_double_game(net::Communicator &commu) {
                   std::ref(peer_block_col), std::ref(is_need_cal_peer_ghost)));
     // 方块堆消息处理
     dispatcher.register_message_callback<proto::TetroHeapMessage>(
-        std::bind(tetro_heap_message_callback, std::placeholders::_1, std::ref(peer_tetro_heap)));
+        std::bind(tetro_heap_message_callback, std::placeholders::_1, std::ref(peer_tetro_heap), std::ref(is_need_cal_peer_ghost)));
 
     while (is_double_started) {
         constexpr int k_BUFFER_SIZE = 1024;

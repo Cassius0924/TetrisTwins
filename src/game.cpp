@@ -37,9 +37,9 @@ ui::Window *status_win;
 ui::Window *next_win;
 ui::Window *info_win;
 
-std::atomic<bool> is_next_win_updated = true;
-std::atomic<bool> is_position_updated = true;
-std::atomic<bool> is_state_updated = true;
+std::atomic_bool is_next_win_updated = true;
+std::atomic_bool is_position_updated = true;
+std::atomic_bool is_state_updated = true;
 
 std::shared_ptr<tetro::Tetromino> cur_tetromino;
 util::stl::SafeDeque<std::shared_ptr<tetro::Tetromino>> tetro_queue;
