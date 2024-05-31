@@ -13,6 +13,14 @@ namespace game {
 
 using namespace std::chrono_literals;
 
+void single_shift_and_push_tetro_queue() {
+    cur_tetromino = std::move(tetro_queue.front());
+    tetro_queue.pop_front();
+    tetro_queue.emplace_back(generate_tetromino());
+    move_to_top_center(cur_tetromino, block_row, block_col);
+    ghost_row = cal_ghost_tetromino_row(cur_tetromino, tetro_heap, block_row, block_col);
+}
+
 void single_init() {
     tetro_queue.resize(5);
 
@@ -39,6 +47,8 @@ void single_init() {
 
     full_air_count = main_win->get_inner_width();
     row_air = std::vector<int>(main_win->get_height() - 2, full_air_count);
+
+    shift_and_push_tetro_queue = single_shift_and_push_tetro_queue;
 
     // 创建方块重力
     ctrl::start_gravity_thread();

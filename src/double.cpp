@@ -23,6 +23,31 @@ namespace game {
 
 using namespace std::chrono_literals;
 
+void server_shift_and_push_tetro_queue(net::Communicator &commu) {
+    cur_tetromino = std::move(tetro_queue.front());
+    move_to_top_center(cur_tetromino, block_row, block_col);
+    ghost_row = cal_ghost_tetromino_row(cur_tetromino, tetro_heap, block_row, block_col);
+    tetro_queue.pop_front();
+    auto new_tetro = generate_tetromino();
+    tetro_queue.emplace_back(new_tetro);
+
+    // 同步队尾新next方块
+    proto::NextTetroMessage next_tetro_message;
+    next_tetro_message.set_tetro(tetro::to_proto(new_tetro));
+    commu.send(net::pack_message(next_tetro_message));
+}
+
+void client_shift_and_push_tetro_queue(net::Communicator &commu) {
+    cur_tetromino = std::move(tetro_queue.front());
+    move_to_top_center(cur_tetromino, block_row, block_col);
+    ghost_row = cal_ghost_tetromino_row(cur_tetromino, tetro_heap, block_row, block_col);
+    tetro_queue.pop_front();
+
+    proto::SignalMessage signal_message;
+    signal_message.set_signal(proto::SIGNAL_NEXT_TETRO_REQUEST);
+    commu.send(net::pack_message(signal_message));
+}
+
 void double_server_init(net::Communicator &commu) {
     // 初始化，生成next方块队列，双端同步
     proto::NextQueueMessage next_queue_message;
@@ -35,15 +60,19 @@ void double_server_init(net::Communicator &commu) {
     }
     // 生成当前方块
     cur_tetromino = generate_tetromino();
-    next_queue_message.set_cur_tetro(tetro::to_proto(cur_tetromino));
-    commu.send(net::pack_message(next_queue_message));
     move_to_top_center(cur_tetromino, block_row, block_col);
     ghost_row = cal_ghost_tetromino_row(cur_tetromino, tetro_heap, block_row, block_col);
+    next_queue_message.set_cur_tetro(tetro::to_proto(cur_tetromino));
+    commu.send(net::pack_message(next_queue_message));
+
+    shift_and_push_tetro_queue = std::bind(server_shift_and_push_tetro_queue, std::ref(commu));
 
     ctrl::start_gravity_thread();
 }
 
-void double_client_init() {}
+void double_client_init(net::Communicator &commu) {
+    shift_and_push_tetro_queue = std::bind(server_shift_and_push_tetro_queue, std::ref(commu));
+}
 
 void double_init() {
     // 多一个next方块用于缓存，用于抵消网络延迟
@@ -109,7 +138,8 @@ void tetro_position_message_callback(std::unique_ptr<proto::TetroPositionMessage
     is_need_cal_peer_ghost = true;
 }
 
-void tetro_heap_message_callback(std::unique_ptr<proto::TetroHeapMessage> message, TetroHeap &peer_tetro_heap, std::atomic_bool &is_need_cal_peer_ghost) {
+void tetro_heap_message_callback(std::unique_ptr<proto::TetroHeapMessage> message, TetroHeap &peer_tetro_heap,
+                                 std::atomic_bool &is_need_cal_peer_ghost) {
     for (int i = 0; i < message->heap_size(); ++i) {
         for (int j = 0; j < message->heap(i).value_size(); ++j) {
             peer_tetro_heap.heap[i][j] = message->heap(i).value(j);
@@ -122,9 +152,8 @@ void tetro_heap_message_callback(std::unique_ptr<proto::TetroHeapMessage> messag
 void next_queue_message_callback(std::unique_ptr<proto::NextQueueMessage> message,
                                  util::stl::SafeDeque<std::shared_ptr<tetro::Tetromino>> &queue,
                                  std::shared_ptr<tetro::Tetromino> &cur_tetro,
-                                 std::shared_ptr<tetro::Tetromino> &peer_cur_tetro,
-                                 std::atomic_bool &is_need_cal_ghost, std::atomic_bool &is_need_move_to_top_center,
-                                 std::atomic_bool &is_need_cal_peer_ghost,
+                                 std::shared_ptr<tetro::Tetromino> &peer_cur_tetro, std::atomic_bool &is_need_cal_ghost,
+                                 std::atomic_bool &is_need_move_to_top_center, std::atomic_bool &is_need_cal_peer_ghost,
                                  std::atomic_bool &is_need_peer_move_to_top_center, std::atomic_bool &is_updated) {
     for (int i = 0; i < queue.size(); ++i) {
         queue[i] = tetro::from_proto(message->queue(i));
@@ -197,7 +226,8 @@ void start_double_game(net::Communicator &commu) {
                   std::ref(peer_block_col), std::ref(is_need_cal_peer_ghost)));
     // 方块堆消息处理
     dispatcher.register_message_callback<proto::TetroHeapMessage>(
-        std::bind(tetro_heap_message_callback, std::placeholders::_1, std::ref(peer_tetro_heap), std::ref(is_need_cal_peer_ghost)));
+        std::bind(tetro_heap_message_callback, std::placeholders::_1, std::ref(peer_tetro_heap),
+                  std::ref(is_need_cal_peer_ghost)));
 
     while (is_double_started) {
         constexpr int k_BUFFER_SIZE = 1024;
@@ -289,7 +319,7 @@ void start_double_game(net::Communicator &commu) {
         }
         peer_main_win->draw();
         peer_status_win->draw_text_items();
-        // TODO: 或许可以不显示
+
         ui::ghost_tetromino(peer_cur_tetromino, peer_main_win->absolute_col(ui::block_to_col(peer_block_col)),
                             peer_main_win->absolute_row(peer_ghost_row));
         ui::tetromino(peer_cur_tetromino, peer_main_win->absolute_col(ui::block_to_col(peer_block_col)),
@@ -303,7 +333,7 @@ void start_double_game(net::Communicator &commu) {
 
             // 同步当前方块
             proto::TetroMessage tetro_message;
-            tetro_message.set_tetro(to_proto(cur_tetromino));
+            tetro_message.set_tetro(tetro::to_proto(cur_tetromino));
             for (const auto &data : cur_tetromino->get_data()) {
                 proto::Int32Array *array = tetro_message.add_data();
                 for (const auto &value : data) {
@@ -396,7 +426,7 @@ void start_double_game_client() {
 
         // 开始双人游戏
         double_init();
-        double_client_init();
+        double_client_init(client);
         start_double_game(client);
     }
 }

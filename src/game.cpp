@@ -48,13 +48,14 @@ int score = 0;
 
 TetroHeap tetro_heap;
 
-
 Room::Room(const proto::RoomMessage &room_message)
     : id(room_message.id()), ip(room_message.ip()), port(room_message.port()), name(room_message.name()) {}
 
 bool Room::operator==(const Room &other) const {
     return id == other.id;
 }
+
+std::function<void()> shift_and_push_tetro_queue = nullptr;
 
 void quit(int signal) {
     is_single_started = false;
@@ -97,15 +98,12 @@ void move_down() {
         // 判断是否触顶，触顶则退出游戏
         if (is_touch_top(row_air)) {
             quit(0);
+            // TODO: 显示分数
             menu::refresh_top_win(true);
         }
 
         // 生成新的方块，加入到next队列
-        cur_tetromino = std::move(tetro_queue.front());
-        tetro_queue.pop_front();
-        tetro_queue.emplace_back(generate_tetromino());
-        move_to_top_center(cur_tetromino, block_row, block_col);
-        ghost_row = cal_ghost_tetromino_row(cur_tetromino, tetro_heap, block_row, block_col);
+        shift_and_push_tetro_queue();
         is_next_win_updated = true;
 
         return;

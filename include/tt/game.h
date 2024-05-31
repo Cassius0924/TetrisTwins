@@ -138,18 +138,17 @@ extern ui::Window *info_win;
 /**
  * Next窗口是否需要更新
  */
-extern std::atomic<bool> is_next_win_updated;
+extern std::atomic_bool is_next_win_updated;
 
 /**
  * 方块位置是否更新
  */
-extern std::atomic<bool> is_position_updated;
-
+extern std::atomic_bool is_position_updated;
 
 /**
  * 方块姿态是否更新
  */
-extern std::atomic<bool> is_state_updated;
+extern std::atomic_bool is_state_updated;
 
 /**
  * 俄罗斯方块堆
@@ -262,8 +261,13 @@ int cal_ghost_tetromino_row(const std::shared_ptr<tetro::Tetromino> &tetro, cons
  * @return 是否触顶
  */
 bool is_touch_top(std::vector<int> row_air);
-}
 
+/**
+ * 出队队头方块，入队新的next方块
+ */
+extern std::function<void()> shift_and_push_tetro_queue;
+
+}
 
 template <>
 struct std::hash<game::Room> {
