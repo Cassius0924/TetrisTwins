@@ -1,7 +1,5 @@
 #include "tt/net/udp_bc_sender.h"
-
-#include "sys/socket.h"
-#include "unistd.h"
+#include "tt/net/net_define.h"
 
 namespace net {
 

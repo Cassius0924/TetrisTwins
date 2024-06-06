@@ -2,6 +2,8 @@
 
 #include <iostream>
 
+#include "tt/net/net_cross_platform_api.h"
+
 namespace net {
 
 TcpClient::TcpClient(const std::string &ip, int port) : Communicator(port), _ip(ip), _serv_addr{} {
@@ -27,7 +29,7 @@ void TcpClient::connect() {
 }
 
 void TcpClient::disconnect() const {
-    close(_connfd);
+    cp::close(_connfd);
 }
 
 } // namespace net

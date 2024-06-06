@@ -1,0 +1,12 @@
+{
+  "dependencies": [
+    {
+      "name": "abseil",
+      "platform": "(windows & x64)"
+    },
+    {
+      "name": "protobuf",
+      "platform": "(windows and x64 and static)"
+    }
+  ]
+}

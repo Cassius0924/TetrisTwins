@@ -1,9 +1,9 @@
 #include "tt/net/udp_client.h"
 
 #include <iostream>
-#include <memory>
 
 #include "tt/net/socket.h"
+#include "tt/net/net_cross_platform_api.h"
 
 namespace net {
 
@@ -35,7 +35,7 @@ bool UdpClient::connect() {
 }
 
 void UdpClient::disconnect() const {
-    close(_connfd);
+    cp::close(_connfd);
 }
 
 } // namespace net

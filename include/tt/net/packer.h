@@ -1,7 +1,9 @@
-#ifndef TETRIS_TWINS_MESSAGE_DATA_H
-#define TETRIS_TWINS_MESSAGE_DATA_H
+#ifndef NET_PACKER_H
+#define NET_PACKER_H
 
-#include "google/protobuf/message.h"
+#include <google/protobuf/message.h>
+
+#include "tt/net/net_define.h"
 
 namespace net {
 

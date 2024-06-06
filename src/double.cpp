@@ -317,6 +317,7 @@ void start_double_game(net::Communicator &commu) {
                 commu.send(net::pack_message(tetro_message));
             }
         }
+        // TODO：优化更新判断
         peer_main_win->draw();
         peer_status_win->draw_text_items();
 

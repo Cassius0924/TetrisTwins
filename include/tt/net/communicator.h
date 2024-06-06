@@ -1,5 +1,5 @@
-#ifndef COMMUNICATOR_H
-#define COMMUNICATOR_H
+#ifndef NET_COMMUNICATOR_H
+#define NET_COMMUNICATOR_H
 
 #include "tt/net/communicator_base.h"
 
@@ -29,7 +29,7 @@ public:
      * 设置非阻塞模式
      * @param on 开关
      */
-    void set_non_block(bool on) const {
+    inline void set_non_block(bool on) const {
         _conn_socket.set_non_block(on);
     }
 
@@ -44,4 +44,4 @@ protected:
 
 } // namespace net
 
-#endif // COMMUNICATOR_H
+#endif // NET_COMMUNICATOR_H

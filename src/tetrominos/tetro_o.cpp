@@ -23,7 +23,7 @@ TetroO::TetroO(const std::vector<std::vector<int>> &data) : Tetromino(data, s_co
     _kick_table = {{{0, 0}}, {{0, 0}}, {{0, 0}}, {{0, 0}}};
 }
 
-ui::Color TetroO::s_color = ui::Color::Yellow;
+ui::Color TetroO::s_color = ui::Color::YELLOW;
 
 TetrominoType TetroO::s_type = TetrominoType::O;
 

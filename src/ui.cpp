@@ -76,7 +76,7 @@ void ui::Window::draw_menu_items() const {
         std::cout << item.text;
     }
     // 显示选中菜单项
-    term::set_back_color(static_cast<int>(Color::Gray));
+    term::set_back_color(static_cast<int>(Color::GRAY));
     term::move_to(selected_menu_item->arow, selected_menu_item->acol);
     std::cout << selected_menu_item->text;
     term::reset_color();
@@ -149,7 +149,7 @@ void ui::Window::handleKeyEvent(const char command) {
             return;
         }
     }
-    term::set_back_color(static_cast<int>(Color::Gray));
+    term::set_back_color(static_cast<int>(Color::GRAY));
     term::move_to(item->arow, item->acol);
     std::cout << item->text;
     term::reset_color();

@@ -1,6 +1,8 @@
 #include "tt/util/util.h"
 
+#if __PLATFORM_LINUX || __PLATFORM_MAC
 #include <termios.h>
+#endif
 
 #include <chrono>
 
@@ -23,6 +25,7 @@ int fps() {
     return fps;
 }
 
+#if __PLATFORM_LINUX || __PLATFORM_MAC
 char getch() {
     char c;
     termios old{}, cur{};
@@ -34,6 +37,7 @@ char getch() {
     tcsetattr(0, 0, &old);
     return c;
 }
+#endif
 
 
 }

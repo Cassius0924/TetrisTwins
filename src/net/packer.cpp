@@ -3,6 +3,7 @@
 #include <google/protobuf/message.h>
 
 namespace net {
+
 std::string serialize(const MessageData &message_data) {
     std::string result;
     uint32_t tmp = htonl(message_data.length);

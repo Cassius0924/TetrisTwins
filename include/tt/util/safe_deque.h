@@ -12,7 +12,7 @@ class SafeDeque {
 private:
     std::deque<T> _deque;
     std::mutex _mutex;
-    std::condition_variable cv;
+    std::condition_variable _cv;
 
     using iterator = typename std::deque<T>::iterator;
 
@@ -56,45 +56,45 @@ public:
     void push_back(const T &value) {
         std::lock_guard<std::mutex> lock(_mutex);
         _deque.push_back(value);
-        cv.notify_one();
+        _cv.notify_one();
     }
 
     void push_back(T &&value) {
         std::lock_guard<std::mutex> lock(_mutex);
         _deque.push_back(std::move(value));
-        cv.notify_one();
+        _cv.notify_one();
     }
 
     void push_front(const T &value) {
         std::lock_guard<std::mutex> lock(_mutex);
         _deque.push_front(value);
-        cv.notify_one();
+        _cv.notify_one();
     }
 
     void push_front(T &&value) {
         std::lock_guard<std::mutex> lock(_mutex);
         _deque.push_front(std::move(value));
-        cv.notify_one();
+        _cv.notify_one();
     }
 
     template <typename... Args>
     void emplace_back(Args &&...args) {
         std::lock_guard<std::mutex> lock(_mutex);
         _deque.emplace_back(std::forward<Args>(args)...);
-        cv.notify_one();
+        _cv.notify_one();
     }
 
     template <typename... Args>
     void emplace_front(Args &&...args) {
         std::lock_guard<std::mutex> lock(_mutex);
         _deque.emplace_front(std::forward<Args>(args)...);
-        cv.notify_one();
+        _cv.notify_one();
     }
 
     void pop_back() {
         std::unique_lock<std::mutex> lock(_mutex);
         while (_deque.empty()) {
-            cv.wait(lock);
+            _cv.wait(lock);
         }
         _deque.pop_back();
     }
@@ -102,7 +102,7 @@ public:
     void pop_front() {
         std::unique_lock<std::mutex> lock(_mutex);
         while (_deque.empty()) {
-            cv.wait(lock);
+            _cv.wait(lock);
         }
         _deque.pop_front();
     }
@@ -110,7 +110,7 @@ public:
     T front() {
         std::unique_lock<std::mutex> lock(_mutex);
         while (_deque.empty()) {
-            cv.wait(lock);
+            _cv.wait(lock);
         }
         return _deque.front();
     }
@@ -118,7 +118,7 @@ public:
     T back() {
         std::unique_lock<std::mutex> lock(_mutex);
         while (_deque.empty()) {
-            cv.wait(lock);
+            _cv.wait(lock);
         }
         return _deque.back();
     }

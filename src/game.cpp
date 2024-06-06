@@ -157,6 +157,10 @@ bool is_touch_heap(const std::vector<std::vector<int>> &tetro_data, const std::v
     // 判断是否碰到堆或越界
     for (int i = next_row + valid_offset.top - 1; i <= next_row + valid_offset.bottom - 1; ++i) {
         for (int j = next_col + valid_offset.left - 1; j <= next_col + valid_offset.right - 1; ++j) {
+            if (j < 0 || j >= heap[0].size() ) {
+                continue;
+            }
+
             // 是否越下界
             if (i < 0 || i >= heap.size()) {
                 return true;

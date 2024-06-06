@@ -1,13 +1,12 @@
 #include "tt/util/device.h"
 
-#include <arpa/inet.h>
-#include <ifaddrs.h>
-#include <netinet/in.h>
-#include <sys/socket.h>
+#include "tt/util/platform.h"
+#include "tt/net/net_define.h"
 
 namespace util::device {
 
 std::string get_lan_ip_linux() {
+#if __PLATFORM_LINUX || __PLATFORM_MAC
     std::string lan_ip;
 
     int ret_val = 0;
@@ -35,6 +34,43 @@ std::string get_lan_ip_linux() {
         if_addr_struct = if_addr_struct->ifa_next;
     }
     return lan_ip;
+#elif __PLATFORM_WIN
+    std::string lan_ip;
+    PIP_ADAPTER_INFO pAdapterInfo;
+    PIP_ADAPTER_INFO pAdapter = NULL;
+    DWORD dwRetVal = 0;
+    ULONG ulOutBufLen = sizeof(IP_ADAPTER_INFO);
+
+    pAdapterInfo = (IP_ADAPTER_INFO *)malloc(sizeof(IP_ADAPTER_INFO));
+    if (pAdapterInfo == NULL) {
+        return lan_ip;
+    }
+
+    if (GetAdaptersInfo(pAdapterInfo, &ulOutBufLen) == ERROR_BUFFER_OVERFLOW) {
+        free(pAdapterInfo);
+        pAdapterInfo = (IP_ADAPTER_INFO *)malloc(ulOutBufLen);
+        if (pAdapterInfo == NULL) {
+            return lan_ip;
+        }
+    }
+
+    if (GetAdaptersInfo(pAdapterInfo, &ulOutBufLen) == NO_ERROR) {
+        pAdapter = pAdapterInfo;
+        while (pAdapter) {
+            if (pAdapter->Type == MIB_IF_TYPE_ETHERNET && strstr(pAdapter->IpAddressList.IpAddress.String, "192.168.")) {
+                lan_ip = std::string(pAdapter->IpAddressList.IpAddress.String);
+                break;
+            }
+            pAdapter = pAdapter->Next;
+        }
+    }
+
+    if (pAdapterInfo) {
+        free(pAdapterInfo);
+    }
+
+    return lan_ip;
+#endif
 }
 
 } // namespace util::device

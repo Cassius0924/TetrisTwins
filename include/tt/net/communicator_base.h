@@ -1,12 +1,6 @@
 #ifndef COMMUNICATOR_BASE_H
 #define COMMUNICATOR_BASE_H
 
-#include <arpa/inet.h>
-#include <fcntl.h>
-#include <netinet/in.h>
-#include <sys/socket.h>
-#include <unistd.h>
-
 #include <string>
 
 #include "tt/net/socket.h"

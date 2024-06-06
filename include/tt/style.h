@@ -1,6 +1,8 @@
 #ifndef TETRIS_STYLE_H
 #define TETRIS_STYLE_H
+
 #include <vector>
+#include <string>
 
 namespace ui {
     /**

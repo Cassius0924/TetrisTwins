@@ -12,6 +12,9 @@ namespace ctrl {
  */
 char command;
 
+/**
+ * 游戏控制命令函数
+ */
 std::unordered_map<char, std::function<void()>> cmd_func{
     {k_KEY_Q,     cmd_quit    },
     {k_KEY_P,     cmd_pause   },
@@ -23,9 +26,8 @@ std::unordered_map<char, std::function<void()>> cmd_func{
 };
 
 bool is_hard_drop = false;
-} // namespace ctrl
 
-void ctrl::listen_key_event() {
+void listen_key_event() {
     while (game::is_running) {
         command = util::getch();
         if (game::is_single_started || game::is_double_started) {
@@ -40,29 +42,29 @@ void ctrl::listen_key_event() {
     }
 }
 
-void ctrl::start_key_listener() {
+void start_key_listener() {
     // 新建键盘监听线程
     std::thread t(listen_key_event);
     // 后台运行，与主线程分离
     t.detach();
 }
 
-void ctrl::gravity() {
+void gravity() {
     while (game::is_single_started || game::is_double_started) {
         if (is_hard_drop) {
             continue;
         }
         game::move_down();
-        std::this_thread::sleep_for(MS(ctrl::k_GRAVITY_INTERVAL_MS));
+        std::this_thread::sleep_for(MS(k_GRAVITY_INTERVAL_MS));
     }
 }
 
-void ctrl::start_gravity_thread() {
+void start_gravity_thread() {
     std::thread t(gravity);
     t.detach();
 }
 
-void ctrl::cmd_quit() {
+void cmd_quit() {
     if (game::is_double_started) {
         menu::pop_window(2);
     } else {
@@ -71,22 +73,24 @@ void ctrl::cmd_quit() {
     game::quit();
 }
 
-void ctrl::cmd_pause() {}
+void cmd_pause() {}
 
-void ctrl::cmd_continue() {}
+void cmd_continue() {}
 
-void ctrl::cmd_rotate() {
+void cmd_rotate() {
     game::rotate();
 }
 
-void ctrl::cmd_left() {
+void cmd_left() {
     game::move_left();
 }
 
-void ctrl::cmd_right() {
+void cmd_right() {
     game::move_right();
 }
 
-void ctrl::cmd_down() {
+void cmd_down() {
     game::hard_drop();
 }
+
+} // namespace ctrl

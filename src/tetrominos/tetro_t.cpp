@@ -37,7 +37,7 @@ TetroT::TetroT(const std::vector<std::vector<int>> &data) : Tetromino(data, s_co
     };
 }
 
-ui::Color TetroT::s_color = ui::Color::Purple;
+ui::Color TetroT::s_color = ui::Color::PURPLE;
 
 TetrominoType TetroT::s_type = TetrominoType::T;
 

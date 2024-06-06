@@ -1,11 +1,15 @@
+#include <vector>
+
 #include "tt/net/communicator.h"
+#include "tt/net/net_cross_platform_api.h"
 
 namespace net {
+
 Communicator::Communicator(const int port)
     : CommunicatorBase(port), _read_timeout{0, 0}, _read_fd_set{}{}
 
 Communicator::~Communicator() {
-    close(_connfd);
+    cp::close(_connfd);
 }
 
 bool Communicator::is_connected() const {
@@ -23,7 +27,7 @@ int Communicator::send(const char *data, int size) {
             return -1;
         }
         if (ret == 0) {
-            close(_connfd);
+            cp::close(_connfd);
             return 0;
         }
         len += ret;
@@ -40,7 +44,7 @@ int Communicator::send(const std::string &data) {
             return -1;
         }
         if (ret == 0) {
-            close(_connfd);
+            cp::close(_connfd);
             return 0;
         }
         len += ret;
@@ -54,37 +58,37 @@ int Communicator::recv(char *data, int size) {
         return -1;
     }
     if (ret == 0) {
-        close(_connfd);
+        cp::close(_connfd);
         return 0;
     }
     return ret;
 }
 
 int Communicator::recv(std::string &data, int size) {
-    char buf[size];
-    int ret = ::recv(_connfd, buf, size, 0);
+    std::vector<char> buf(size);
+    int ret = ::recv(_connfd, buf.data(), size, 0);
     if (ret < 0) {
         return -1;
     }
     if (ret == 0) {
-        close(_connfd);
+        cp::close(_connfd);
         return 0;
     }
-    data = std::string(buf, ret);
+    data = std::string(buf.data(), ret);
     return ret;
 }
 
 std::pair<std::string, int> Communicator::recv(int size) {
-    char buf[size];
-    int ret = ::recv(_connfd, buf, size, 0);
+    std::vector<char> buf(size);
+    int ret = ::recv(_connfd, buf.data(), size, 0);
     if (ret < 0) {
         return {"", ret};
     }
     if (ret == 0) {
-        close(_connfd);
+        cp::close(_connfd);
         return {"", 0};
     }
-    return {std::string(buf, ret), ret};
+    return {std::string(buf.data(), ret), ret};
 }
 
 bool Communicator::has_data_read() {

@@ -1,10 +1,8 @@
 #include "tt/net/udp_bc_receiver.h"
-
-#include "sys/socket.h"
-#include "unistd.h"
+#include "tt/net/net_define.h"
 
 #include <iostream>
-#include <sys/fcntl.h>
+#include <vector>
 
 namespace net {
 
@@ -21,20 +19,7 @@ void UdpBcReceiver::_init() {
 }
 
 void UdpBcReceiver::set_non_block(bool on) const {
-    int flags = fcntl(_connfd, F_GETFL, 0);
-    if (flags < 0) {
-        std::cerr << "Error: fcntl failed" << std::endl;
-        abort();
-    }
-    if (on) {
-        flags |= O_NONBLOCK;
-    } else {
-        flags &= ~O_NONBLOCK;
-    }
-    if (fcntl(_connfd, F_SETFL, flags) < 0) {
-        std::cerr << "Error: fcntl failed" << std::endl;
-        abort();
-    }
+    _conn_socket.set_non_block(on);
 }
 
 int UdpBcReceiver::recv(char *data, int size, sockaddr_in &cli_addr, socklen_t &cli_addr_size) const {
@@ -43,22 +28,22 @@ int UdpBcReceiver::recv(char *data, int size, sockaddr_in &cli_addr, socklen_t &
 }
 
 int UdpBcReceiver::recv(std::string &data, int size, sockaddr_in &cli_addr, socklen_t &cli_addr_size) const {
-    char buffer[size];
-    int len = ::recvfrom(_connfd, buffer, size, 0, reinterpret_cast<struct sockaddr *>(&cli_addr), &cli_addr_size);
-    data = std::string(buffer, len);
+    std::vector<char> buf(size);
+    int len = ::recvfrom(_connfd, buf.data(), size, 0, reinterpret_cast<struct sockaddr *>(&cli_addr), &cli_addr_size);
+    data = std::string(buf.data(), len);
     return len;
 }
 
 std::pair<std::string, int> UdpBcReceiver::recv(int size) const {
-    char buf[size];
-    int len = ::recvfrom(_connfd, buf, size, 0, nullptr, nullptr);
-    return {std::string(buf, len < 0 ? 0 : len), len};
+    std::vector<char> buf(size);
+    int len = ::recvfrom(_connfd, buf.data(), size, 0, nullptr, nullptr);
+    return {std::string(buf.data(), len < 0 ? 0 : len), len};
 }
 
 std::pair<std::string, int> UdpBcReceiver::recv(int size, sockaddr_in &cli_addr, socklen_t &cli_addr_size) const {
-    char buf[size];
-    int len = ::recvfrom(_connfd, buf, size, 0, reinterpret_cast<struct sockaddr *>(&cli_addr), &cli_addr_size);
-    return {std::string(buf, len), len};
+    std::vector<char> buf(size);
+    int len = ::recvfrom(_connfd, buf.data(), size, 0, reinterpret_cast<struct sockaddr *>(&cli_addr), &cli_addr_size);
+    return {std::string(buf.data(), len), len};
 }
 
 } // namespace net

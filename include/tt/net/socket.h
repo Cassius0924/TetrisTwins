@@ -2,34 +2,35 @@
 #define SOCKET_H
 
 #include <memory>
-#include <netinet/in.h>
-#include <sys/socket.h>
 
+#include "tt/net/net_define.h"
 #include "tt/util/noncopyable.h"
 
 namespace net {
 
+#if __PLATFORM_LINUX || __PLATFORM_MAC
 typedef int socket;
+#elif __PLATFORM_WIN
+typedef SOCKET socket;
+#endif
 
 /**
  * 地址族，IPv4：AF_INET，IPv6：AF_INET6
  */
-enum class AddrFamily {
-    IPV4 = AF_INET,
+enum class AddrFamily : std::uint8_t {
+    IPV4 = AF_INET, 
     IPV6 = AF_INET6
 };
-
 constexpr AddrFamily V4 = AddrFamily::IPV4;
 constexpr AddrFamily V6 = AddrFamily::IPV6;
 
 /**
  * 套接字类型，TCP：SOCK_STREAM，UDP：SOCK_DGRAM
  */
-enum class SocketType {
+enum class SocketType : std::uint8_t {
     TCP = SOCK_STREAM,
     UDP = SOCK_DGRAM
 };
-
 constexpr SocketType UDP = SocketType::UDP;
 constexpr SocketType TCP = SocketType::TCP;
 
@@ -46,7 +47,7 @@ public:
      */
     Socket(AddrFamily family, SocketType type);
 
-    ~Socket();
+    ~Socket() override;
 
     /**
      * 关闭套接字

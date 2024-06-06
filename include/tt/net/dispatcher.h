@@ -1,5 +1,5 @@
-#ifndef DISPATCHER_H
-#define DISPATCHER_H
+#ifndef NET_DISPATCHER_H
+#define NET_DISPATCHER_H
 
 #include <any>
 #include <functional>
@@ -44,4 +44,4 @@ public:
 
 } // namespace net
 
-#endif // DISPATCHER_H
+#endif // NET_DISPATCHER_H

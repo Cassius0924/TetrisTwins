@@ -24,6 +24,8 @@ foreach(FIL ${PROTO_FILE})
     list(APPEND PROTO_SRC "${PROTO_GENERATED_DIR}/${FIL_WE}.pb.cc")
     list(APPEND PROTO_HDR "${PROTO_GENERATED_DIR}/${FIL_WE}.pb.h")
 endforeach()
+#打印Protobuf_PROTOC_EXECUTABLE
+#message(STATUS "Protobuf_PROTOC_EXECUTABLE: ${Protobuf_PROTOC_EXECUTABLE}")
 
 target_sources(PROTO PRIVATE ${PROTO_SRC} ${PROTO_HDR})
 
